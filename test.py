@@ -34,8 +34,6 @@ def get_intersect(segment, layer):
         dy = segment[1][1] - segment[0][1]
         dz = segment[1][2] - segment[0][2]
         p = abs((layer - min(segment[0][2], segment[1][2]))/dz)
-        if dx == 15.:
-            print segment[0][0] + dx*p
 
         # Account for segments that point "down" or "up" in Z
         if dz > 0:
@@ -88,20 +86,32 @@ def brute_order_segments(segments):
 
     TODO: is this even necessary for a bitmap-based output?
     """
-    D = deque()
-    ordered_segments = []
-    for s1 in segments:
-        # segments.remove(s1)
-        # D.append(s1)
-        for s2 in segments:
-            print s1[0]
-            print s2[1]
-        # for s2 in segments:
-        #     # If the first point of 
-        #     if s2[0] == s1[0]:
-        #         raise Exception('Two segments have the same start point')
-        #     if s2[1] == s1[0]:
-        #         print "hello!"
+    D = deque([segments.pop()])
+    # ipdb.set_trace()
+    while segments:
+        # Create beginning and end of chain
+        start = D[0][0]
+        end = D[-1][1]
+        for seg in segments:
+            seg_start = seg[0]
+            seg_end = seg[1]
+            # if the first point of the first segment is equal to the second
+            # point of the second segment, then add the second segment to the
+            # top of the deque
+            if np.isclose(start, seg_start).all():
+                segments.remove(seg)
+                seg = [(seg_end, seg_start)]
+                D.appendleft(seg)
+            elif np.isclose(start, seg_end).all():
+                segments.remove(seg)
+                D.appendleft(seg)
+            elif np.isclose(end, seg_end).all():
+                segments.remove(seg)
+                seg = [(seg_end, seg_start)]
+                D.append(seg)
+            elif np.isclose(end, seg_start).all():
+                segments.remove(seg)
+                D.append(seg)
     return D
 
 # For each slice, loop through all triangles and determine if they intersect
@@ -143,5 +153,7 @@ for layer in slices:
             segments.append(intersects)
 
 # print("Unordered segments: ", segments)
-# print("Ordered segments: ", brute_order_segments(segments))
-plot_individual_segments(np.array(segments))
+for s in segments:
+    print s
+print("Ordered segments: ", brute_order_segments(segments))
+# plot_individual_segments(np.array(segments))

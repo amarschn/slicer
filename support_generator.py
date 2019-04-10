@@ -13,13 +13,17 @@ import numpy as np
 from scipy.spatial import ConvexHull
 import pyclipper
 import matplotlib.pyplot as plt
+import stl
 
-import ipdb
 from OCC.gp import gp_Pnt, gp_Vec
 from OCC.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace
 from OCC.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.BRepPrimAPI import BRepPrimAPI_MakePrism
 from OCC.Display.SimpleGui import init_display
+
+import slicer
+
+import ipdb
 
 
 LAYERS = np.array([[(15.0, 20.0, 15.0), (9.0, 12.0, 15.0)],
@@ -30,7 +34,7 @@ LAYERS = np.array([[(15.0, 20.0, 15.0), (9.0, 12.0, 15.0)],
                   [(15.0, 8.0, 15.0), (15.0, 20.0, 15.0)]])
 
 
-def generate_support(mesh):
+def generate_support(mesh, resolution):
     """
     Slice the model by some Z-resolution
     For each sliced layer:
@@ -40,10 +44,13 @@ def generate_support(mesh):
         Extrude the created outline by the Z-resolution height
     Combine all extruded offset layers into one support structure
     """
+    sliced_layers = slicer.layers(mesh, resolution)
+    layer = np.array(sliced_layers[0])
+    generate_support_layer(layer, extrude = resolution)
     return 0
 
 
-def generate_support_layer(layer, inner_offset=2, outer_offset=6, plot=False, extrude=0.5):
+def generate_support_layer(layer, inner_offset=2, outer_offset=6, plot=True, extrude=0.5):
     """
     Create a convex hull of the layer points
         Create 2 offsets of the convex hull based on
@@ -54,7 +61,6 @@ def generate_support_layer(layer, inner_offset=2, outer_offset=6, plot=False, ex
     if layer.shape != (layer.shape[0], 2, 3):
         print layer.shape
         raise Exception('Layer is not formatted correctly')
-    # ipdb.set_trace()
     xy_points = np.array([layer[:, :, 0].flatten(), layer[:, :, 1].flatten()]).T
     hull = ConvexHull(xy_points)
     hull_points = tuple(map(tuple, hull.points))
@@ -73,13 +79,19 @@ def generate_support_layer(layer, inner_offset=2, outer_offset=6, plot=False, ex
 
     inner_edges = []
     outer_edges = []
+
+    inner_wire = BRepBuilderAPI_MakeWire()
+    outer_wire = BRepBuilderAPI_MakeWire()
+
     for i, p in enumerate(offset1[:-1]):
         next_p = offset1[i+1]
         p1 = gp_Pnt(p[0], p[1], 0.)
         p2 = gp_Pnt(next_p[0], next_p[1], 0.)
         # edges.append(BRepBuilderAPI_MakeEdge(p1, p2))
         try:
-            inner_edges.append(BRepBuilderAPI_MakeEdge(p1, p2).Edge())
+            edge = BRepBuilderAPI_MakeEdge(p1, p2).Edge()
+            BRepBuilderAPI_MakeWire.Add(inner_wire, edge)
+            # inner_edges.append(BRepBuilderAPI_MakeEdge(p1, p2).Edge())
         except:
             Exception("Edge between {} and {} could not be constructed".format(p, next_p))
 
@@ -89,29 +101,32 @@ def generate_support_layer(layer, inner_offset=2, outer_offset=6, plot=False, ex
         p2 = gp_Pnt(next_p[0], next_p[1], 0.)
         # edges.append(BRepBuilderAPI_MakeEdge(p1, p2))
         try:
-            outer_edges.append(BRepBuilderAPI_MakeEdge(p1, p2).Edge())
+            edge = BRepBuilderAPI_MakeEdge(p1, p2).Edge()
+            BRepBuilderAPI_MakeWire.Add(outer_wire, edge)
+            # outer_edges.append(BRepBuilderAPI_MakeEdge(p1, p2).Edge())
         except:
             Exception("Edge between {} and {} could not be constructed".format(p, next_p))    
 
-    if inner_edges and outer_edges:
-        v = gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,0,extrude))
+    # if inner_edges and outer_edges:
+    # ipdb.set_trace()
+    v = gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,0,extrude))
 
-        w1 = BRepBuilderAPI_MakeWire(*inner_edges)
-        f1 = BRepBuilderAPI_MakeFace(w1.Wire())
-        p1 = BRepPrimAPI_MakePrism(f1.Face(), v).Shape()
+    # w1 = BRepBuilderAPI_MakeWire(*inner_edges)
+    f1 = BRepBuilderAPI_MakeFace(inner_wire.Wire())
+    p1 = BRepPrimAPI_MakePrism(f1.Face(), v).Shape()
 
-        w2 = BRepBuilderAPI_MakeWire(*outer_edges)
-        f2 = BRepBuilderAPI_MakeFace(w2.Wire())
-        p2 = BRepPrimAPI_MakePrism(f2.Face(), v).Shape()
+    # w2 = BRepBuilderAPI_MakeWire(*outer_edges)
+    f2 = BRepBuilderAPI_MakeFace(outer_wire.Wire())
+    p2 = BRepPrimAPI_MakePrism(f2.Face(), v).Shape()
 
-        support_layer = BRepAlgoAPI_Cut(p2, p1).Shape()
+    support_layer = BRepAlgoAPI_Cut(p2, p1).Shape()
 
-        display, start_display, add_menu, add_function_to_menu = init_display()
-        display.DisplayShape(support_layer, update=False)
-        start_display()
-        return p
-    else:
-        return 0
+    display, start_display, add_menu, add_function_to_menu = init_display()
+    display.DisplayShape(support_layer, update=False)
+    start_display()
+    return p
+    # else:
+    #     return 0
 
 
 def offset_points(points, offset, miter_type="MITER", miter_limit=5):
@@ -145,9 +160,10 @@ def offset_points(points, offset, miter_type="MITER", miter_limit=5):
 
 
 def main():
-    # generate_support()
-
-    generate_support_layer(LAYERS, 1, 2)
+    f = '../OpenGL-STL-slicer/nist.stl'
+    # f = '../OpenGL-STL-slicer/prism.stl'
+    mesh = stl.Mesh.from_file(f)
+    generate_support(mesh, 5.)
 
 
 if __name__ == '__main__':

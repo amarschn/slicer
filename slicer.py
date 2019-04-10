@@ -8,14 +8,6 @@ import pprint
 from collections import deque
 
 
-# f = '../OpenGL-STL-slicer/nist.stl'
-f = '../OpenGL-STL-slicer/prism.stl'
-mesh = stl.Mesh.from_file(f)
-resolution = 15.0
-height = mesh.z.max() - mesh.z.min()
-slices = np.array([z for z in range(int(height/resolution) + 1)])*resolution
-
-
 def get_intersect(segment, layer):
     """
     Returns tuple intersect point of a line segment and a given layer height
@@ -114,10 +106,21 @@ def brute_order_segments(segments):
                 D.append(seg)
     return D
 
-# For each slice, loop through all triangles and determine if they intersect
-# with that slice
-segments = []
-for layer in slices:
+
+def layers(mesh, resolution):
+    height = mesh.z.max() - mesh.z.min()
+    slices = np.array([z for z in range(int(height/resolution) + 1)])*resolution
+    layers = []
+    for layer in slices:
+        segments = get_layer_segments(mesh, layer)
+        if segments:
+            layers.append(segments)
+    return layers
+
+def get_layer_segments(mesh, layer):
+    # For each slice, loop through all triangles and determine if they intersect
+    # with that slice
+    segments = []
     for triangle in mesh:
         p1 = triangle[0:3]
         p2 = triangle[3:6]
@@ -151,9 +154,24 @@ for layer in slices:
                 intersects.append(intersect)
         if len(intersects) == 2:
             segments.append(intersects)
+    return segments
 
-# print("Unordered segments: ", segments)
-for s in segments:
-    print s
-print("Ordered segments: ", brute_order_segments(segments))
-# plot_individual_segments(np.array(segments))
+
+def main():
+    f = '../OpenGL-STL-slicer/nist.stl'
+    # f = '../OpenGL-STL-slicer/prism.stl'
+    mesh = stl.Mesh.from_file(f)
+    resolution = 10.
+    sliced_layers = layers(mesh, resolution)
+    print len(sliced_layers)
+    # print("Unordered segments: ", segments)
+    # for s in segments:
+    #     print s
+    # print("Ordered segments: ", brute_order_segments(segments))
+    # plot_individual_segments(np.array(segments))
+
+
+if __name__ == '__main__':
+    import cProfile
+    cProfile.runctx('main()', globals(), locals(), filename=None)
+    # main()

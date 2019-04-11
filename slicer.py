@@ -161,9 +161,11 @@ def main():
     f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 10.
+    resolution = 10.1
     sliced_layers = layers(mesh, resolution)
-    print len(sliced_layers)
+    for layer in sliced_layers:
+        plot_individual_segments(layer)
+    # print len(sliced_layers)
     # print("Unordered segments: ", segments)
     # for s in segments:
     #     print s

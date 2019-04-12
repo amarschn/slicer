@@ -161,7 +161,7 @@ def main():
     f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 10.1
+    resolution = 2.
     sliced_layers = layers(mesh, resolution)
     for layer in sliced_layers:
         plot_individual_segments(layer)

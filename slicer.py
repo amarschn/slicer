@@ -2,7 +2,6 @@ import stl
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-import ipdb
 import math
 import pprint
 from collections import deque
@@ -50,8 +49,8 @@ def plot_all_segments(segments):
     ax = fig.add_subplot(111)
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
-    # ax.set_zlabel('Z')
     ax.plot(x, y, '.-')
+
     plt.show()
 
 
@@ -66,7 +65,13 @@ def plot_individual_segments(segments):
     for s in segments:
         x = [s[0][0], s[1][0]]
         y = [s[0][1], s[1][1]]
-        ax.plot(x, y, '.-')
+        ax.plot(x, y, '.', lineStyle='None')
+
+        x0 = s[0][0]
+        x1 = s[1][0]
+        y0 = s[0][1]
+        y1 = s[1][1]
+        ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
     plt.show()
 
 
@@ -157,11 +162,27 @@ def get_layer_segments(mesh, layer):
     return segments
 
 
+def get_segments(mesh, resolution):
+    """
+    For each triangle:
+        For each layer:
+            
+    :param mesh:
+    :param resolution:
+    :return:
+    """
+
+    for triangle in mesh:
+        p1 = triangle[0:3]
+        p2 = triangle[3:6]
+        p3 = triangle[6:]
+
+
 def main():
-    f = '../OpenGL-STL-slicer/nist.stl'
+    f = './test_stl/cylinder.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 2.
+    resolution = 15.
     sliced_layers = layers(mesh, resolution)
     for layer in sliced_layers:
         plot_individual_segments(layer)
@@ -175,5 +196,7 @@ def main():
 
 if __name__ == '__main__':
     import cProfile
-    cProfile.runctx('main()', globals(), locals(), filename=None)
-    # main()
+    # cProfile.runctx('main()', globals(), locals(), filename=None)
+    main()
+    # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
+    # plt.show()

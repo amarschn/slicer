@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import math
 import pprint
 from collections import deque
-# import ipdb
+import ipdb
 
 
 def plot_all_segments(segments):
@@ -46,6 +46,29 @@ def plot_individual_segments(segments):
     plt.show()
 
 
+def plot_polygons(polygons):
+    """
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    for poly in polygons:
+        for seg in poly:
+            # ipdb.set_trace()
+            x = [seg[0][0], seg[1][0]]
+            y = [seg[0][1], seg[1][1]]
+            ax.plot(x, y, '.', lineStyle='None')
+
+            x0 = seg[0][0]
+            x1 = seg[1][0]
+            y0 = seg[0][1]
+            y1 = seg[1][1]
+            ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
+    plt.show()
+
+
+
 def make_polygons(s, tol = .005):
     """
     Takes in all the segments of a layer, and orders them such that every
@@ -76,24 +99,23 @@ def make_polygons(s, tol = .005):
             # if the first point of the first segment is equal to the second
             # point of the second segment, then add the second segment to the
             # top of the deque
-            # if np.isclose(start, seg_end, tol).all():
-            #     segments.remove(seg)
-            #     D.appendleft(seg)
-            #     start = seg_start
-            if np.isclose(end, seg_start, tol).all():
+            if np.isclose(start, seg_end, atol = tol).all():
+                segments.remove(seg)
+                D.appendleft(seg)
+                start = seg_start
+            elif np.isclose(end, seg_start, atol = tol).all():
                 segments.remove(seg)
                 D.append(seg)
                 end = seg_end
-        if len(D) > 1 and np.isclose(start, end, tol).all():
+        if len(D) > 1 and np.isclose(start, end, atol = tol).all():
             print("Ordered segment count: ", len(D))
             polygons.append(D)
-            return D
             if segments:
                 D = deque([segments.pop()])
     return polygons
 
 
-def get_segments(mesh, resolution):
+def get_unordered_slices(mesh, resolution):
     """
     For each triangle:
         Get points
@@ -194,25 +216,23 @@ def interpolate(y, y0, y1, x0, x1):
 
 def main():
     # f = './test_stl/q01.stl'
-    f = './test_stl/cylinder.stl'
+    # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    # f = './test_stl/nist.stl'
+    f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 10.
-    segments = get_segments(mesh, resolution)
+    resolution = 0.05
+    slices = get_unordered_slices(mesh, resolution)
     # ipdb.set_trace()
     # print segments
     # print segments.shape
     # ipdb.set_trace()
     # print segments[10]
-    ordered = make_polygons(segments[10])
+    polygons = make_polygons(slices[10])
     # print(ordered)
     # plot_individual_segments(segments[10])
-    # print(len(segments[10]))
-    # print(len(ordered))
-    plot_individual_segments(ordered)
+    plot_polygons(polygons)
 
 
 

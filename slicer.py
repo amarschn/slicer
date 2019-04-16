@@ -57,31 +57,37 @@ def make_polygons(s, tol = .005):
     TODO: is this even necessary for a bitmap-based output? Answer - Pretty much yes.
     TODO: implement Bentley Ottmann algorithm to take this from O(n2) to O(n log n)
     """
-    segments = s.copy()
-    print(len(segments))
+    unaltered_segs = set(map(tuple, s))
+    segments = unaltered_segs.copy()
+    print("Segment count: ", len(segments))
     polygons = []
     D = deque([segments.pop()])
     while segments:
         # Create beginning and end of chain
         start = D[0][0]
         end = D[-1][1]
-        print(D, len(D))
-        for seg in segments:
+        # print(D, len(D))
+        for seg in unaltered_segs:
+            if seg not in segments:
+                continue
+
             seg_start = seg[0]
             seg_end = seg[1]
             # if the first point of the first segment is equal to the second
             # point of the second segment, then add the second segment to the
             # top of the deque
-            if np.isclose(start, seg_end, tol).all():
-                segments.remove(seg)
-                D.appendleft(seg)
-                start = seg_start
-            elif np.isclose(end, seg_start, tol).all():
+            # if np.isclose(start, seg_end, tol).all():
+            #     segments.remove(seg)
+            #     D.appendleft(seg)
+            #     start = seg_start
+            if np.isclose(end, seg_start, tol).all():
                 segments.remove(seg)
                 D.append(seg)
                 end = seg_end
         if len(D) > 1 and np.isclose(start, end, tol).all():
+            print("Ordered segment count: ", len(D))
             polygons.append(D)
+            return D
             if segments:
                 D = deque([segments.pop()])
     return polygons
@@ -204,7 +210,9 @@ def main():
     ordered = make_polygons(segments[10])
     # print(ordered)
     # plot_individual_segments(segments[10])
-    plot_individual_segments(ordered[1])
+    # print(len(segments[10]))
+    # print(len(ordered))
+    plot_individual_segments(ordered)
 
 
 

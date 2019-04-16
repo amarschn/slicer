@@ -5,6 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import math
 import pprint
 from collections import deque
+import ipdb
 
 
 def get_intersect(segment, layer):
@@ -165,27 +166,104 @@ def get_layer_segments(mesh, layer):
 def get_segments(mesh, resolution):
     """
     For each triangle:
+        Get points
         For each layer:
+            Check if layer intersects triangle
             
     :param mesh:
     :param resolution:
     :return:
     """
+    height = mesh.z.max() - mesh.z.min()
+    layers = np.array([z for z in range(int(height/resolution) + 1)])*resolution
+
+    slices = {}
+    for layer in layers:
+        slices[layer] = []
+
 
     for triangle in mesh:
-        p1 = triangle[0:3]
-        p2 = triangle[3:6]
-        p3 = triangle[6:]
+        p0 = triangle[0:3]
+        p1 = triangle[3:6]
+        p2 = triangle[6:9]
+
+        (z0, z1, z2) = p0[2], p1[2], p2[2]
+        
+        for z in layers:
+            
+            if z < min(z0,z1,z2):
+                continue
+            elif z > max(z0,z1,z2):
+                continue
+            elif z0 < z and z1 >= z and z2 >= z:
+                # What condition is this?
+                segment = calculate_segment(p0, p2, p1, z)
+                slices[z].append(segment)
+            elif z0 > z and z1 < z and z2 < z:
+                # What condition is this?
+                segment = calculate_segment(p0, p1, p2, z)
+                slices[z].append(segment)
+            elif z0 >= z and z1 < z and z2 >= z:
+                # What condition is this?
+                segment = calculate_segment(p1, p0, p2, z)
+                slices[z].append(segment)
+            elif z0 < z and z1 > z and z2 < z:
+                # What condition is this?
+                segment = calculate_segment(p1, p2, p0, z)
+                slices[z].append(segment)
+            elif z0 >= z and z1 >= z and z2 < z:
+                # What condition is this?
+                segment = calculate_segment(p2, p1, p0, z)
+                slices[z].append(segment)
+            elif z0 < z and z1 < z and z2 > z:
+                # What condition is this?
+                segment = calculate_segment(p2, p0, p1, z)
+                slices[z].append(segment)
+            else:
+                # Not all cases create a segment
+                continue
+    return slices
+
+
+def calculate_segment(p0, p1, p2, z):
+    """
+    """
+    # ipdb.set_trace()
+    x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
+    x_end = interpolate(z, p0[2], p1[2], p0[0], p2[0])
+    y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
+    y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
+    return [(x_start, y_start, z), (x_end, y_end, z)]
+
+
+def interpolate(y, y0, y1, x0, x1):
+    """
+    """
+    dx = x1 - x0
+    dy = y1 - y0
+
+    p = y/dy
+
+    if p < 0:
+        x = dx * (-p) + x0
+    else:
+        x = dx * p + x0
+    return x
 
 
 def main():
-    f = './test_stl/cylinder.stl'
-    # f = '../OpenGL-STL-slicer/prism.stl'
+    # f = './test_stl/cylinder.stl'
+    f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
     resolution = 15.
-    sliced_layers = layers(mesh, resolution)
-    for layer in sliced_layers:
-        plot_individual_segments(layer)
+    segments = get_segments(mesh, resolution)
+    print segments
+    # print segments.shape
+    # ipdb.set_trace()
+    plot_individual_segments(segments[15])
+    # sliced_layers = layers(mesh, resolution)
+    # for layer in sliced_layers:
+    #     plot_individual_segments(layer)
     # print len(sliced_layers)
     # print("Unordered segments: ", segments)
     # for s in segments:

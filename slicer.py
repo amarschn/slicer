@@ -157,14 +157,37 @@ def get_layer_segments(mesh, layer):
     return segments
 
 
+def save_mesh_points(mesh, resolution, fname):
+    """
+    Saves all points of a sliced mesh flattened to one layer
+    """
+    sliced_layers = np.array(layers(mesh, resolution))
+    x = np.array([])
+    y = np.array([])
+    for layer in sliced_layers:
+        layer = np.array(layer)
+        x = np.append(x, layer[:, :, 0].flatten())
+        y = np.append(y, layer[:, :, 1].flatten())
+    xy_points = np.array([x, y]).T
+    np.savetxt(fname, xy_points)
+
+
+
 def main():
-    f = '../OpenGL-STL-slicer/nist.stl'
+    # f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
+    f = 'bracket1.stl'
     mesh = stl.Mesh.from_file(f)
     resolution = 2.
-    sliced_layers = layers(mesh, resolution)
-    for layer in sliced_layers:
-        plot_individual_segments(layer)
+
+    save_mesh_points(mesh, resolution, 'bracket1.csv')
+
+
+    # sliced_layers = layers(mesh, resolution)
+    # for layer in sliced_layers:
+    #     plot_individual_segments(layer)
+    
+
     # print len(sliced_layers)
     # print("Unordered segments: ", segments)
     # for s in segments:

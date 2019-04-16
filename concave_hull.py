@@ -1,3 +1,19 @@
+"""
+Drew Marschner
+
+TODO:
+
+1. Smart subsampling of layer points - get an accurate approximation of the
+   part.
+2. Create a test suite - test multiple different STL types
+	- Single simple part
+	- Complex simple part
+	- Simple multiple parts
+	- Complex multiple parts
+3. Fix invalid hull issue
+"""
+
+
 from scipy.spatial import cKDTree
 import shapely.geometry
 import numpy as np
@@ -40,7 +56,7 @@ def concave_hull(points, k):
 		if step == 5:
 			points.add(first)
 		# ipdb.set_trace()
-		nearest_pts = knn(tree, k, current, previous)
+		nearest_pts = knn(tree, k + 1, current, previous)
 		candidates = rank_points(nearest_pts, current, previous)
 		# ipdb.set_trace()
 		i = 0
@@ -126,10 +142,16 @@ if __name__ == '__main__':
 	# print rank_points(pts, current, previous)
 	import matplotlib.pyplot as plt
 	POINTS = np.loadtxt('h_pts.csv')
+
+	# Thin the points
+	# POINTS = POINTS[::500]
+
+	# POINTS = np.loadtxt('bracket1.csv')
+	# POINTS = np.loadtxt('h_pts.csv')
 	# POINTS = np.loadtxt('test_pts.csv')
 	# hull, _ = concave_hull(POINTS, alpha=0.06)
 	print(len(POINTS))
-	hull = concave_hull(POINTS, k=5)
+	hull = concave_hull(POINTS, k=10)
 	# points = []
 	# try:
 	# 	for poly in hull:
@@ -141,7 +163,7 @@ if __name__ == '__main__':
 	# for poly in 
 
 	# edge_points = concave_hull(POINTS, alpha=0.5)
-	# plt.plot(*zip(*POINTS), color='r', marker='x', linestyle='None')
+	plt.plot(*zip(*POINTS), color='r', marker='x', linestyle='None')
 	plt.plot(*zip(*hull), marker='o', linestyle='None')
 	plt.show()
 

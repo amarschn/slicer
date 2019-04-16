@@ -6,7 +6,19 @@ Support generation for CBAM process
 
 Step by step for support generation:
 
+TODO:
+1. Make test suite of many different part types
+- Single parts
+- Multi parts
+- Parts where offset may break
 
+2. Dynamic resolution of the tightness of the concavity
+
+3. Dynamic resolution of part slicing
+
+4. Create a progress bar with running description of different portion of the process running
+
+5. Check sliced outline bounding box against general mesh bounding box -> should be pretty similar
 """
 
 import numpy as np
@@ -25,6 +37,7 @@ from OCC.Display.SimpleGui import init_display
 from ShapeExchange import write_stl_file
 
 import slicer
+from concave_hull import concave_hull
 
 import ipdb
 
@@ -35,6 +48,9 @@ DEFAULT_SETTINGS = {
     "outer_offset": 10,
     "separator_spacing": 50
 }
+
+
+
 
 
 def grid_points(point_list, spacing=50):
@@ -69,7 +85,19 @@ def spaced_points(point_list, spacing):
     pass
 
 
-def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, plot=True):
+
+def mesh2d(mesh):
+    """
+    Returns all of the points of the mesh projected into a 2D space
+    """
+    xyz = mesh.points.reshape((mesh.points.shape[0]*3, 3))
+    x = xyz[:,0]
+    y = xyz[:,1]
+    return np.array([x,y]).T
+
+
+
+def generate_support(mesh, resolution, support_type='concave', inner_offset=5, outer_offset=10, plot=True):
     """
     Get all slice layers at some resolution
     Create 2D convex hull from set of all slice layers stacked on top of each other
@@ -77,7 +105,7 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
     Extrude outset and boolean region for part
     Export part
     """
-    height = float(mesh.z.max())
+    height = float(mesh.z.max()) - float(mesh.z.min())
     sliced_layers = np.array(slicer.layers(mesh, resolution))
     x = np.array([])
     y = np.array([])
@@ -86,12 +114,15 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
         x = np.append(x, layer[:, :, 0].flatten())
         y = np.append(y, layer[:, :, 1].flatten())
     xy_points = np.array([x, y]).T
-    np.savetxt('h_pts.csv', xy_points)
     # ipdb.set_trace()
-    hull = ConvexHull(xy_points)
+    if support_type == 'convex':
+        hull = ConvexHull(xy_points)
+        hull_points = tuple(map(tuple, xy_points[hull.vertices]))
+    elif support_type == 'concave':
+        hull_points = tuple(map(tuple, concave_hull(xy_points, k=5)))
+    
     # hull_points = tuple(map(tuple, hull.points))
-    hull_points = tuple(map(tuple, xy_points[hull.vertices]))
-    # ipdb.set_trace()
+    
     # Create offsets
     offset1 = offset_points(hull_points, inner_offset)
     offset1.append(offset1[0])
@@ -99,7 +130,7 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
     offset2.append(offset2[0])
     # ipdb.set_trace()
     if plot:
-        plt.title('Convex Hull')
+        plt.title('{} Hull'.format(support_type))
         plt.plot(*zip(*hull_points), marker='o', color='b')
         # pp = xy_points[hull.vertices]
         # plt.plot(*zip(*pp), marker='o',color='r',linestyle='None')
@@ -117,11 +148,9 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
         next_p = offset1[i+1]
         p1 = gp_Pnt(p[0], p[1], 0.)
         p2 = gp_Pnt(next_p[0], next_p[1], 0.)
-        # edges.append(BRepBuilderAPI_MakeEdge(p1, p2))
         try:
             edge = BRepBuilderAPI_MakeEdge(p1, p2).Edge()
             BRepBuilderAPI_MakeWire.Add(inner_wire, edge)
-            # inner_edges.append(BRepBuilderAPI_MakeEdge(p1, p2).Edge())
         except:
             Exception("Edge between {} and {} could not be constructed".format(p, next_p))
 
@@ -153,24 +182,21 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
     return support_layer
 
 
-def generate_concave_support(mesh, resolution, k):
-    """
-    """
-    pass
+
+def save_support(support, output_directory='.'):
+    stl_file = os.path.join(output_directory, "support.stl")
+    write_stl_file(support, stl_file)
 
 
-def generate_support(mesh, resolution, output_directory='.', export_stl=True):
+def display_support(support):
     """
     Create support structure and export it if necessary
     """
-    support = generate_convex_support(mesh, resolution)
     display, start_display, add_menu, add_function_to_menu = init_display()
     display.DisplayShape(support, update=False)
     start_display()
-    if export_stl:
-        stl_file = os.path.join(output_directory, "support.stl")
-        write_stl_file(support, stl_file)
-    return support
+        
+    return 0
 
 
 def offset_points(points, offset, miter_type="SQUARE", miter_limit=5):
@@ -204,11 +230,19 @@ def offset_points(points, offset, miter_type="SQUARE", miter_limit=5):
 
 
 def main():
+    # f = './P0411_12x8.stl'
+    # f = './bracket1.stl'
     f = '../test_stl/simple_H.stl'
     # f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
-    generate_support(mesh,0.5)
+    s = generate_support(mesh, 3.0)
+    display_support(s)
+    save_support(s)
+    # points = mesh2d(mesh)
+    # plt.plot(*zip(*points))
+    # plt.show()
+
 
 
 if __name__ == '__main__':

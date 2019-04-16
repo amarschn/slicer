@@ -188,9 +188,12 @@ def get_segments(mesh, resolution):
         p2 = triangle[6:9]
 
         (z0, z1, z2) = p0[2], p1[2], p2[2]
-        
+        # (y0, y1, y2) = round(p0[1]), round(p1[1]), round(p2[1])
+        # if y0 == y1 == y2 == 0:
+        #     print triangle
+
         for z in layers:
-            
+            segment = []
             if z < min(z0,z1,z2):
                 continue
             elif z > max(z0,z1,z2):
@@ -198,30 +201,34 @@ def get_segments(mesh, resolution):
             elif z0 < z and z1 >= z and z2 >= z:
                 # What condition is this?
                 segment = calculate_segment(p0, p2, p1, z)
-                slices[z].append(segment)
+                # slices[z].append(segment)
             elif z0 > z and z1 < z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(p0, p1, p2, z)
-                slices[z].append(segment)
+                # slices[z].append(segment)
             elif z0 >= z and z1 < z and z2 >= z:
                 # What condition is this?
                 segment = calculate_segment(p1, p0, p2, z)
-                slices[z].append(segment)
+                # slices[z].append(segment)
             elif z0 < z and z1 > z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(p1, p2, p0, z)
-                slices[z].append(segment)
+                # slices[z].append(segment)
             elif z0 >= z and z1 >= z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(p2, p1, p0, z)
-                slices[z].append(segment)
+                # slices[z].append(segment)
             elif z0 < z and z1 < z and z2 > z:
                 # What condition is this?
                 segment = calculate_segment(p2, p0, p1, z)
-                slices[z].append(segment)
+                # slices[z].append(segment)
             else:
                 # Not all cases create a segment
                 continue
+            if segment:
+                if segment[1][0] == 6:
+                    ipdb.set_trace()
+                slices[z].append(segment)
     return slices
 
 
@@ -230,9 +237,11 @@ def calculate_segment(p0, p1, p2, z):
     """
     # ipdb.set_trace()
     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
-    x_end = interpolate(z, p0[2], p1[2], p0[0], p2[0])
+    x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])
+
     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
+    
     return [(x_start, y_start, z), (x_end, y_end, z)]
 
 
@@ -254,13 +263,16 @@ def interpolate(y, y0, y1, x0, x1):
 def main():
     # f = './test_stl/cylinder.stl'
     f = '../OpenGL-STL-slicer/prism.stl'
+    # f = '../OpenGL-STL-slicer/nist.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 15.
+    resolution = 10.
     segments = get_segments(mesh, resolution)
-    print segments
+    # ipdb.set_trace()
+    # print segments
     # print segments.shape
     # ipdb.set_trace()
-    plot_individual_segments(segments[15])
+    # print segments[10]
+    plot_individual_segments(segments[10])
     # sliced_layers = layers(mesh, resolution)
     # for layer in sliced_layers:
     #     plot_individual_segments(layer)

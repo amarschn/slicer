@@ -82,7 +82,7 @@ def make_polygons(s, tol = .005):
     """
     unaltered_segs = set(map(tuple, s))
     segments = unaltered_segs.copy()
-    print("Segment count: ", len(segments))
+    # print("Segment count: ", len(segments))
     polygons = []
     D = deque([segments.pop()])
     while segments:
@@ -129,10 +129,9 @@ def get_unordered_slices(mesh, resolution):
     height = mesh.z.max() - mesh.z.min()
     layers = np.array([z for z in range(int(height/resolution) + 1)])*resolution
 
-    slices = {}
-    for layer in layers:
-        slices[layer] = []
-
+    slices = []
+    for layer in enumerate(layers):
+        slices.append([])
 
     for triangle in mesh:
         p0 = triangle[0:3]
@@ -144,7 +143,7 @@ def get_unordered_slices(mesh, resolution):
         # if y0 == y1 == y2 == 0:
         #     print triangle
 
-        for z in layers:
+        for layer_num, z in enumerate(layers):
             segment = []
             if z < min(z0,z1,z2):
                 continue
@@ -180,7 +179,7 @@ def get_unordered_slices(mesh, resolution):
             if segment:
                 # if segment[1][0] == 6:
                     # ipdb.set_trace()
-                slices[z].append(segment)
+                slices[layer_num].append(segment)
     return slices
 
 
@@ -215,10 +214,10 @@ def interpolate(y, y0, y1, x0, x1):
 
 
 def main():
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    f = './test_stl/nist.stl'
+    # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     mesh = stl.Mesh.from_file(f)
@@ -231,12 +230,12 @@ def main():
     # print segments[10]
     polygons = make_polygons(slices[1])
     # print(polygons)
-    # plot_individual_segments(segments[10])
+    # plot_individual_segments(slices[1])
     # plot_polygons(polygons)
 
     import pickle
 
-    with open('nist1', 'wb') as fp:
+    with open('q01', 'wb') as fp:
         pickle.dump(polygons, fp)
 
 

@@ -1,5 +1,6 @@
 import numpy as np
 from collections import deque
+import cairosvg
 
 
 def polygon_orientation(polygon):
@@ -36,7 +37,7 @@ def polygon_orientation(polygon):
                 left_neighbor = points[idx - 1]
             else:
                 left_neighbor = points[len(points)]
-            if idx < len(points):
+            if idx < len(points) - 1:
                 right_neighbor = points[idx + 1]
             else:
                 right_neighbor = points[0]
@@ -56,11 +57,13 @@ def polygon_orientation(polygon):
 def layer_svg(polygons, layer, width=304.8, height=203.2):
     """
     """
-    svg = """<svg width=\"{}\" height=\"{}\" xmlns=\"http://www.w3.org/2000/svg\" 
+    svg = """<svg width=\"{}mm\" height=\"{}mm\" units=\"mm\" xmlns=\"http://www.w3.org/2000/svg\" 
     xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" 
     viewport-fill=\"black\">\n
     <!-- Generated using Drew's Slicer -->\n
     """.format(width, height)
+
+    svg += "<rect x=\"0\" y=\"0\" style=\"stroke-width:1; stroke:rgb(0,0,0)\" width=\"304.8\" height=\"203.2\" fill=\"white\"></rect>"
     all_poly_str = deque([])
 
     for polygon in polygons:
@@ -70,7 +73,7 @@ def layer_svg(polygons, layer, width=304.8, height=203.2):
         else:
             color = "white"
 
-        poly_str = "\n<polygon style=\"fill: {}\" points=\"".format(color)
+        poly_str = "\n<polygon units=\"mm\" style=\"fill: {}\" points=\"".format(color)
 
         for segment in polygon:
             x_start, y_start = segment[0]
@@ -82,17 +85,30 @@ def layer_svg(polygons, layer, width=304.8, height=203.2):
             all_poly_str.appendleft(poly_str)
         else:
             all_poly_str.append(poly_str)
-
     svg += ''.join(all_poly_str)
+    text = "<text x=\"{}\" y=\"{}\" fill=\"black\">{}</text>".format(width/2, height, layer)
+    svg += text
     svg += "</svg>"
     return svg
 
 
+def save_png(svg_string, output_file):
+    """
+    :param svg_string:
+    :return:
+    """
+    svg = svg_string.encode('utf-8')
+    cairosvg.svg2png(svg, write_to=output_file)
+
+
 if __name__ == '__main__':
     import pickle
-    with open('nist1', 'rb') as fp:
+    with open('q01', 'rb') as fp:
         polygons = pickle.load(fp)
 
     svg = layer_svg(polygons, 1)
     with open('layer.svg', 'w') as f:
         f.write(svg)
+    output = './layer.png'
+    svg = svg.encode('utf-8')
+    cairosvg.svg2png(svg, write_to=output, dpi=600)

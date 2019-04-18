@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import math
 import pprint
 from collections import deque
-import ipdb
+# import ipdb
 
 
 def plot_all_segments(segments):

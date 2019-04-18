@@ -1,5 +1,5 @@
 import numpy as np
-# import ipdb
+from collections import deque
 
 
 def polygon_orientation(polygon):
@@ -21,7 +21,7 @@ def polygon_orientation(polygon):
     min_y = polygon[0][0][1]
     min_y_x = polygon[0][0][0]
 
-    points = np.array(polygon)[0,:,0]
+    points = np.array(polygon)[:,0,:]
     left_neighbor = points[-1]
     right_neighbor = points[1]
 
@@ -61,10 +61,11 @@ def layer_svg(polygons, layer, width=304.8, height=203.2):
     viewport-fill=\"black\">\n
     <!-- Generated using Drew's Slicer -->\n
     """.format(width, height)
+    all_poly_str = deque([])
 
     for polygon in polygons:
-
-        if polygon_orientation(polygon) == -1:
+        orientation = polygon_orientation(polygon)
+        if orientation == -1:
             color = "black"
         else:
             color = "white"
@@ -77,7 +78,12 @@ def layer_svg(polygons, layer, width=304.8, height=203.2):
             poly_str += "{},{} ".format(x_start,y_start,x_end,y_end)
         poly_str += "\"></polygon>"
 
-        svg += poly_str
+        if orientation == -1:
+            all_poly_str.appendleft(poly_str)
+        else:
+            all_poly_str.append(poly_str)
+
+    svg += ''.join(all_poly_str)
     svg += "</svg>"
     return svg
 

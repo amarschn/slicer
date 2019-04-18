@@ -194,7 +194,7 @@ def calculate_segment(p0, p1, p2, z):
     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
     
-    return [(x_start, y_start, z), (x_end, y_end, z)]
+    return [(x_start, y_start), (x_end, y_end)]
 
 
 def interpolate(y, y0, y1, x0, x1):
@@ -222,18 +222,22 @@ def main():
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 0.05
+    resolution = 1.0
     slices = get_unordered_slices(mesh, resolution)
     # ipdb.set_trace()
     # print segments
     # print segments.shape
     # ipdb.set_trace()
     # print segments[10]
-    polygons = make_polygons(slices[10])
-    # print(ordered)
+    polygons = make_polygons(slices[1])
+    # print(polygons)
     # plot_individual_segments(segments[10])
-    plot_polygons(polygons)
+    # plot_polygons(polygons)
 
+    import pickle
+
+    with open('nist1', 'wb') as fp:
+        pickle.dump(polygons, fp)
 
 
 if __name__ == '__main__':

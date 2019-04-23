@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import math
 import pprint
 from collections import deque
-# import ipdb
+import ipdb
 
 
 def plot_all_segments(segments):
@@ -68,8 +68,55 @@ def plot_polygons(polygons):
     plt.show()
 
 
+def make_polygons(segments, decimal_place=3):
+    pt_dict = {}
 
-def make_polygons(s, tol = .005):
+    for seg in np.round(segments, decimals=decimal_place):
+        p1 = tuple(seg[0])
+        p2 = tuple(seg[1])
+
+        if p1 == p2:
+            print("Identical points: {} : {}".format(p1, p2))
+            continue
+
+        if p1 in pt_dict:
+            if pt_dict[p1][1] != None:
+                print("Point already in dict: {}".format(p1))
+            else:
+                pt_dict[p1][1] = p2
+        else:
+            pt_dict[p1] = [None, p2]
+
+        if p2 in pt_dict:
+            if pt_dict[p2][0] != None:
+                print("Point already in dict: {}".format(p2))
+            pt_dict[p2][0] = p1
+        else:
+            pt_dict[p2] = [p1, None]
+
+    polygons = []
+
+    while len(pt_dict) > 0:
+        polygon = []
+        first_pt, [_, next_pt] = pt_dict.popitem()
+        polygon.append([first_pt, next_pt])
+
+        while first_pt != next_pt:
+            current_pt = next_pt
+            try:
+                _, next_pt = pt_dict.pop(current_pt)
+            except:
+                print("Failed to pop {}".format(current_pt))
+                plot_polygons(polygons)
+            polygon.append([current_pt, next_pt])
+        polygons.append(polygon)
+
+    return polygons
+
+
+
+
+def naive_make_polygons(s, tol = .005):
     """
     Takes in all the segments of a layer, and orders them such that every
     segment is connected at both ends to another segment, and no segment
@@ -214,29 +261,32 @@ def interpolate(y, y0, y1, x0, x1):
 
 
 def main():
-    f = './test_stl/q01.stl'
+    # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    # f = './test_stl/nist.stl'
+    f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     mesh = stl.Mesh.from_file(f)
     resolution = 1.0
     slices = get_unordered_slices(mesh, resolution)
+    # for i, s in enumerate(slices):
+    #     print(i)
+    #     polygons = make_polygons(s)
     # ipdb.set_trace()
     # print segments
     # print segments.shape
     # ipdb.set_trace()
     # print segments[10]
-    polygons = make_polygons(slices[1])
+    # polygons = make_polygons(slices[2])
     # print(polygons)
-    # plot_individual_segments(slices[1])
+    plot_individual_segments(slices[7])
     # plot_polygons(polygons)
 
-    import pickle
+    # import pickle
 
-    with open('q01', 'wb') as fp:
-        pickle.dump(polygons, fp)
+    # with open('q01', 'wb') as fp:
+    #     pickle.dump(polygons, fp)
 
 
 if __name__ == '__main__':

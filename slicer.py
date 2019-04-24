@@ -71,28 +71,42 @@ def plot_polygons(polygons):
 def make_polygons(segments, decimal_place=3):
     pt_dict = {}
 
+
     for seg in np.round(segments, decimals=decimal_place):
         p1 = tuple(seg[0])
         p2 = tuple(seg[1])
 
         if p1 == p2:
-            print("Identical points: {} : {}".format(p1, p2))
+            print("Segment is a point: {} : {}".format(p1, p2))
             continue
 
         if p1 in pt_dict:
             if pt_dict[p1][1] != None:
-                print("Point already in dict: {}".format(p1))
-            else:
-                pt_dict[p1][1] = p2
+                print("P1 point already in dict: {}".format(p1))
+                print(p1, p2)
+                if pt_dict[p1][0] ==  pt_dict[p1][1]:
+                    print("Loop detected at point: {}".format(p1))
+                # continue
+                continue
+
+            
+            
+            pt_dict[p1][1] = p2
         else:
             pt_dict[p1] = [None, p2]
 
         if p2 in pt_dict:
             if pt_dict[p2][0] != None:
-                print("Point already in dict: {}".format(p2))
+                print("P2 point already in dict: {}".format(p2))
+                print(p1, p2)
+                if pt_dict[p2][0] == pt_dict[p2][1]:
+                    print("Loop detected at point: {}".format(p2))
+                continue
+
             pt_dict[p2][0] = p1
         else:
             pt_dict[p2] = [p1, None]
+
 
     polygons = []
 
@@ -261,10 +275,11 @@ def interpolate(y, y0, y1, x0, x1):
 
 
 def main():
+    f = './test_stl/logo.stl'
     # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    f = './test_stl/nist.stl'
+    # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     mesh = stl.Mesh.from_file(f)
@@ -280,7 +295,7 @@ def main():
     # print segments[10]
     # polygons = make_polygons(slices[2])
     # print(polygons)
-    plot_individual_segments(slices[7])
+    plot_individual_segments(slices[2])
     # plot_polygons(polygons)
 
     # import pickle

@@ -5,8 +5,8 @@ from mpl_toolkits.mplot3d import Axes3D
 import math
 import pprint
 from collections import deque
-import ipdb
-
+# import ipdb
+import networkx as nx
 
 def plot_all_segments(segments):
     """
@@ -68,6 +68,36 @@ def plot_polygons(polygons):
     plt.show()
 
 
+def layer_graph(segments, decimal_place=3):
+    """
+    Make a digraph from all segments
+    Remove bridges from digraph
+    Return cycles of de-bridgified digraph
+
+    :param segments:
+    :param decimal_place:
+    :return:
+    """
+    D = nx.DiGraph()
+    for seg in np.round(segments, decimals=decimal_place):
+        p1 = tuple(seg[0])
+        p2 = tuple(seg[1])
+
+        if p1 == p2:
+            pass
+        else:
+            D.add_edge(p1, p2)
+
+    H = nx.Graph(D)
+    B = nx.bridges(H)
+
+    for b in B:
+        D.remove_edge(b[0], b[1])
+
+    C = nx.simple_cycles(D)
+
+    return C
+
 def make_polygons(segments, decimal_place=3):
     pt_dict = {}
 
@@ -106,8 +136,6 @@ def make_polygons(segments, decimal_place=3):
             pt_dict[p2] = [p1, None]
 
 
-    print pt_dict
-
     # What to do about these things:
     # Open segments
     # Looped segments
@@ -122,7 +150,6 @@ def make_polygons(segments, decimal_place=3):
         remove_branches(new_dict, pt)
 
     pt_dict = new_dict
-    print new_dict
     polygons = []
     while len(pt_dict) > 0:
         polygon = []
@@ -142,7 +169,6 @@ def make_polygons(segments, decimal_place=3):
         polygons.append(polygon)
 
     return polygons
-
 
 def remove_branches(pt_dict, pt):
 
@@ -354,25 +380,51 @@ def segment_test():
     s6 = [p5, p3]
     s7 = [p5, p6]
     s8 = [p6, p5]
-    segments = [s1, s2, s3, s4, s5, s6, s7]
-    return make_polygons(segments)
+    segments = [s1, s2, s3, s4, s5, s6, s7, s8]
+    return segments
+
+def plot_polygon_points(polygons):
+    """
+    Expects a generator of [(x1,y1), (x2,y2), ... ] arrays and will plot those array as a digraph of points to points
+    :param polygon_points:
+    :return:
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    for polygon_pts in polygons:
+        for i, point in enumerate(polygon_pts):
+            x0 = point[0]
+            y0 = point[1]
+            if i == len(polygon_pts) - 1:
+                next_idx = 0
+            else:
+                next_idx = i+1
+
+            x1 = polygon_pts[next_idx][0]
+            y1 = polygon_pts[next_idx][1]
+
+            ax.plot(x0, y0, '.', lineStyle='None')
+            ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
+    plt.show()
 
 
 def main():
     # f = './test_stl/logo.stl'
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
-    # mesh = stl.Mesh.from_file(f)
-    # resolution = 1.0
-    # slices = get_unordered_slices(mesh, resolution)
-    # for i, s in enumerate(slices):
-    #     print(i)
-    #     polygons = make_polygons(s)
-        # plot_polygons(polygons)
+    mesh = stl.Mesh.from_file(f)
+    resolution = 0.05
+    slices = get_unordered_slices(mesh, resolution)
+    for i, s in enumerate(slices):
+        print(i)
+        polygons = layer_graph(s)
+        # plot_polygon_points(polygons)
     # ipdb.set_trace()
     # print segments
     # print segments.shape
@@ -388,8 +440,10 @@ def main():
     # with open('q01', 'wb') as fp:
     #     pickle.dump(polygons, fp)
 
-    polygons = segment_test()
-    plot_polygons(polygons)
+    # segments = segment_test()
+    # polygons = layer_graph(segments)
+    # plot_polygon_points(polygons)
+
 
 if __name__ == '__main__':
     import cProfile

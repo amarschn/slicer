@@ -42,7 +42,7 @@ def plot_individual_segments(segments):
         x1 = s[1][0]
         y0 = s[0][1]
         y1 = s[1][1]
-        ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
+        ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.5, length_includes_head=True)
     plt.show()
 
 
@@ -84,14 +84,11 @@ def make_polygons(segments, decimal_place=3):
             if pt_dict[p1][1] != None:
                 print("P1 point already in dict: {}".format(p1))
                 print(p1, p2)
+                pt_dict[p1][1] = [pt_dict[p1][1], p2]
                 if pt_dict[p1][0] ==  pt_dict[p1][1]:
                     print("Loop detected at point: {}".format(p1))
-                # continue
-                continue
-
-            
-            
-            pt_dict[p1][1] = p2
+            else:
+                pt_dict[p1][1] = p2
         else:
             pt_dict[p1] = [None, p2]
 
@@ -99,15 +96,32 @@ def make_polygons(segments, decimal_place=3):
             if pt_dict[p2][0] != None:
                 print("P2 point already in dict: {}".format(p2))
                 print(p1, p2)
+                pt_dict[p2][0] = [pt_dict[p2][0], p1]
+                # ipdb.set_trace()
                 if pt_dict[p2][0] == pt_dict[p2][1]:
                     print("Loop detected at point: {}".format(p2))
-                continue
-
-            pt_dict[p2][0] = p1
+            else:
+                pt_dict[p2][0] = p1
         else:
             pt_dict[p2] = [p1, None]
 
 
+    # What to do about these things:
+    # Open segments
+    # Looped segments
+    # Somehow we must find any open segments and recursively remove their branches from the points dict
+    new_dict = pt_dict.copy()
+    for pt in pt_dict:
+        # right_neighbor = pt_dict[pt][1]
+
+        # if either the right neighbor has multiple values, it means that at this point there is a fork in the polygon
+        # This means that the branches starting at this point must be explored further to determine which 
+        # ends in a dead end
+        new_dict = remove_branches(new_dict, pt)
+
+    pt_dict = new_dict
+    # print pt_dict
+    # print new_dict
     polygons = []
 
     while len(pt_dict) > 0:
@@ -116,19 +130,53 @@ def make_polygons(segments, decimal_place=3):
         polygon.append([first_pt, next_pt])
 
         while first_pt != next_pt:
+            # ipdb.set_trace()
             current_pt = next_pt
             try:
                 _, next_pt = pt_dict.pop(current_pt)
             except:
                 print("Failed to pop {}".format(current_pt))
-                plot_polygons(polygons)
+                plot_individual_segments(segments)
+                return
             polygon.append([current_pt, next_pt])
         polygons.append(polygon)
 
     return polygons
 
 
+def remove_branches(pt_dict, pt):
 
+    if not pt_dict.get(pt):
+        return pt_dict
+
+    left_neighbors = pt_dict[pt][0]
+    right_neighbors = pt_dict[pt][1]
+
+    new_pt_dict = pt_dict.copy()
+
+    if type(right_neighbors) == list:
+        final_neighbor = right_neighbors[:]
+        for neighbor in right_neighbors:
+            if pt_dict[neighbor][0] == pt_dict[neighbor][1]:
+                final_neighbor.remove(neighbor)
+                print "Loop!"
+                print final_neighbor
+                new_pt_dict[pt][1] = final_neighbor[0]
+                if new_pt_dict.get(neighbor):
+                    new_pt_dict.pop(neighbor)
+
+    if type(left_neighbors) == list:
+        final_neighbor = left_neighbors[:]
+        for neighbor in left_neighbors:
+            if pt_dict[neighbor][0] == pt_dict[neighbor][1]:
+                final_neighbor.remove(neighbor)
+                print "Loop!"
+                print final_neighbor
+                new_pt_dict[pt][0] = final_neighbor[0]
+                if new_pt_dict.get(neighbor):
+                    new_pt_dict.pop(neighbor)
+    
+    return new_pt_dict
 
 def naive_make_polygons(s, tol = .005):
     """
@@ -274,20 +322,41 @@ def interpolate(y, y0, y1, x0, x1):
     return x
 
 
+def segment_test():
+    p1 = (0, 0)
+    p2 = (10, 0)
+    p3 = (10, 10)
+    p4 = (0, 10)
+    p5 = (15, 25)
+    p6 = (25, 35)
+
+    s1 = [p1, p2]
+    s2 = [p2, p3]
+    s3 = [p3, p5]
+    s4 = [p3, p4]
+    s5 = [p4, p1]
+    s6 = [p5, p3]
+    s7 = [p5, p6]
+    s8 = [p6, p5]
+    segments = [s1, s2, s3, s4, s5, s6, s7, s8]
+    return make_polygons(segments)
+
+
 def main():
-    f = './test_stl/logo.stl'
+    # f = './test_stl/logo.stl'
     # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
-    mesh = stl.Mesh.from_file(f)
-    resolution = 1.0
-    slices = get_unordered_slices(mesh, resolution)
+    # mesh = stl.Mesh.from_file(f)
+    # resolution = 1.0
+    # slices = get_unordered_slices(mesh, resolution)
     # for i, s in enumerate(slices):
     #     print(i)
     #     polygons = make_polygons(s)
+        # plot_polygons(polygons)
     # ipdb.set_trace()
     # print segments
     # print segments.shape
@@ -295,7 +364,7 @@ def main():
     # print segments[10]
     # polygons = make_polygons(slices[2])
     # print(polygons)
-    plot_individual_segments(slices[2])
+    # plot_individual_segments(slices[2])
     # plot_polygons(polygons)
 
     # import pickle
@@ -303,6 +372,8 @@ def main():
     # with open('q01', 'wb') as fp:
     #     pickle.dump(polygons, fp)
 
+    polygons = segment_test()
+    plot_polygons(polygons)
 
 if __name__ == '__main__':
     import cProfile

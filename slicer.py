@@ -106,6 +106,8 @@ def make_polygons(segments, decimal_place=3):
             pt_dict[p2] = [p1, None]
 
 
+    print pt_dict
+
     # What to do about these things:
     # Open segments
     # Looped segments
@@ -117,13 +119,11 @@ def make_polygons(segments, decimal_place=3):
         # if either the right neighbor has multiple values, it means that at this point there is a fork in the polygon
         # This means that the branches starting at this point must be explored further to determine which 
         # ends in a dead end
-        new_dict = remove_branches(new_dict, pt)
+        remove_branches(new_dict, pt)
 
     pt_dict = new_dict
-    # print pt_dict
-    # print new_dict
+    print new_dict
     polygons = []
-
     while len(pt_dict) > 0:
         polygon = []
         first_pt, [_, next_pt] = pt_dict.popitem()
@@ -146,37 +146,53 @@ def make_polygons(segments, decimal_place=3):
 
 def remove_branches(pt_dict, pt):
 
-    if not pt_dict.get(pt):
-        return pt_dict
+    if pt_dict.get(pt):
+        if type(pt) == list:
+            for i in pt:
+                remove_branches(pt_dict, pt[i])
+        else:
+            left_node = pt_dict[pt][0]
+            right_node = pt_dict[pt][1]
 
-    left_neighbors = pt_dict[pt][0]
-    right_neighbors = pt_dict[pt][1]
+            
+            if type(left_node) == list:
+                for n in left_node:
+                    left, _ = remove_branches(pt_dict, n)
+                    pt_dict[pt][0] = left
+            if type(right_node) == list:
+                for n in right_node:
+                    _, right = remove_branches(pt_dict, n)
+                    pt_dict[pt][1] = right
+            if left_node is None or right_node is None or left_node == right_node:
+                pt_dict.pop(pt)
 
-    new_pt_dict = pt_dict.copy()
+    return left_node, right_node
 
-    if type(right_neighbors) == list:
-        final_neighbor = right_neighbors[:]
-        for neighbor in right_neighbors:
-            if pt_dict[neighbor][0] == pt_dict[neighbor][1]:
-                final_neighbor.remove(neighbor)
-                print "Loop!"
-                print final_neighbor
-                new_pt_dict[pt][1] = final_neighbor[0]
-                if new_pt_dict.get(neighbor):
-                    new_pt_dict.pop(neighbor)
-
-    if type(left_neighbors) == list:
-        final_neighbor = left_neighbors[:]
-        for neighbor in left_neighbors:
-            if pt_dict[neighbor][0] == pt_dict[neighbor][1]:
-                final_neighbor.remove(neighbor)
-                print "Loop!"
-                print final_neighbor
-                new_pt_dict[pt][0] = final_neighbor[0]
-                if new_pt_dict.get(neighbor):
-                    new_pt_dict.pop(neighbor)
     
-    return new_pt_dict
+
+    # if type(right_neighbors) == list:
+    #     final_neighbor = right_neighbors[:]
+    #     for neighbor in right_neighbors:
+    #         if pt_dict[neighbor][0] == pt_dict[neighbor][1]:
+    #             final_neighbor.remove(neighbor)
+    #             print "Loop!"
+    #             print final_neighbor
+    #             new_pt_dict[pt][1] = final_neighbor[0]
+    #             if new_pt_dict.get(neighbor):
+    #                 new_pt_dict.pop(neighbor)
+
+    # if type(left_neighbors) == list:
+    #     final_neighbor = left_neighbors[:]
+    #     for neighbor in left_neighbors:
+    #         if pt_dict[neighbor][0] == pt_dict[neighbor][1]:
+    #             final_neighbor.remove(neighbor)
+    #             print "Loop!"
+    #             print final_neighbor
+    #             new_pt_dict[pt][0] = final_neighbor[0]
+    #             if new_pt_dict.get(neighbor):
+    #                 new_pt_dict.pop(neighbor)
+    
+    # return new_pt_dict
 
 def naive_make_polygons(s, tol = .005):
     """
@@ -338,7 +354,7 @@ def segment_test():
     s6 = [p5, p3]
     s7 = [p5, p6]
     s8 = [p6, p5]
-    segments = [s1, s2, s3, s4, s5, s6, s7, s8]
+    segments = [s1, s2, s3, s4, s5, s6, s7]
     return make_polygons(segments)
 
 

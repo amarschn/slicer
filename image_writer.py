@@ -1,7 +1,8 @@
 import numpy as np
 from collections import deque
-import cairosvg
+# import cairosvg
 import cv2
+import ipdb
 
 
 def polygon_orientation(polygon):
@@ -105,6 +106,18 @@ def save_png(svg_string, output_file):
     cairosvg.svg2png(svg, write_to=output_file)
 
 
+def polygon_size(polygon):
+    """
+    Returns bounding box area of a polygon
+    """
+    np_polygon = np.array(polygon)
+
+    bbox_x = np.max(np_polygon[:,0]) - np.min(np_polygon[:,0])
+    bbox_y = np.max(np_polygon[:,1]) - np.min(np_polygon[:,1])
+
+    return bbox_x * bbox_y
+
+
 def arrange_polygons(polygons):
     """
     TODO - make a polygon class, so the winding order doesn't need to be determined multiple times
@@ -112,50 +125,18 @@ def arrange_polygons(polygons):
     :param polygons:
     :return:
     """
-    printed_polygons = []
-    holes = []
-    for polygon in polygons:
+    arranged_polygons = sorted(polygons, key=polygon_size, reverse=True)
+    is_hole = []
+    for idx, polygon in enumerate(arranged_polygons):
         orientation = polygon_orientation(polygon)
         if orientation == -1:
-            printed_polygons.append(polygon)
+            is_hole.append(False)
         elif orientation == 1:
-            holes.append(polygon)
+            is_hole.append(True)
         else:
-            continue
-    return printed_polygons, holes
-
-def cv2_xor_rasterize(polygons, output_file, layer, height, width):
-    # printed_polygons, holes = arrange_polygons(polygons)
-
-    img = np.zeros([height, width])
-    holes = np.zeros([height, width])
-
-    for polygon in polygons:
-        orientation = polygon_orientation(polygon)
-        if orientation == -1:
-            points = np.array(polygon) * 24.606
-            cv2.fillPoly(img, np.int32([points]), 1)
-        elif orientation == 1:
-            points = np.array(polygon) * 24.606
-            cv2.fillPoly(holes, np.int32([points]), 1)
-        else:
-            continue
-
-    printed_img = np.logical_xor(img, holes)
-    printed_img = np.flip(printed_img, 0)
-
-    cv2.putText(img=printed_img,
-                text=str(layer),
-                org=(250, 100),
-                fontFace=cv2.FONT_HERSHEY_SIMPLEX,
-                fontScale=3,
-                color=(0, 0, 0),
-                thickness=15,
-                lineType=1,
-                bottomLeftOrigin=False)
-
-    cv2.imwrite(output_file, printed_img)
-
+            is_hole.append(True)
+    
+    return arranged_polygons, is_hole
 
 
 def cv2_rasterize(polygons, output_file, layer, height, width):
@@ -167,20 +148,21 @@ def cv2_rasterize(polygons, output_file, layer, height, width):
     :param output:
     :return:
     """
-    printed_polygons, holes = arrange_polygons(polygons)
+    arranged_polygons, is_hole = arrange_polygons(polygons)
 
     printed_img = np.zeros([height, width])
     printed_img.fill(255)
 
-    for polygon in printed_polygons:
-        color = 0
+    for idx, polygon in enumerate(arranged_polygons):
+        # ipdb.set_trace()
+        if is_hole[idx]:
+            color = 255
+        else:
+            color = 0
+        
         points = np.array(polygon) * 24.606
-        cv2.fillPoly(printed_img, np.int32([points]), color)
+        cv2.fillPoly(printed_img, np.int32([points]), color)       
 
-    for hole in holes:
-        points = np.array(hole) * 24.606
-        color = 255
-        cv2.fillPoly(printed_img, np.int32([points]), color)
 
     printed_img = np.flip(printed_img, 0)
 

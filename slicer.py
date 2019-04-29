@@ -2,38 +2,24 @@ import stl
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
-from image_writer import cv2_rasterize, cv2_xor_rasterize
+from image_writer import cv2_rasterize
 import os
 from multiprocessing import Pool
 
 
-def plot_individual_segments(segments):
-    """
-    Plots individual segments as separate colors
-    """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    for s in segments:
-        x = [s[0][0], s[1][0]]
-        y = [s[0][1], s[1][1]]
-        ax.plot(x, y, '.', lineStyle='None')
-
-        x0 = s[0][0]
-        x1 = s[1][0]
-        y0 = s[0][1]
-        y1 = s[1][1]
-        ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.5, length_includes_head=True)
-    plt.show()
-
-
-
 def layer_graph(segments, decimal_place=3):
     """
-    Make a digraph from all segments
-    Remove bridges from digraph
-    Return cycles of de-bridgified digraph
+    This function orders all line segments and returns an array of polygons,
+    where a polygon is an array of points [(x1, y1), (x2, y2), ...]. This is
+    accomplished by the following steps:
+
+    Make a digraph with edges representing from all segments
+    Remove the bridges from digraph
+    Return the cycles (aka polygons) of the digraph with all bridges removed.
+    
+    Useful links:
+    - https://stackoverflow.com/questions/48736396/algorithm-to-find-bridges-from-cut-vertices
+    - https://visualgo.net/en/dfsbfs
 
     :param segments:
     :param decimal_place:
@@ -208,12 +194,14 @@ def write_layer(S):
     unordered_segments = S.segments
     polygons = layer_graph(unordered_segments)
     print(S.layer_number)
-    # plot_polygon_points(polygons)
-    cv2_xor_rasterize(polygons=polygons,
+    
+    cv2_rasterize(polygons=polygons,
                   output_file=S.filename,
                   layer=S.layer_number,
                   height=S.height,
                   width=S.width)
+
+    # plot_polygon_points(polygons)
 
 
 class Slice(object):
@@ -232,20 +220,20 @@ class Slice(object):
 
 def main():
     # f = './test_stl/logo.stl'
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
-    f = './test_stl/concentric_1.stl'
+    # f = './test_stl/concentric_1.stl'
     mesh = stl.Mesh.from_file(f)
     resolution = 1.0
     Slices = get_unordered_slices(mesh, resolution)
     for Slice in Slices:
         write_layer(Slice)
-    # p = Pool(5)
-    # p.map(write_layer, Slices)
+    # pool = Pool(5)
+    # pool.map(write_layer, Slices)
 
 
 
@@ -261,8 +249,8 @@ def main():
 
 
 if __name__ == '__main__':
-    import cProfile
-    cProfile.runctx('main()', globals(), locals(), filename=None)
-    # main()
+    # import cProfile
+    # cProfile.runctx('main()', globals(), locals(), filename=None)
+    main()
     # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
     # plt.show()

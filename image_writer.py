@@ -2,7 +2,16 @@ import numpy as np
 from collections import deque
 # import cairosvg
 import cv2
-import ipdb
+
+
+def transform_polygon(polygon, transform):
+    """
+    Transform a set of polygons according to a 3x3 transform
+    :param image:
+    :param transform:
+    :return:
+    """
+
 
 
 def polygon_orientation(polygon):

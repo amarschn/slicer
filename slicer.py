@@ -4,10 +4,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from image_writer import cv2_rasterize
 import os
+import sys
 from multiprocessing import Pool
 
 
-def layer_graph(segments, decimal_place=3):
+def layer_graph(segments, layer_number, decimal_place=3):
     """
     This function orders all line segments and returns an array of polygons,
     where a polygon is an array of points [(x1, y1), (x2, y2), ...]. This is
@@ -39,7 +40,16 @@ def layer_graph(segments, decimal_place=3):
     B = nx.bridges(H)
 
     for b in B:
-        D.remove_edge(b[0], b[1])
+        try:
+            D.remove_edge(b[0], b[1])
+        except Exception:
+            # print("Problem on layer number: {}".format(layer_number))
+            # print(sys.exc_info())
+        #     filename = os.path.join("failed_layers", "graph_failure_layer_{}".format(layer_number))
+        #     import pickle
+        #     with open(filename, 'wb') as outfile:
+        #         pickle.dump(segments, outfile)
+            continue
 
     C = nx.simple_cycles(D)
 
@@ -163,6 +173,28 @@ def segment_test():
     segments = [s1, s2, s3, s4, s5, s6, s7, s8]
     return segments
 
+
+def plot_individual_segments(segments):
+    """
+    Plots individual segments as separate colors
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    for s in segments:
+        x = [s[0][0], s[1][0]]
+        y = [s[0][1], s[1][1]]
+        ax.plot(x, y, '.', lineStyle='None')
+
+        x0 = s[0][0]
+        x1 = s[1][0]
+        y0 = s[0][1]
+        y1 = s[1][1]
+        ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.5, length_includes_head=True)
+    plt.show()
+
+
 def plot_polygon_points(polygons):
     """
     Expects an array of [(x1,y1), (x2,y2), ... ] arrays and will plot those array as a digraph of points to points
@@ -192,7 +224,7 @@ def plot_polygon_points(polygons):
 
 def write_layer(S):
     unordered_segments = S.segments
-    polygons = layer_graph(unordered_segments)
+    polygons = layer_graph(unordered_segments, S.layer_number)
     print(S.layer_number)
     
     cv2_rasterize(polygons=polygons,
@@ -213,27 +245,28 @@ class Slice(object):
             self.segments = segments
         self.layer_number = layer_number
         self.height = 4800
-        self.width = 7200
+        self.width = 7600
 
     def add_segment(self, segment):
         self.segments.append(segment)
 
 def main():
     # f = './test_stl/logo.stl'
-    f = './test_stl/q01.stl'
+    # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
+    f = './test_stl/links.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 1.0
+    resolution = 0.05
     Slices = get_unordered_slices(mesh, resolution)
-    for Slice in Slices:
-        write_layer(Slice)
-    # pool = Pool(5)
-    # pool.map(write_layer, Slices)
+    # for Slice in Slices:
+    #     write_layer(Slice)
+    pool = Pool(5)
+    pool.map(write_layer, Slices)
 
 
 
@@ -249,8 +282,8 @@ def main():
 
 
 if __name__ == '__main__':
-    # import cProfile
-    # cProfile.runctx('main()', globals(), locals(), filename=None)
-    main()
+    import cProfile
+    cProfile.runctx('main()', globals(), locals(), filename=None)
+    # main()
     # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
     # plt.show()

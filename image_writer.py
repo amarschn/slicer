@@ -1,7 +1,7 @@
 import numpy as np
 from collections import deque
-# import cairosvg
 import cv2
+import ipdb
 
 
 def transform_polygon(polygon, transform):
@@ -11,7 +11,14 @@ def transform_polygon(polygon, transform):
     :param transform:
     :return:
     """
+    polygon = np.array(polygon)
 
+    # Set to homogeneous coordinates
+    polygon = np.append(polygon, np.ones([len(polygon),1]), axis=1)
+
+    polygon = np.dot(polygon, transform)
+
+    return polygon[:, 0:2]
 
 
 def polygon_orientation(polygon):
@@ -148,7 +155,7 @@ def arrange_polygons(polygons):
     return arranged_polygons, is_hole
 
 
-def cv2_rasterize(polygons, output_file, layer, height, width):
+def cv2_rasterize(polygons, output_file, layer, height, width, transform):
     """
 
     :param polygons: arrays of arrays of tuple points [(x1, y1), (x2, y2), ... ]
@@ -168,7 +175,7 @@ def cv2_rasterize(polygons, output_file, layer, height, width):
             color = 255
         else:
             color = 0
-        
+        polygon = transform_polygon(polygon, transform)
         points = np.array(polygon) * 24.606
         cv2.fillPoly(printed_img, np.int32([points]), color)       
 

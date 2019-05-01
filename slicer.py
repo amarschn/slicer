@@ -231,13 +231,19 @@ def write_layer(S):
                   output_file=S.filename,
                   layer=S.layer_number,
                   height=S.height,
-                  width=S.width)
+                  width=S.width,
+                  transform=S.transform)
 
     # plot_polygon_points(polygons)
 
 
 class Slice(object):
-    def __init__(self, segments=None, layer_number=-1, height=4800, width=7200):
+    def __init__(self,
+                 segments=None,
+                 layer_number=-1,
+                 height=4800,
+                 width=7200,
+                 transform=np.eye(3)):
         self.filename = os.path.join('./output', "layer_{}.png".format(layer_number))
         if segments is None:
             self.segments = []
@@ -246,6 +252,7 @@ class Slice(object):
         self.layer_number = layer_number
         self.height = 4800
         self.width = 7600
+        self.transform = transform
 
     def add_segment(self, segment):
         self.segments.append(segment)
@@ -258,15 +265,15 @@ def main():
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
-    # f = './test_stl/concentric_1.stl'
-    f = './test_stl/links.stl'
+    f = './test_stl/concentric_1.stl'
+    # f = './test_stl/links.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 0.05
+    resolution = 1.0
     Slices = get_unordered_slices(mesh, resolution)
-    # for Slice in Slices:
-    #     write_layer(Slice)
-    pool = Pool(5)
-    pool.map(write_layer, Slices)
+    for Slice in Slices:
+        write_layer(Slice)
+    # pool = Pool(5)
+    # pool.map(write_layer, Slices)
 
 
 
@@ -282,8 +289,8 @@ def main():
 
 
 if __name__ == '__main__':
-    import cProfile
-    cProfile.runctx('main()', globals(), locals(), filename=None)
-    # main()
+    # import cProfile
+    # cProfile.runctx('main()', globals(), locals(), filename=None)
+    main()
     # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
     # plt.show()

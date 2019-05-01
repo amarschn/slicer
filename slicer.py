@@ -8,6 +8,53 @@ import sys
 from multiprocessing import Pool
 
 
+class Face(object):
+    def __init__(self, id, points):
+        self.id = id
+
+        self.v0 = self.vertices[0:3]
+        self.v1 = self.vertices[3:6]
+        self.v2 = self.vertices[6:9]
+
+        self.vertices = [self.v0, self.v1, self.v2]
+
+        self.connected_face_0 = None
+        self.connected_face_1 = None
+        self.connected_face_2 = None
+
+
+def create_face_neighbor_dict(mesh):
+    """
+    Create a dict of neighbor faces.
+    Each mesh face (aka a triangle) should have a single neighbor
+    These neighbors will be used later during the slicing algorithm
+    to connect contours together for a given slice.
+    """
+    face_dict = {}
+    vertex_connected_face_dict = {}
+
+    for idx, triangle in enumerate(mesh):
+        t = np.round(face_dict[idx], decimals=3)
+        face_dict[idx] = t
+        v0 = tuple(t[0:3])
+        v1 = tuple(t[3:6])
+        v2 = tuple(t[6:9])
+        vertices = [v0, v1, v2]
+
+        for vertex in vertices:
+            if vertex_connected_face_dict.get(vertex):
+                vertex_connected_face_dict[vertex].append(idx)
+            else:
+                vertex_connected_face_dict[vertex] = [idx]
+
+    for face in face_dict:
+        face_neighbor_dict = []
+
+
+    return face_dict
+
+
+
 def layer_graph(segments, layer_number, decimal_place=3):
     """
     This function orders all line segments and returns an array of polygons,
@@ -195,7 +242,7 @@ def plot_individual_segments(segments):
     plt.show()
 
 
-def plot_polygon_points(polygons):
+def plot_polygons(polygons):
     """
     Expects an array of [(x1,y1), (x2,y2), ... ] arrays and will plot those array as a digraph of points to points
     :param polygon_points:
@@ -238,6 +285,9 @@ def write_layer(S):
 
 
 class Slice(object):
+    """
+    A slice of a build, containing all segments within that layer
+    """
     def __init__(self,
                  segments=None,
                  layer_number=-1,
@@ -262,18 +312,19 @@ def main():
     # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    # f = './test_stl/nist.stl'
+    f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
-    f = './test_stl/concentric_1.stl'
+    # f = './test_stl/concentric_1.stl'
     # f = './test_stl/links.stl'
     mesh = stl.Mesh.from_file(f)
     resolution = 1.0
     Slices = get_unordered_slices(mesh, resolution)
-    for Slice in Slices:
-        write_layer(Slice)
-    # pool = Pool(5)
-    # pool.map(write_layer, Slices)
+    print(len(Slices))
+    # for Slice in Slices:
+    #     write_layer(Slice)
+    pool = Pool(5)
+    pool.map(write_layer, Slices)
 
 
 
@@ -289,8 +340,8 @@ def main():
 
 
 if __name__ == '__main__':
-    # import cProfile
-    # cProfile.runctx('main()', globals(), locals(), filename=None)
-    main()
+    import cProfile
+    cProfile.runctx('main()', globals(), locals(), filename=None)
+    # main()
     # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
     # plt.show()

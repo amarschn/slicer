@@ -1,7 +1,6 @@
 import numpy as np
 from collections import deque
 import cv2
-import ipdb
 
 
 def transform_polygon(polygon, transform):
@@ -180,9 +179,9 @@ def cv2_rasterize(polygons, output_file, layer, height, width, transform):
         cv2.fillPoly(printed_img, np.int32([points]), color)       
 
 
-    printed_img = np.flip(printed_img, 0)
+    img = np.flip(printed_img, 0)
 
-    cv2.putText(img=printed_img,
+    img = cv2.putText(img=img,
                 text=str(layer),
                 org=(250, 100),
                 fontFace=cv2.FONT_HERSHEY_SIMPLEX,
@@ -192,7 +191,7 @@ def cv2_rasterize(polygons, output_file, layer, height, width, transform):
                 lineType=1,
                 bottomLeftOrigin=False)
 
-    cv2.imwrite(output_file, printed_img)
+    cv2.imwrite(output_file, img)
 
 
 class Polygon(object):

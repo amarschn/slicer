@@ -8,6 +8,7 @@ import sys
 from multiprocessing import Pool
 
 
+<<<<<<< HEAD
 class Face(object):
     def __init__(self, id, points):
         self.id = id
@@ -23,6 +24,8 @@ class Face(object):
         self.connected_face_2 = None
 
 
+=======
+>>>>>>> deleted unneeded files and changed location of support generation
 def layer_graph(segments, layer_number, decimal_place=3):
     """
     This function orders all line segments and returns an array of polygons,

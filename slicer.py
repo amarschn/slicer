@@ -23,38 +23,6 @@ class Face(object):
         self.connected_face_2 = None
 
 
-def create_face_neighbor_dict(mesh):
-    """
-    Create a dict of neighbor faces.
-    Each mesh face (aka a triangle) should have a single neighbor
-    These neighbors will be used later during the slicing algorithm
-    to connect contours together for a given slice.
-    """
-    face_dict = {}
-    vertex_connected_face_dict = {}
-
-    for idx, triangle in enumerate(mesh):
-        t = np.round(face_dict[idx], decimals=3)
-        face_dict[idx] = t
-        v0 = tuple(t[0:3])
-        v1 = tuple(t[3:6])
-        v2 = tuple(t[6:9])
-        vertices = [v0, v1, v2]
-
-        for vertex in vertices:
-            if vertex_connected_face_dict.get(vertex):
-                vertex_connected_face_dict[vertex].append(idx)
-            else:
-                vertex_connected_face_dict[vertex] = [idx]
-
-    for face in face_dict:
-        face_neighbor_dict = []
-
-
-    return face_dict
-
-
-
 def layer_graph(segments, layer_number, decimal_place=3):
     """
     This function orders all line segments and returns an array of polygons,
@@ -90,12 +58,6 @@ def layer_graph(segments, layer_number, decimal_place=3):
         try:
             D.remove_edge(b[0], b[1])
         except Exception:
-            # print("Problem on layer number: {}".format(layer_number))
-            # print(sys.exc_info())
-        #     filename = os.path.join("failed_layers", "graph_failure_layer_{}".format(layer_number))
-        #     import pickle
-        #     with open(filename, 'wb') as outfile:
-        #         pickle.dump(segments, outfile)
             continue
 
     C = nx.simple_cycles(D)
@@ -318,13 +280,12 @@ def main():
     # f = './test_stl/concentric_1.stl'
     # f = './test_stl/links.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 1.0
+    resolution = 0.05
     Slices = get_unordered_slices(mesh, resolution)
-    print(len(Slices))
-    # for Slice in Slices:
-    #     write_layer(Slice)
-    pool = Pool(5)
-    pool.map(write_layer, Slices)
+    for Slice in Slices:
+        write_layer(Slice)
+    # pool = Pool(5)
+    # pool.map(write_layer, Slices)
 
 
 

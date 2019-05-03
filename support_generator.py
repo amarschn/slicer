@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import stl
 import os
 import shapely
+import math
 
 from OCC.gp import gp_Pnt, gp_Vec
 from OCC.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace
@@ -25,6 +26,7 @@ from OCC.Display.SimpleGui import init_display
 from ShapeExchange import write_stl_file
 
 import slicer
+import concave_hull
 
 import ipdb
 
@@ -37,31 +39,53 @@ DEFAULT_SETTINGS = {
 }
 
 
-def grid_points(point_list, spacing=50):
+def grid_points(points, x_count=200, y_count=200):
     """
-    Returns a set of points that lie on the hull outline
-    spaced via a rectilinear grid
+    Returns a set of points that represent a "pixelized" view of a set of points
     :param" point_list array of xy values
     """
+    ipdb.set_trace()
+    x_min, x_max, y_min, y_max = (np.min(points[:,0]), np.max(points[:,0]), np.min(points[:,1]), np.max(points[:,1]))
+    x_range = np.max(points[:,0]) - np.min(points[:,0])
+    y_range = np.max(points[:,1]) - np.min(points[:,1])
+    x_pixel_size = x_range / x_count
+    y_pixel_size = y_range / y_count
+    x = np.linspace(x_pixel_size / 2, x_range - x_pixel_size / 2, x_count)
+    y = np.linspace(y_pixel_size / 2, y_range - y_pixel_size / 2, y_count)
+    xx, yy = np.meshgrid(x,y)
 
+    grid = set()
+
+    for pt in points:
+
+        cell_x = int((pt[0] / x_range) * x_count)
+        cell_y = int((pt[1] / x_range) * y_count)
+
+        grid_pt = (cell_x, cell_y)
+
+        grid.add(grid_pt)
+
+    return np.array(list(grid))
+
+
+def get_layer_points(mesh, resolution):
     """
-    1. Get bounding box
-    2. Fit grid within bounding box - shrink spacing slightly if necessary
-    3. Create multilinestring of grid
-    4. Create intersection with polygon and multi line string
-    5. Flatten intersection data structure into points
-    6. Return points
+    Extract all XY points from a mesh given a resolution
+    Requires slicing the model
     """
-    intersects = []
-    poly = shapely.geometry.Polygon(point_list)
-    (x_min, y_min, x_max, y_max) = poly.bounds()
-    num_vert_lines = int((x_max - x_min)/spacing)
-    num_hor_lines = int((y_max - y_min)/spacing)
+    slices = slicer.get_unordered_slices(mesh, resolution)
+    x = np.array([])
+    y = np.array([])
+    for layer_slice in slices:
+        segs = np.array(layer_slice.segments)
+        # ipdb.set_trace()
+        if segs.any():
+            x = np.append(x, segs[:, 0, 0])
+            y = np.append(y, segs[:, 0, 1])
+    return np.array([x, y]).T
 
-    return intersects
 
-
-def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, plot=True):
+def generate_support(mesh, resolution, type='convex', inner_offset=10, outer_offset=25, plot=True):
     """
     Get all slice layers at some resolution
     Create 2D convex hull from set of all slice layers stacked on top of each other
@@ -70,20 +94,24 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
     Export part
     """
     height = float(mesh.z.max())
-    sliced_layers = np.array(slicer.layers(mesh, resolution))
-    x = np.array([])
-    y = np.array([])
-    for layer in sliced_layers:
-        layer = np.array(layer)
-        x = np.append(x, layer[:, :, 0].flatten())
-        y = np.append(y, layer[:, :, 1].flatten())
-    xy_points = np.array([x, y]).T
-    # np.savetxt('h_pts.csv', xy_points)
-    # ipdb.set_trace()
-    hull = ConvexHull(xy_points)
-    # hull_points = tuple(map(tuple, hull.points))
-    hull_points = tuple(map(tuple, xy_points[hull.vertices]))
-    # ipdb.set_trace()
+    xy_points = get_layer_points(mesh, resolution)
+    n_xy_points = grid_points(xy_points)
+
+    
+    plt.plot(*zip(*xy_points), marker='o', color='b', linestyle='None')
+    plt.plot(*zip(*n_xy_points), marker='x', color='r', linestyle='None')
+    plt.show()
+    
+    if type is 'convex':
+        hull = ConvexHull(xy_points)
+        # hull_points = tuple(map(tuple, hull.points))
+        hull_points = tuple(map(tuple, xy_points[hull.vertices]))
+    else:
+        # ipdb.set_trace()
+        max_points = 100000
+        skip_value = max(1, len(xy_points)/max_points)
+        xy_points = xy_points[1:len(xy_points):skip_value]
+        hull_points = concave_hull.concave_hull(xy_points, 80)
     # Create offsets
     offset1 = offset_points(hull_points, inner_offset)
     offset1.append(offset1[0])
@@ -91,7 +119,7 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
     offset2.append(offset2[0])
     # ipdb.set_trace()
     if plot:
-        plt.title('Convex Hull')
+        plt.title('{} Hull'.format(type))
         plt.plot(*zip(*hull_points), marker='o', color='b')
         # pp = xy_points[hull.vertices]
         # plt.plot(*zip(*pp), marker='o',color='r',linestyle='None')
@@ -145,27 +173,7 @@ def generate_convex_support(mesh, resolution, inner_offset=5, outer_offset=10, p
     return support_layer
 
 
-def generate_concave_support(mesh, resolution, k):
-    """
-    """
-    pass
-
-
-def generate_support(mesh, resolution, output_directory='.', export_stl=True):
-    """
-    Create support structure and export it if necessary
-    """
-    support = generate_convex_support(mesh, resolution)
-    display, start_display, add_menu, add_function_to_menu = init_display()
-    display.DisplayShape(support, update=False)
-    start_display()
-    if export_stl:
-        stl_file = os.path.join(output_directory, "support.stl")
-        write_stl_file(support, stl_file)
-    return support
-
-
-def offset_points(points, offset, miter_type="SQUARE", miter_limit=5):
+def offset_points(points, offset, miter_type="ROUND", miter_limit=5):
     """Accepts a list of points that comprise a closed polygon
     and returns a polygon that is outset from the initial
     polygon by the specified amount
@@ -196,11 +204,29 @@ def offset_points(points, offset, miter_type="SQUARE", miter_limit=5):
 
 
 def main():
-    f = '../test_stl/simple_H.stl'
+    f = './test_stl/bracket.STL'
+    # f = './test_stl/prism.stl'
     # f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
-    generate_support(mesh,0.5)
+
+    mesh.rotate([0,1,0], math.radians(90))
+
+    resolution = 0.5
+    export_stl = True
+    output_directory = '.'
+
+    support = generate_support(mesh, resolution, type='concave')
+    display, start_display, add_menu, add_function_to_menu = init_display()
+    display.DisplayShape(support, update=False)
+    start_display()
+    if export_stl:
+        stl_file = os.path.join(output_directory, "support.stl")
+        write_stl_file(support, stl_file)
+        support_mesh = stl.Mesh.from_file(stl_file)
+        combined = stl.mesh.Mesh(np.concatenate([mesh.data, support_mesh.data]))
+        combined.save('combined.stl')
+    return support
 
 
 if __name__ == '__main__':

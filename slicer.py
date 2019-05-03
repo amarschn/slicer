@@ -8,24 +8,6 @@ import sys
 from multiprocessing import Pool
 
 
-<<<<<<< HEAD
-class Face(object):
-    def __init__(self, id, points):
-        self.id = id
-
-        self.v0 = self.vertices[0:3]
-        self.v1 = self.vertices[3:6]
-        self.v2 = self.vertices[6:9]
-
-        self.vertices = [self.v0, self.v1, self.v2]
-
-        self.connected_face_0 = None
-        self.connected_face_1 = None
-        self.connected_face_2 = None
-
-
-=======
->>>>>>> deleted unneeded files and changed location of support generation
 def layer_graph(segments, layer_number, decimal_place=3):
     """
     This function orders all line segments and returns an array of polygons,
@@ -74,13 +56,13 @@ def get_unordered_slices(mesh, resolution):
         Get points
         For each layer:
             Check if layer intersects triangle
-            
+
     :param mesh:
     :param resolution:
     :return:
     """
     height = mesh.z.max() - mesh.z.min()
-    layers = np.array([z for z in range(int(height/resolution) + 1)])*resolution
+    layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
 
     slices = []
     # slice_list = []
@@ -98,9 +80,9 @@ def get_unordered_slices(mesh, resolution):
 
         for layer_num, z in enumerate(layers):
             segment = []
-            if z < min(z0,z1,z2):
+            if z < min(z0, z1, z2):
                 continue
-            elif z > max(z0,z1,z2):
+            elif z > max(z0, z1, z2):
                 continue
             elif z0 < z and z1 >= z and z2 >= z:
                 # What condition is this?
@@ -132,7 +114,6 @@ def get_unordered_slices(mesh, resolution):
 
             if segment:
                 slices[layer_num].add_segment(segment)
-                # slice_list[layer_num].append(segment)
     return slices
 
 
@@ -145,7 +126,7 @@ def calculate_segment(p0, p1, p2, z):
 
     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
-    
+
     return [(x_start, y_start), (x_end, y_end)]
 
 

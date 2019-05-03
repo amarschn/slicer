@@ -11,6 +11,8 @@ def concave_hull(points, k):
     https://pdfs.semanticscholar.org/2397/17005c3ebd5d6a42fc833daf97a0edee1ce4.pdf
     points: 2D array of XY points in the format [(x1,y1), (x2,y2), ...]
     k: number of NN to use in algorithm
+
+    returns: concave hull in the form
     """
     kk = max(k, 3)
     points = set(map(tuple, points))

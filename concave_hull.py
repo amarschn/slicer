@@ -2,7 +2,6 @@ from scipy.spatial import cKDTree
 import shapely.geometry
 import numpy as np
 import math
-import ipdb
 
 
 def concave_hull(points, k):
@@ -61,9 +60,8 @@ def concave_hull(points, k):
         # If all points still intersect, it means we need to get new points to examine
         if invalid_hull:
             # ipdb.set_trace()
-            print candidates
-            print current
-            print "invalid hull"
+            print(candidates)
+            print("invalid hull")
             return hull
         previous = current
         current = tuple(candidate)

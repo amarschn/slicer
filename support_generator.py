@@ -15,7 +15,6 @@ import pyclipper
 import matplotlib.pyplot as plt
 import stl
 import os
-import shapely
 import math
 
 from OCC.gp import gp_Pnt, gp_Vec
@@ -28,7 +27,7 @@ from ShapeExchange import write_stl_file
 import slicer
 import concave_hull
 
-import ipdb
+# import ipdb
 
 
 DEFAULT_SETTINGS = {
@@ -39,29 +38,30 @@ DEFAULT_SETTINGS = {
 }
 
 
-def grid_points(points, x_count=200, y_count=200):
+def grid_points(points, x_count=50, y_count=50):
     """
     Returns a set of points that represent a "pixelized" view of a set of points
     :param" point_list array of xy values
     """
-    ipdb.set_trace()
     x_min, x_max, y_min, y_max = (np.min(points[:,0]), np.max(points[:,0]), np.min(points[:,1]), np.max(points[:,1]))
-    x_range = np.max(points[:,0]) - np.min(points[:,0])
-    y_range = np.max(points[:,1]) - np.min(points[:,1])
+    x_range = x_max - x_min
+    y_range = y_max - y_min
     x_pixel_size = x_range / x_count
     y_pixel_size = y_range / y_count
-    x = np.linspace(x_pixel_size / 2, x_range - x_pixel_size / 2, x_count)
-    y = np.linspace(y_pixel_size / 2, y_range - y_pixel_size / 2, y_count)
-    xx, yy = np.meshgrid(x,y)
+    xlin = np.linspace(x_min + x_pixel_size / 2, x_max - x_pixel_size / 2, x_count)
+    ylin = np.linspace(y_min + y_pixel_size / 2, y_max - y_pixel_size / 2, y_count)
 
     grid = set()
 
     for pt in points:
 
-        cell_x = int((pt[0] / x_range) * x_count)
-        cell_y = int((pt[1] / x_range) * y_count)
+        cell_x = abs(int(((pt[0] - x_min) / x_range) * x_count))
+        cell_y = abs(int(((pt[1] - y_min) / y_range) * y_count))
 
-        grid_pt = (cell_x, cell_y)
+        cell_x = min(cell_x, len(xlin) - 1)
+        cell_y = min(cell_y, len(ylin) - 1)
+
+        grid_pt = (xlin[cell_x], ylin[cell_y])
 
         grid.add(grid_pt)
 
@@ -85,7 +85,7 @@ def get_layer_points(mesh, resolution):
     return np.array([x, y]).T
 
 
-def generate_support(mesh, resolution, type='convex', inner_offset=10, outer_offset=25, plot=True):
+def generate_support(mesh, resolution, type='convex', inner_offset=6.35, outer_offset=20, plot=True):
     """
     Get all slice layers at some resolution
     Create 2D convex hull from set of all slice layers stacked on top of each other
@@ -95,19 +95,13 @@ def generate_support(mesh, resolution, type='convex', inner_offset=10, outer_off
     """
     height = float(mesh.z.max())
     xy_points = get_layer_points(mesh, resolution)
-    n_xy_points = grid_points(xy_points)
-
-    
-    plt.plot(*zip(*xy_points), marker='o', color='b', linestyle='None')
-    plt.plot(*zip(*n_xy_points), marker='x', color='r', linestyle='None')
-    plt.show()
+    xy_points = grid_points(xy_points)
     
     if type is 'convex':
         hull = ConvexHull(xy_points)
         # hull_points = tuple(map(tuple, hull.points))
         hull_points = tuple(map(tuple, xy_points[hull.vertices]))
     else:
-        # ipdb.set_trace()
         max_points = 100000
         skip_value = max(1, len(xy_points)/max_points)
         xy_points = xy_points[1:len(xy_points):skip_value]
@@ -123,7 +117,7 @@ def generate_support(mesh, resolution, type='convex', inner_offset=10, outer_off
         plt.plot(*zip(*hull_points), marker='o', color='b')
         # pp = xy_points[hull.vertices]
         # plt.plot(*zip(*pp), marker='o',color='r',linestyle='None')
-        plt.plot(*zip(*offset1), marker='o',color='r')
+        plt.plot(*zip(*offset1), marker='o', color='r')
         plt.plot(*zip(*offset2), marker='o', color='g')
         plt.show()
 
@@ -204,15 +198,16 @@ def offset_points(points, offset, miter_type="ROUND", miter_limit=5):
 
 
 def main():
-    f = './test_stl/bracket.STL'
+    f = './test_stl/4_Parts.stl'
+    # f = './test_stl/4_brackets.STL'
     # f = './test_stl/prism.stl'
     # f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     mesh = stl.Mesh.from_file(f)
 
-    mesh.rotate([0,1,0], math.radians(90))
+    # mesh.rotate([0,1,0], math.radians(90))
 
-    resolution = 0.5
+    resolution = 2.0
     export_stl = True
     output_directory = '.'
 

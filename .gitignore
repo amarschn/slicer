@@ -1,3 +1,5 @@
 # Ignore idea files
 .idea/
 output/
+slic3r/
+slic3r_output/

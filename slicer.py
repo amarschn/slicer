@@ -6,6 +6,7 @@ from image_writer import cv2_rasterize
 import os
 import sys
 from multiprocessing import Pool
+import ipdb
 
 
 def layer_graph(segments, layer_number, decimal_place=3):
@@ -26,6 +27,7 @@ def layer_graph(segments, layer_number, decimal_place=3):
     :param decimal_place:
     :return:
     """
+    
     D = nx.DiGraph()
     for seg in np.round(segments, decimals=decimal_place):
         p1 = tuple(seg[0])
@@ -35,7 +37,7 @@ def layer_graph(segments, layer_number, decimal_place=3):
             pass
         else:
             D.add_edge(p1, p2)
-
+    # ipdb.set_trace()
     H = nx.Graph(D)
     B = nx.bridges(H)
 
@@ -46,7 +48,6 @@ def layer_graph(segments, layer_number, decimal_place=3):
             continue
 
     C = nx.simple_cycles(D)
-
     return list(C)
 
 
@@ -219,7 +220,6 @@ def write_layer(S):
     unordered_segments = S.segments
     polygons = layer_graph(unordered_segments, S.layer_number)
     print(S.layer_number)
-    
     cv2_rasterize(polygons=polygons,
                   output_file=S.filename,
                   layer=S.layer_number,
@@ -253,34 +253,25 @@ class Slice(object):
     def add_segment(self, segment):
         self.segments.append(segment)
 
+
 def main():
     # f = './test_stl/logo.stl'
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    f = './test_stl/nist.stl'
+    # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
     # f = './test_stl/links.stl'
+    # f = './test_stl/square_cylinder.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 0.05
+    resolution = 1.0
     Slices = get_unordered_slices(mesh, resolution)
     for Slice in Slices:
         write_layer(Slice)
     # pool = Pool(5)
     # pool.map(write_layer, Slices)
-
-
-
-    # for i, s in enumerate(slices):
-    #     print(i)
-    #     polygons = layer_graph(s)
-    #     vector_layers[i] = polygons
-        # plot_polygon_points(polygons)
-
-    # with open('vector_layers.json', 'w') as f:
-    #     json.dump(vector_layers, f)
 
 
 

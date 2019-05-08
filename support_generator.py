@@ -26,8 +26,8 @@ from ShapeExchange import write_stl_file
 
 import slicer
 import concave_hull
-
-# import ipdb
+import image_writer
+import ipdb
 
 
 DEFAULT_SETTINGS = {
@@ -36,6 +36,51 @@ DEFAULT_SETTINGS = {
     "outer_offset": 10,
     "separator_spacing": 50
 }
+
+
+def create_support_polygons(mesh, resolution, offset):
+
+    outer_polygons = None
+    inner_polygons = None
+
+    Slices = slicer.get_unordered_slices(mesh, resolution)
+    for sliced_layer in Slices:
+        polygons = slicer.layer_graph(sliced_layer.segments, sliced_layer.layer_number)
+        
+        for polygon in polygons:
+            orientation = image_writer.polygon_orientation(polygon)
+
+            if orientation == -1:
+                if not outer_polygons:
+                    outer_polygons = pyclipper.Pyclipper()
+                    outer_polygons.AddPath(tuple(polygon), pyclipper.PT_SUBJECT, True)
+                else:
+                    outer_polygons.AddPath(tuple(polygon), pyclipper.PT_CLIP, True)
+            elif orientation == 1:
+                pass
+
+    if outer_polygons:
+        # Union the polygons, then offset
+        part_polygons = outer_polygons.Execute(pyclipper.CT_UNION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
+        support_polygons = pyclipper.PyclipperOffset()
+        for polygon in part_polygons:
+            polygon = tuple(map(tuple, polygon))
+            support_polygons.AddPath(polygon, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+        support = support_polygons.Execute(offset)
+
+        return support
+    else:
+        return []
+
+
+def test_clipper_support():
+    f = './test_stl/links.stl'
+    mesh = stl.Mesh.from_file(f)
+    resolution = 10
+    support = create_support_polygons(mesh, resolution, 6.)
+    for s in support:
+        plt.plot(*zip(*s), lineStyle='None', marker='o')
+    plt.show()
 
 
 def grid_points(points, x_count=50, y_count=50):
@@ -194,11 +239,10 @@ def offset_points(points, offset, miter_type="ROUND", miter_limit=5):
 
     return offset_points[0]
 
-    
-
 
 def main():
-    f = './test_stl/4_Parts.stl'
+    f = './test_stl/square_cylinder.stl'
+    # f = './test_stl/4_Parts.stl'
     # f = './test_stl/4_brackets.STL'
     # f = './test_stl/prism.stl'
     # f = '../OpenGL-STL-slicer/nist.stl'
@@ -225,4 +269,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    test_clipper_support()

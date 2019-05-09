@@ -6,7 +6,7 @@ import ipdb
 polygon1 = ((0,0), (10,0), (10,10), (0,10))
 polygon2 = ((20, 20), (30,20), (30,30), (20,30))
 polygon3 = ((0,0),(3,0),(3,3),(0,3))
-polygon4 = ((0,0),(3,0),(3,3),(0,3))
+polygon4 = ((10,10),(13,10),(13,13),(10,13))
 polygon5 = ((0,0),(3,0),(3,3),(0,3))
 polygon6 = ((0,0),(3,0),(3,3),(0,3))
 # pc = pyclipper.Pyclipper()
@@ -32,16 +32,25 @@ pc = pyclipper.Pyclipper()
 # ipdb.set_trace()
 # pc.AddPath(H1, pyclipper.PT_CLIP, True)
 # pc.AddPath(H2, pyclipper.PT_CLIP, True)
-pc.AddPath(polygon3, pyclipper.PT_CLIP, True)
+pc.AddPath(polygon3, pyclipper.PT_SUBJECT, True)
 pc.AddPath(polygon4, pyclipper.PT_CLIP, True)
-pc.AddPath(polygon5, pyclipper.PT_CLIP, True)
-pc.AddPath(polygon6, pyclipper.PT_SUBJECT, True)
 
 solution = pc.Execute(pyclipper.CT_UNION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
 
+pco = pyclipper.PyclipperOffset()
+
 if solution:
-	print(solution)
-	plt.plot(*zip(*solution[0]), lineStyle='None', marker='o')
+	for s in solution:
+		plt.plot(*zip(*s), lineStyle='-', marker='.')
+
+		pco.AddPath(s, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+		
+	offset1 = pco.Execute(1)
+	offset2 = pco.Execute(10)
+	for o in offset1:
+		plt.plot(*zip(*o),lineStyle='-', marker='x')
+	for o in offset2:
+		plt.plot(*zip(*o),lineStyle='-', marker='o')
 	plt.show()
 else:
 	print("No solution")

@@ -84,62 +84,14 @@ def slice_mesh(optimized_mesh, resolution):
                 continue
 
             if segment:
+                sliced_layer = slices[layer_num]
                 next_face = face.connected_face_index[end_edge_idx]
                 S = Segment(segment, face.idx, next_face, end_vertex)
-                slices[layer_num].add_segment(S)
+                sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
+                sliced_layer.add_segment(S)
     return slices
 
 
-def make_polygons(sliced_layer):
-    for seg_idx, seg in enumerate(sliced_layer.segments):
-        if not seg.added_to_polygon:
-            make_basic_polygon_loops(sliced_layer, seg, seg_idx)
-
-    sliced_layer.segments = []
-
-
-def make_basic_polygon_loop(sliced_layer, seg, start_seg_idx):
-    """
-    Create polygons from segments within every slice
-    """
-    # Start the polygon with the first piece of the segment
-    polygon = [seg[0]]
-    # Begin trackign the segment index
-    seg_idx = start_seg_idx
-
-    # As long as there are valid segments, loop through them
-    while seg_idx != -1:
-        # Add segment end to the polygon
-        seg = sliced_layer.segments[seg_idx]
-        polygon.append(seg[1])
-        seg.added_to_polygon = True
-        seg_idx = get_next_seg_idx(seg, start_seg_idx)
-        # If the polygon closes, add it to the list of polygons and
-        # return
-        if seg_idx == start_seg_idx:
-            sliced_layer.polygons.append(polgyon)
-            return
-
-    # TODO: Need to handle open polylines...?
-    # sliced_layer.polygons.append(polygon)
-    return
-    
-
-def get_next_seg_idx(seg, start_seg_idx):
-    """
-    Get the next segment idx to add to a polygon
-    Utilizes the next face index that was calculated at 
-    the loading of the mesh
-    """
-    next_seg_idx = -1
-
-    if seg.end_vertex:
-        if seg.next_face_idx != -1:
-            return try_face_next_seg_idx(segment, seg.next_face_idx, start_seg_idx)
-        else:
-            return -1
-    else:
-        # Segment ended at vertex
 
 
 
@@ -262,9 +214,84 @@ class Slice(object):
         self.width = 7600
         self.transform = transform
         self.polygons = []
+        self.face_idx_to_seg_idx = {}
 
     def add_segment(self, segment):
         self.segments.append(segment)
+
+    def make_polygons(self, sliced_layer):
+        for seg_idx, seg in enumerate(sliced_layer.segments):
+            if not seg.added_to_polygon:
+                self.make_basic_polygon_loop(sliced_layer, seg, seg_idx)
+
+        sliced_layer.segments = []
+
+    def make_basic_polygon_loop(self, sliced_layer, seg, start_seg_idx):
+        """
+        Create polygons from segments within every slice
+        """
+        # Start the polygon with the first piece of the segment
+        polygon = [seg[0]]
+        # Begin tracking the segment index
+        seg_idx = start_seg_idx
+
+        # As long as there are valid segments, loop through them
+        while seg_idx != -1:
+            # Add segment end to the polygon
+            seg = sliced_layer.segments[seg_idx]
+            polygon.append(seg[1])
+            seg.added_to_polygon = True
+            seg_idx = self.get_next_seg_idx(seg, start_seg_idx)
+            # If the polygon closes, add it to the list of polygons and
+            # return
+            if seg_idx == start_seg_idx:
+                sliced_layer.polygons.append(polygon)
+                return
+
+        # TODO: Need to handle open polylines...?
+        # sliced_layer.polygons.append(polygon)
+        return
+
+    def get_next_seg_idx(self, seg, start_seg_idx):
+        """
+        Get the next segment idx to add to a polygon
+        Utilizes the next face index that was calculated at
+        the loading of the mesh
+        """
+        next_seg_idx = -1
+
+        if seg.end_vertex:
+            if seg.next_face_idx != -1:
+                return self.try_face_next_seg_idx(seg, seg.next_face_idx, start_seg_idx)
+        else:
+            # if the segment ended at a vertex, look for other faces to try to get the
+            # next segment
+            for face in seg.end_vertex.connected_faces:
+                result_seg_idx = self.try_next_face_seg_idx(seg, face.idx, start_seg_idx)
+
+                if result_seg_idx == start_seg_idx:
+                    return start_seg_idx
+                elif result_seg_idx != -1:
+                    next_seg_idx = result_seg_idx
+        return next_seg_idx
+
+
+    def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):
+        """
+        This function finds another face that will continue the given segment
+        :param segment:
+        :param seg_idx:
+        :param start_seg_idx:
+        :return:
+        """
+        seg_idx = self.face_idx_to_seg_idx[face_idx]
+
+        if seg_idx == start_seg_idx:
+            return start_seg_idx
+        elif self.segments[seg_idx].added_to_polygon:
+            return -1
+        else:
+            return seg_idx
 
 
 class Segment(object):

@@ -1,27 +1,56 @@
-import pickle
-import numpy as np
 import matplotlib.pyplot as plt
-
-ALL_SEGMENTS = './failed_layers/graph_failure_layer_3'
-BROKEN_SEGMENTS = './failed_layers/broken_segments'
-
-with open(ALL_SEGMENTS, 'rb') as f:
-    all_segments = pickle.load(f)
-
-with open(BROKEN_SEGMENTS, 'rb') as f:
-    broken_segments = pickle.load(f)
-
-all_segments = np.array(all_segments)
-broken_segments = np.array(broken_segments)
-
-all_segments_x = all_segments[:,0,0]
-all_segments_y = all_segments[:,0,1]
-
-broken_segments_x = broken_segments[:,0,0]
-broken_segments_y = broken_segments[:,0,1]
-
-plt.plot(all_segments_x, all_segments_y, 'rx')
-plt.plot(broken_segments_x, broken_segments_y, 'bo')
-plt.show()
+import pyclipper
+import ipdb
 
 
+polygon1 = ((0,0), (10,0), (10,10), (0,10))
+polygon2 = ((20, 20), (30,20), (30,30), (20,30))
+polygon3 = ((0,0),(3,0),(3,3),(0,3))
+polygon4 = ((10,10),(13,10),(13,13),(10,13))
+polygon5 = ((0,0),(3,0),(3,3),(0,3))
+polygon6 = ((0,0),(3,0),(3,3),(0,3))
+# pc = pyclipper.Pyclipper()
+# # ipdb.set_trace()
+# pc.AddPath(polygon1, pyclipper.PT_CLIP, True)
+# pc.AddPath(polygon2, pyclipper.PT_CLIP, True)
+
+# solution = pc.Execute(pyclipper.CT_UNION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
+
+# print(tuple(map(tuple, solution[0])))
+
+# line = ((0,0), (10,0), (10,10), (0,10), (0,0))
+# pco = pyclipper.PyclipperOffset()
+# pco.AddPath(line, pyclipper.JT_ROUND, pyclipper.ET_OPENROUND)
+# solution = pco.Execute(2)
+# print(solution)
+# plt.plot(*zip(*solution[0]))
+# plt.show()
+
+H1 = ((-45.0, 50.0), (-45.0, 30.0), (-45.0, -50.0), (-39.0, -50.0), (-15.0, -50.0), (-15.0, -43.0), (-15.0, -15.0), (-9.0, -15.0), (15.0, -15.0), (15.0, -22.0), (15.0, -50.0), (21.0, -50.0), (45.0, -50.0), (45.0, -30.0), (45.0, 50.0), (39.0, 50.0), (15.0, 50.0), (15.0, 43.0), (15.0, 15.0), (9.0, 15.0), (-15.0, 15.0), (-15.0, 22.0), (-15.0, 50.0), (-21.0, 50.0))
+H2 = ((-45.0, 50.0), (-45.0, 30.0), (-45.0, -50.0), (-39.0, -50.0), (-15.0, -50.0), (-15.0, -43.0), (-15.0, -15.0), (-9.0, -15.0), (15.0, -15.0), (15.0, -22.0), (15.0, -50.0), (21.0, -50.0), (45.0, -50.0), (45.0, -30.0), (45.0, 50.0), (39.0, 50.0), (15.0, 50.0), (15.0, 43.0), (15.0, 15.0), (9.0, 15.0), (-15.0, 15.0), (-15.0, 22.0), (-15.0, 50.0), (-21.0, 50.0))
+pc = pyclipper.Pyclipper()
+# ipdb.set_trace()
+# pc.AddPath(H1, pyclipper.PT_CLIP, True)
+# pc.AddPath(H2, pyclipper.PT_CLIP, True)
+pc.AddPath(polygon3, pyclipper.PT_SUBJECT, True)
+pc.AddPath(polygon4, pyclipper.PT_CLIP, True)
+
+solution = pc.Execute(pyclipper.CT_UNION, pyclipper.PFT_EVENODD, pyclipper.PFT_EVENODD)
+
+pco = pyclipper.PyclipperOffset()
+
+if solution:
+	for s in solution:
+		plt.plot(*zip(*s), lineStyle='-', marker='.')
+
+		pco.AddPath(s, pyclipper.JT_ROUND, pyclipper.ET_CLOSEDPOLYGON)
+		
+	offset1 = pco.Execute(1)
+	offset2 = pco.Execute(10)
+	for o in offset1:
+		plt.plot(*zip(*o),lineStyle='-', marker='x')
+	for o in offset2:
+		plt.plot(*zip(*o),lineStyle='-', marker='o')
+	plt.show()
+else:
+	print("No solution")

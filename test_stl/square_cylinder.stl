@@ -1,0 +1,226 @@
+solid Onshape
+  facet normal 0 0 -1
+    outer loop
+      vertex 21.6425 -50.1187 0
+      vertex 16.6425 -45.1187 0
+      vertex 61.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 16.6425 -45.1187 0
+      vertex 66.6425 -45.1187 0
+      vertex 61.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 61.6425 -50.1187 0
+      vertex 66.6425 -45.1187 0
+      vertex 61.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 66.6425 -45.1187 0
+      vertex 66.6425 -75.1187 0
+      vertex 61.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 61.6425 -70.1187 0
+      vertex 66.6425 -75.1187 0
+      vertex 21.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 66.6425 -75.1187 0
+      vertex 16.6425 -75.1187 0
+      vertex 21.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 21.6425 -70.1187 0
+      vertex 16.6425 -75.1187 0
+      vertex 21.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 -1
+    outer loop
+      vertex 16.6425 -75.1187 0
+      vertex 16.6425 -45.1187 0
+      vertex 21.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 21.6425 -70.1187 25
+      vertex 16.6425 -75.1187 25
+      vertex 61.6425 -70.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 16.6425 -75.1187 25
+      vertex 66.6425 -75.1187 25
+      vertex 61.6425 -70.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 61.6425 -70.1187 25
+      vertex 66.6425 -75.1187 25
+      vertex 61.6425 -50.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 66.6425 -75.1187 25
+      vertex 66.6425 -45.1187 25
+      vertex 61.6425 -50.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 61.6425 -50.1187 25
+      vertex 66.6425 -45.1187 25
+      vertex 21.6425 -50.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 66.6425 -45.1187 25
+      vertex 16.6425 -45.1187 25
+      vertex 21.6425 -50.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 21.6425 -50.1187 25
+      vertex 16.6425 -45.1187 25
+      vertex 21.6425 -70.1187 25
+    endloop
+  endfacet
+  facet normal 0 0 1
+    outer loop
+      vertex 16.6425 -45.1187 25
+      vertex 16.6425 -75.1187 25
+      vertex 21.6425 -70.1187 25
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 66.6425 -45.1187 25
+      vertex 66.6425 -75.1187 25
+      vertex 66.6425 -45.1187 0
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 66.6425 -75.1187 25
+      vertex 66.6425 -75.1187 0
+      vertex 66.6425 -45.1187 0
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex 21.6425 -70.1187 25
+      vertex 61.6425 -70.1187 25
+      vertex 21.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex 61.6425 -70.1187 25
+      vertex 61.6425 -70.1187 0
+      vertex 21.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex 16.6425 -75.1187 25
+      vertex 16.6425 -45.1187 25
+      vertex 16.6425 -75.1187 0
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex 16.6425 -45.1187 25
+      vertex 16.6425 -45.1187 0
+      vertex 16.6425 -75.1187 0
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex 16.6425 -45.1187 25
+      vertex 66.6425 -45.1187 25
+      vertex 16.6425 -45.1187 0
+    endloop
+  endfacet
+  facet normal 0 1 0
+    outer loop
+      vertex 66.6425 -45.1187 25
+      vertex 66.6425 -45.1187 0
+      vertex 16.6425 -45.1187 0
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 66.6425 -75.1187 25
+      vertex 16.6425 -75.1187 25
+      vertex 66.6425 -75.1187 0
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 16.6425 -75.1187 25
+      vertex 16.6425 -75.1187 0
+      vertex 66.6425 -75.1187 0
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21.6425 -50.1187 25
+      vertex 21.6425 -70.1187 25
+      vertex 21.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 1 0 0
+    outer loop
+      vertex 21.6425 -70.1187 25
+      vertex 21.6425 -70.1187 0
+      vertex 21.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 61.6425 -50.1187 25
+      vertex 21.6425 -50.1187 25
+      vertex 61.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal 0 -1 0
+    outer loop
+      vertex 21.6425 -50.1187 25
+      vertex 21.6425 -50.1187 0
+      vertex 61.6425 -50.1187 0
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex 61.6425 -70.1187 25
+      vertex 61.6425 -50.1187 25
+      vertex 61.6425 -70.1187 0
+    endloop
+  endfacet
+  facet normal -1 0 0
+    outer loop
+      vertex 61.6425 -50.1187 25
+      vertex 61.6425 -50.1187 0
+      vertex 61.6425 -70.1187 0
+    endloop
+  endfacet
+endsolid Onshape

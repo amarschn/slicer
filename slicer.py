@@ -1,56 +1,14 @@
 import stl
 import numpy as np
 import matplotlib.pyplot as plt
-import networkx as nx
 from image_writer import cv2_rasterize
 import os
 import sys
 from multiprocessing import Pool
+import ipdb
 
 
-def layer_graph(segments, layer_number, decimal_place=3):
-    """
-    This function orders all line segments and returns an array of polygons,
-    where a polygon is an array of points [(x1, y1), (x2, y2), ...]. This is
-    accomplished by the following steps:
-
-    Make a digraph with edges representing from all segments
-    Remove the bridges from digraph
-    Return the cycles (aka polygons) of the digraph with all bridges removed.
-    
-    Useful links:
-    - https://stackoverflow.com/questions/48736396/algorithm-to-find-bridges-from-cut-vertices
-    - https://visualgo.net/en/dfsbfs
-
-    :param segments:
-    :param decimal_place:
-    :return:
-    """
-    D = nx.DiGraph()
-    for seg in np.round(segments, decimals=decimal_place):
-        p1 = tuple(seg[0])
-        p2 = tuple(seg[1])
-
-        if p1 == p2:
-            pass
-        else:
-            D.add_edge(p1, p2)
-
-    H = nx.Graph(D)
-    B = nx.bridges(H)
-
-    for b in B:
-        try:
-            D.remove_edge(b[0], b[1])
-        except Exception:
-            continue
-
-    C = nx.simple_cycles(D)
-
-    return list(C)
-
-
-def get_unordered_slices(mesh, resolution):
+def slice_mesh(optimized_mesh, resolution):
     """
     For each triangle:
         Get points
@@ -61,7 +19,7 @@ def get_unordered_slices(mesh, resolution):
     :param resolution:
     :return:
     """
-    height = mesh.z.max() - mesh.z.min()
+    height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()
     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
 
     slices = []
@@ -71,15 +29,16 @@ def get_unordered_slices(mesh, resolution):
         slices.append(sl)
         # slice_list.append([])
 
-    for triangle in mesh:
-        p0 = triangle[0:3]
-        p1 = triangle[3:6]
-        p2 = triangle[6:9]
+    for face in optimized_mesh.faces:
+        p0 = face.vertices[face.vertex_indices[0]].p
+        p1 = face.vertices[face.vertex_indices[1]].p
+        p2 = face.vertices[face.vertex_indices[2]].p
 
         (z0, z1, z2) = p0[2], p1[2], p2[2]
 
         for layer_num, z in enumerate(layers):
             segment = []
+            end_vertex = None
             if z < min(z0, z1, z2):
                 continue
             elif z > max(z0, z1, z2):
@@ -87,34 +46,102 @@ def get_unordered_slices(mesh, resolution):
             elif z0 < z and z1 >= z and z2 >= z:
                 # What condition is this?
                 segment = calculate_segment(p0, p2, p1, z)
+                end_edge_idx = 0
+                if p1[2] == z:
+                    end_vertex = face.vertices[face.vertex_indices[1]]
 
             elif z0 > z and z1 < z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(p0, p1, p2, z)
+                end_edge_idx = 2
 
             elif z0 >= z and z1 < z and z2 >= z:
                 # What condition is this?
                 segment = calculate_segment(p1, p0, p2, z)
+                end_edge_idx = 1
+                if p2[2] == z:
+                    end_vertex = face.vertices[face.vertex_indices[2]]
 
             elif z0 < z and z1 > z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(p1, p2, p0, z)
+                end_edge_idx = 0
 
             elif z0 >= z and z1 >= z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(p2, p1, p0, z)
+                end_edge_idx = 2
+                if p0[2] == z:
+                    end_vertex = face.vertices[face.vertex_indices[0]]
 
             elif z0 < z and z1 < z and z2 > z:
                 # What condition is this?
                 segment = calculate_segment(p2, p0, p1, z)
+                end_edge_idx = 1
 
             else:
                 # Not all cases create a segment
                 continue
 
             if segment:
-                slices[layer_num].add_segment(segment)
+                next_face = face.connected_face_index[end_edge_idx]
+                S = Segment(segment, face.idx, next_face, end_vertex)
+                slices[layer_num].add_segment(S)
     return slices
+
+
+def make_polygons(sliced_layer):
+    for seg_idx, seg in enumerate(sliced_layer.segments):
+        if not seg.added_to_polygon:
+            make_basic_polygon_loops(sliced_layer, seg, seg_idx)
+
+    sliced_layer.segments = []
+
+
+def make_basic_polygon_loop(sliced_layer, seg, start_seg_idx):
+    """
+    Create polygons from segments within every slice
+    """
+    # Start the polygon with the first piece of the segment
+    polygon = [seg[0]]
+    # Begin trackign the segment index
+    seg_idx = start_seg_idx
+
+    # As long as there are valid segments, loop through them
+    while seg_idx != -1:
+        # Add segment end to the polygon
+        seg = sliced_layer.segments[seg_idx]
+        polygon.append(seg[1])
+        seg.added_to_polygon = True
+        seg_idx = get_next_seg_idx(seg, start_seg_idx)
+        # If the polygon closes, add it to the list of polygons and
+        # return
+        if seg_idx == start_seg_idx:
+            sliced_layer.polygons.append(polgyon)
+            return
+
+    # TODO: Need to handle open polylines...?
+    # sliced_layer.polygons.append(polygon)
+    return
+    
+
+def get_next_seg_idx(seg, start_seg_idx):
+    """
+    Get the next segment idx to add to a polygon
+    Utilizes the next face index that was calculated at 
+    the loading of the mesh
+    """
+    next_seg_idx = -1
+
+    if seg.end_vertex:
+        if seg.next_face_idx != -1:
+            return try_face_next_seg_idx(segment, seg.next_face_idx, start_seg_idx)
+        else:
+            return -1
+    else:
+        # Segment ended at vertex
+
+
 
 
 def calculate_segment(p0, p1, p2, z):
@@ -215,21 +242,6 @@ def plot_polygons(polygons):
     plt.show()
 
 
-def write_layer(S):
-    unordered_segments = S.segments
-    polygons = layer_graph(unordered_segments, S.layer_number)
-    print(S.layer_number)
-    
-    cv2_rasterize(polygons=polygons,
-                  output_file=S.filename,
-                  layer=S.layer_number,
-                  height=S.height,
-                  width=S.width,
-                  transform=S.transform)
-
-    # plot_polygon_points(polygons)
-
-
 class Slice(object):
     """
     A slice of a build, containing all segments within that layer
@@ -249,38 +261,43 @@ class Slice(object):
         self.height = 4800
         self.width = 7600
         self.transform = transform
+        self.polygons = []
 
     def add_segment(self, segment):
         self.segments.append(segment)
 
+
+class Segment(object):
+    """
+    A segment 
+    """
+    def __init__(self, segment, face_idx, next_face_idx, end_vertex):
+        self.segment = segment
+        self.face_idx = face_idx
+        self.next_face_idx = next_face_idx
+        self.added_to_polygon = False
+        self.end_vertex = end_vertex
+
+
+
 def main():
     # f = './test_stl/logo.stl'
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    f = './test_stl/nist.stl'
+    # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
     # f = './test_stl/links.stl'
+    # f = './test_stl/square_cylinder.stl'
     mesh = stl.Mesh.from_file(f)
-    resolution = 0.05
-    Slices = get_unordered_slices(mesh, resolution)
-    for Slice in Slices:
-        write_layer(Slice)
+    resolution = 1.0
+    Slices = get_slices(mesh, resolution)
+    # for Slice in Slices:
+    #     cv2_raserize(Slice)
     # pool = Pool(5)
     # pool.map(write_layer, Slices)
-
-
-
-    # for i, s in enumerate(slices):
-    #     print(i)
-    #     polygons = layer_graph(s)
-    #     vector_layers[i] = polygons
-        # plot_polygon_points(polygons)
-
-    # with open('vector_layers.json', 'w') as f:
-    #     json.dump(vector_layers, f)
 
 
 

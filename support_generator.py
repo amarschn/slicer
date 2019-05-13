@@ -37,6 +37,17 @@ DEFAULT_SETTINGS = {
     "separator_spacing": 50
 }
 
+def simple_blast_holes(mesh):
+    """
+    Adds simple blast holes to a mesh. Returns the modified mesh
+    Several assumptions are made:
+    - The mesh is a support wall
+    - The mesh does not contain any parts that are not support
+    - The wall is roughly convex
+    """
+    _, center, _ = mesh.get_mass_properties()
+    
+
 
 def create_support(mesh, resolution, offset, wall_thickness):
     """
@@ -351,9 +362,9 @@ def offset_points(points, offset, miter_type="ROUND", miter_limit=5):
 
 def main():
     # f = './test_stl/square_cylinder.stl'
-    # f = './test_stl/4_Parts.stl'
+    f = './test_stl/4_Parts.stl'
     # f = './test_stl/4_brackets.STL'
-    f = './test_stl/prism.stl'
+    # f = './test_stl/prism.stl'
     # f = '../OpenGL-STL-slicer/nist.stl'
     # f = '../OpenGL-STL-slicer/prism.stl'
     # f = './test_stl/links.stl'
@@ -380,5 +391,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    test_clipper_support()
+    main()
+    # test_clipper_support()

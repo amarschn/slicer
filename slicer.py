@@ -6,6 +6,7 @@ import os
 import sys
 from multiprocessing import Pool
 import ipdb
+from optimized_mesh import OptimizedMesh
 
 
 def slice_mesh(optimized_mesh, resolution):
@@ -30,9 +31,9 @@ def slice_mesh(optimized_mesh, resolution):
         # slice_list.append([])
 
     for face in optimized_mesh.faces:
-        p0 = face.vertices[face.vertex_indices[0]].p
-        p1 = face.vertices[face.vertex_indices[1]].p
-        p2 = face.vertices[face.vertex_indices[2]].p
+        p0 = optimized_mesh.vertices[face.vertex_indices[0]].p
+        p1 = optimized_mesh.vertices[face.vertex_indices[1]].p
+        p2 = optimized_mesh.vertices[face.vertex_indices[2]].p
 
         (z0, z1, z2) = p0[2], p1[2], p2[2]
 
@@ -48,7 +49,7 @@ def slice_mesh(optimized_mesh, resolution):
                 segment = calculate_segment(p0, p2, p1, z)
                 end_edge_idx = 0
                 if p1[2] == z:
-                    end_vertex = face.vertices[face.vertex_indices[1]]
+                    end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
 
             elif z0 > z and z1 < z and z2 < z:
                 # What condition is this?
@@ -60,7 +61,7 @@ def slice_mesh(optimized_mesh, resolution):
                 segment = calculate_segment(p1, p0, p2, z)
                 end_edge_idx = 1
                 if p2[2] == z:
-                    end_vertex = face.vertices[face.vertex_indices[2]]
+                    end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
 
             elif z0 < z and z1 > z and z2 < z:
                 # What condition is this?
@@ -72,7 +73,7 @@ def slice_mesh(optimized_mesh, resolution):
                 segment = calculate_segment(p2, p1, p0, z)
                 end_edge_idx = 2
                 if p0[2] == z:
-                    end_vertex = face.vertices[face.vertex_indices[0]]
+                    end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
 
             elif z0 < z and z1 < z and z2 > z:
                 # What condition is this?
@@ -88,12 +89,8 @@ def slice_mesh(optimized_mesh, resolution):
                 next_face = face.connected_face_index[end_edge_idx]
                 S = Segment(segment, face.idx, next_face, end_vertex)
                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
-                sliced_layer.add_segment(S)
+                sliced_layer.segments.append(S)
     return slices
-
-
-
-
 
 
 def calculate_segment(p0, p1, p2, z):
@@ -146,54 +143,6 @@ def segment_test():
     return segments
 
 
-def plot_individual_segments(segments):
-    """
-    Plots individual segments as separate colors
-    """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    for s in segments:
-        x = [s[0][0], s[1][0]]
-        y = [s[0][1], s[1][1]]
-        ax.plot(x, y, '.', lineStyle='None')
-
-        x0 = s[0][0]
-        x1 = s[1][0]
-        y0 = s[0][1]
-        y1 = s[1][1]
-        ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.5, length_includes_head=True)
-    plt.show()
-
-
-def plot_polygons(polygons):
-    """
-    Expects an array of [(x1,y1), (x2,y2), ... ] arrays and will plot those array as a digraph of points to points
-    :param polygon_points:
-    :return:
-    """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    for polygon_pts in polygons:
-        for i, point in enumerate(polygon_pts):
-            x0 = point[0]
-            y0 = point[1]
-            if i == len(polygon_pts) - 1:
-                next_idx = 0
-            else:
-                next_idx = i+1
-
-            x1 = polygon_pts[next_idx][0]
-            y1 = polygon_pts[next_idx][1]
-
-            ax.plot(x0, y0, '.', lineStyle='None')
-            ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
-    plt.show()
-
-
 class Slice(object):
     """
     A slice of a build, containing all segments within that layer
@@ -216,36 +165,34 @@ class Slice(object):
         self.polygons = []
         self.face_idx_to_seg_idx = {}
 
-    def add_segment(self, segment):
-        self.segments.append(segment)
 
-    def make_polygons(self, sliced_layer):
-        for seg_idx, seg in enumerate(sliced_layer.segments):
+    def make_polygons(self):
+        for seg_idx, seg in enumerate(self.segments):
             if not seg.added_to_polygon:
-                self.make_basic_polygon_loop(sliced_layer, seg, seg_idx)
+                self.make_basic_polygon_loop(seg, seg_idx)
 
-        sliced_layer.segments = []
+        self.segments = []
 
-    def make_basic_polygon_loop(self, sliced_layer, seg, start_seg_idx):
+    def make_basic_polygon_loop(self, seg, start_seg_idx):
         """
         Create polygons from segments within every slice
         """
         # Start the polygon with the first piece of the segment
-        polygon = [seg[0]]
+        polygon = [seg.segment[0]]
         # Begin tracking the segment index
         seg_idx = start_seg_idx
 
         # As long as there are valid segments, loop through them
         while seg_idx != -1:
             # Add segment end to the polygon
-            seg = sliced_layer.segments[seg_idx]
-            polygon.append(seg[1])
+            seg = self.segments[seg_idx]
+            polygon.append(seg.segment[1])
             seg.added_to_polygon = True
             seg_idx = self.get_next_seg_idx(seg, start_seg_idx)
             # If the polygon closes, add it to the list of polygons and
             # return
             if seg_idx == start_seg_idx:
-                sliced_layer.polygons.append(polygon)
+                self.polygons.append(polygon)
                 return
 
         # TODO: Need to handle open polylines...?
@@ -260,14 +207,14 @@ class Slice(object):
         """
         next_seg_idx = -1
 
-        if seg.end_vertex:
+        if seg.end_vertex is None:
             if seg.next_face_idx != -1:
-                return self.try_face_next_seg_idx(seg, seg.next_face_idx, start_seg_idx)
+                return self.try_next_face_seg_idx(seg, seg.next_face_idx, start_seg_idx)
         else:
             # if the segment ended at a vertex, look for other faces to try to get the
             # next segment
             for face in seg.end_vertex.connected_faces:
-                result_seg_idx = self.try_next_face_seg_idx(seg, face.idx, start_seg_idx)
+                result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
 
                 if result_seg_idx == start_seg_idx:
                     return start_seg_idx
@@ -294,6 +241,30 @@ class Slice(object):
             return seg_idx
 
 
+    def plot_polygons(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        for polygon_pts in self.polygons:
+            for i, point in enumerate(polygon_pts):
+                x0 = point[0]
+                y0 = point[1]
+                if i == len(polygon_pts) - 1:
+                    next_idx = 0
+                else:
+                    next_idx = i+1
+
+                x1 = polygon_pts[next_idx][0]
+                y1 = polygon_pts[next_idx][1]
+
+                ax.plot(x0, y0, '.', lineStyle='None')
+                try:
+                    ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
+                except:
+                    ipdb.set_trace()
+        plt.show()
+
 class Segment(object):
     """
     A segment 
@@ -318,19 +289,20 @@ def main():
     # f = './test_stl/concentric_1.stl'
     # f = './test_stl/links.stl'
     # f = './test_stl/square_cylinder.stl'
-    mesh = stl.Mesh.from_file(f)
+    optimized_mesh = OptimizedMesh(f)
+    optimized_mesh.complete()
     resolution = 1.0
-    Slices = get_slices(mesh, resolution)
-    # for Slice in Slices:
-    #     cv2_raserize(Slice)
-    # pool = Pool(5)
-    # pool.map(write_layer, Slices)
+    Slices = slice_mesh(optimized_mesh, resolution)
+    for layer in Slices:
+        layer.make_polygons()
+        # ipdb.set_trace()
+        layer.plot_polygons()
 
 
 
 if __name__ == '__main__':
-    import cProfile
-    cProfile.runctx('main()', globals(), locals(), filename=None)
-    # main()
+    # import cProfile
+    # cProfile.runctx('main()', globals(), locals(), filename=None)
+    main()
     # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
     # plt.show()

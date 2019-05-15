@@ -5,8 +5,11 @@ from image_writer import cv2_rasterize
 import os
 import sys
 from multiprocessing import Pool
-import ipdb
 from optimized_mesh import OptimizedMesh
+import queue
+import networkx as nx
+
+CONNECTED_GAP = 0.01
 
 
 def slice_mesh(optimized_mesh, resolution):
@@ -24,11 +27,10 @@ def slice_mesh(optimized_mesh, resolution):
     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
 
     slices = []
-    # slice_list = []
+
     for i, layer in enumerate(layers):
         sl = Slice(layer_number=i)
         slices.append(sl)
-        # slice_list.append([])
 
     for face in optimized_mesh.faces:
         p0 = optimized_mesh.vertices[face.vertex_indices[0]].p
@@ -86,8 +88,8 @@ def slice_mesh(optimized_mesh, resolution):
 
             if segment:
                 sliced_layer = slices[layer_num]
-                next_face = face.connected_face_index[end_edge_idx]
-                S = Segment(segment, face.idx, next_face, end_vertex)
+                next_face_idx = face.connected_face_index[end_edge_idx]
+                S = Segment(segment, face.idx, next_face_idx, end_vertex)
                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
                 sliced_layer.segments.append(S)
     return slices
@@ -96,7 +98,6 @@ def slice_mesh(optimized_mesh, resolution):
 def calculate_segment(p0, p1, p2, z):
     """
     """
-    # ipdb.set_trace()
     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
     x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])
 
@@ -153,32 +154,36 @@ class Slice(object):
                  height=4800,
                  width=7200,
                  transform=np.eye(3)):
-        self.filename = os.path.join('./output', "layer_{}.png".format(layer_number))
+        self.filename = os.path.join('./output', "layer_{}.bmp".format(layer_number))
         if segments is None:
             self.segments = []
         else:
             self.segments = segments
         self.layer_number = layer_number
-        self.height = 4800
-        self.width = 7600
+        self.height = height
+        self.width = width
         self.transform = transform
         self.polygons = []
         self.face_idx_to_seg_idx = {}
-
+        self.open_polylines = []
 
     def make_polygons(self):
         for seg_idx, seg in enumerate(self.segments):
             if not seg.added_to_polygon:
                 self.make_basic_polygon_loop(seg, seg_idx)
 
-        self.segments = []
+        if self.open_polylines:
+            self.polygons = self.layer_graph()
+        # Clear the segment list for this layer as it is no longer useful
+        # self.segments = []
 
     def make_basic_polygon_loop(self, seg, start_seg_idx):
         """
         Create polygons from segments within every slice
         """
         # Start the polygon with the first piece of the segment
-        polygon = [seg.segment[0]]
+        # polygon = [seg.segment[0]]
+        polygon = []
         # Begin tracking the segment index
         seg_idx = start_seg_idx
 
@@ -195,7 +200,7 @@ class Slice(object):
                 self.polygons.append(polygon)
                 return
 
-        # TODO: Need to handle open polylines...?
+        self.open_polylines.append(polygon)
         # sliced_layer.polygons.append(polygon)
         return
 
@@ -207,9 +212,12 @@ class Slice(object):
         """
         next_seg_idx = -1
 
+        # If the segment end vertex is None, the segment ended at an edge
         if seg.end_vertex is None:
             if seg.next_face_idx != -1:
                 return self.try_next_face_seg_idx(seg, seg.next_face_idx, start_seg_idx)
+            else:
+                return -1
         else:
             # if the segment ended at a vertex, look for other faces to try to get the
             # next segment
@@ -221,7 +229,6 @@ class Slice(object):
                 elif result_seg_idx != -1:
                     next_seg_idx = result_seg_idx
         return next_seg_idx
-
 
     def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):
         """
@@ -240,6 +247,49 @@ class Slice(object):
         else:
             return seg_idx
 
+    def connect_open_polylines(self):
+        # Find all possible stitches
+        # stitch_pq = self.find_possible_stitches()
+        pass
+
+    def layer_graph(self):
+        """
+        This method uses an inefficient digraph approach to generate polygons.
+        Can be used when there are open polylines that need to be joined.
+
+        A more efficient method that can be used to join polylines can be
+        found within the cura implementation.
+
+        Make a digraph with edges representing from all segments
+        Remove the bridges from digraph
+        Return the cycles (aka polygons) of the digraph with all bridges removed.
+
+        Useful links:
+        - https://stackoverflow.com/questions/48736396/algorithm-to-find-bridges-from-cut-vertices
+        - https://visualgo.net/en/dfsbfs
+        :return:
+        """
+        digraph = nx.DiGraph()
+        segs = [s.segment for s in self.segments]
+        for seg in np.round(segs, decimals=3):
+            p1 = tuple(seg[0])
+            p2 = tuple(seg[1])
+
+            if p1 == p2:
+                pass
+            else:
+                digraph.add_edge(p1, p2)
+        graph = nx.Graph(digraph)
+        bridges = nx.bridges(graph)
+
+        for bridge in bridges:
+            try:
+                digraph.remove_edge(bridge[0], bridge[1])
+            except Exception:
+                continue
+
+        cycles = nx.simple_cycles(digraph)
+        return list(cycles)
 
     def plot_polygons(self):
         fig = plt.figure()
@@ -262,8 +312,36 @@ class Slice(object):
                 try:
                     ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.05, length_includes_head=True)
                 except:
-                    ipdb.set_trace()
+                    pass
+                    # print("problem at [x0, y0]: [{}, {}] and [x1, y1]: [{}, {}]".format(x0, y0, x1, y1))
         plt.show()
+
+    def plot_segments(self, only_open_polylines=False):
+        """
+        Plots individual segments as separate colors
+        """
+        if only_open_polylines:
+            segments = self.open_polylines
+        else:
+            segments = self.segments
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        for s in self.segments:
+            seg = s.segment
+            x = [seg[0][0], seg[1][0]]
+            y = [seg[0][1], seg[1][1]]
+            ax.plot(x, y, '.', lineStyle='None')
+
+            x0 = seg[0][0]
+            x1 = seg[1][0]
+            y0 = seg[0][1]
+            y1 = seg[1][1]
+            ax.arrow(x0, y0, x1 - x0, y1 - y0, head_width=0.5, length_includes_head=True)
+        plt.show()
+
 
 class Segment(object):
     """
@@ -277,6 +355,10 @@ class Segment(object):
         self.end_vertex = end_vertex
 
 
+def write_layer(layer):
+    layer.make_polygons()
+    cv2_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+
 
 def main():
     # f = './test_stl/logo.stl'
@@ -289,20 +371,30 @@ def main():
     # f = './test_stl/concentric_1.stl'
     # f = './test_stl/links.stl'
     # f = './test_stl/square_cylinder.stl'
+    # f = './test_stl/prism_hole.stl'
+    # f = './test_stl/holey_prism.stl'
     optimized_mesh = OptimizedMesh(f)
     optimized_mesh.complete()
-    resolution = 1.0
+    resolution = 0.05
     Slices = slice_mesh(optimized_mesh, resolution)
-    for layer in Slices:
-        layer.make_polygons()
-        # ipdb.set_trace()
-        layer.plot_polygons()
-
+    pool = Pool(5)
+    pool.map(write_layer, Slices)
+    # for layer in Slices:
+    #     layer.make_polygons()
+        # print("Layer Number: {}".format(layer.layer_number))
+        # print("Polygons: {}".format(layer.polygons))
+        # layer.plot_segments()
+        # layer.plot_polygons()
+        # layer.plot_segments()
+        # if layer.open_polylines:
+        #     layer.plot_segments(True)
+        #     print(layer.open_polylines)
+        # cv2_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
 
 if __name__ == '__main__':
-    # import cProfile
-    # cProfile.runctx('main()', globals(), locals(), filename=None)
-    main()
+    import cProfile
+    cProfile.runctx('main()', globals(), locals(), filename=None)
+    # main()
     # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
     # plt.show()

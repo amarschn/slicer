@@ -36,6 +36,9 @@ def polygon_orientation(polygon):
     -1 indicates counter clockwise
     1 indicates clockwise
     """
+    if len(polygon) < 3:
+        return -1
+
     min_y = polygon[0][1]
     min_y_x = polygon[0][0]
 
@@ -154,7 +157,7 @@ def arrange_polygons(polygons):
     return arranged_polygons, is_hole
 
 
-def cv2_rasterize(polygons, output_file, layer, height, width, transform):
+def cv2_rasterize(polygons, output_file, layer, height, width, transform=None):
     """
 
     :param polygons: arrays of arrays of tuple points [(x1, y1), (x2, y2), ... ]
@@ -169,15 +172,15 @@ def cv2_rasterize(polygons, output_file, layer, height, width, transform):
     printed_img.fill(255)
 
     for idx, polygon in enumerate(arranged_polygons):
-        # ipdb.set_trace()
         if is_hole[idx]:
             color = 255
         else:
             color = 0
-        polygon = transform_polygon(polygon, transform)
-        points = np.array(polygon) * 24.606
-        cv2.fillPoly(printed_img, np.int32([points]), color)       
 
+        if transform:
+            polygon = transform_polygon(polygon, transform)
+        points = np.array(polygon) * 24.606
+        cv2.fillPoly(printed_img, np.int32([points]), color)
 
     img = np.flip(printed_img, 0)
 

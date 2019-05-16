@@ -358,7 +358,7 @@ class Segment(object):
 
 def write_layer(layer):
     layer.make_polygons()
-    cv2_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+    pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
 def pickle_slices(f, resolution):
     all_polygons = []
@@ -376,14 +376,14 @@ def pickle_slices(f, resolution):
 
 def main():
     # f = './test_stl/logo.stl'
-    f = './test_stl/q01.stl'
+    # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
-    # f = './test_stl/links.stl'
+    f = './test_stl/links.stl'
     # f = './test_stl/square_cylinder.stl'
     # f = './test_stl/prism_hole.stl'
     # f = './test_stl/holey_prism.stl'
@@ -398,14 +398,6 @@ def main():
     # pool.map(write_layer, Slices)
     for layer in Slices:
         layer.make_polygons()
-        # print("Layer Number: {}".format(layer.layer_number))
-        # print("Polygons: {}".format(layer.polygons))
-        # layer.plot_segments()
-        # layer.plot_polygons()
-        # layer.plot_segments()
-        # if layer.open_polylines:
-        #     layer.plot_segments(True)
-        #     print(layer.open_polylines)
         pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
 

@@ -224,6 +224,8 @@ def pillow_rasterize(polygons, output_file, layer, height, width, transform=None
     im = Image.new("1", (width, height), 1)
     draw = ImageDraw.Draw(im)
     for idx, polygon in enumerate(arranged_polygons):
+        if len(polygon) < 2:
+            continue
         if is_hole[idx]:
             color = 1
         else:
@@ -231,10 +233,20 @@ def pillow_rasterize(polygons, output_file, layer, height, width, transform=None
 
         if transform:
             polygon = transform_polygon(polygon, transform)
-        polygon = tuple(map(tuple, np.array(polygon)*24.606))
+
+        # Scale the polygon to get to the correct DPI
+        polygon = np.array(polygon)
+        polygon = tuple(map(tuple, polygon*24.606))
         draw.polygon(polygon, fill=color)
 
-        draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
+    # Flip and rotate the image...there has to be a better way to do this...
+    # Look into transforming the entire STL before slicing
+    im = im.transpose(Image.ROTATE_180)
+    im = im.transpose(Image.FLIP_LEFT_RIGHT)
+
+    # Add text of layer number
+    draw = ImageDraw.Draw(im)
+    draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
     im.save(output_file)
 
 class Polygon(object):

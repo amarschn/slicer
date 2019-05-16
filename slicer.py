@@ -9,11 +9,13 @@ from optimized_mesh import OptimizedMesh
 import queue
 import networkx as nx
 import pickle
+import slice_mesh
+
 
 CONNECTED_GAP = 0.01
 
 
-def slice_mesh(optimized_mesh, resolution):
+def mesh_slice(optimized_mesh, resolution):
     """
     For each triangle:
         Get points
@@ -49,38 +51,38 @@ def slice_mesh(optimized_mesh, resolution):
                 continue
             elif z0 < z and z1 >= z and z2 >= z:
                 # What condition is this?
-                segment = calculate_segment(p0, p2, p1, z)
+                segment = slice_mesh.calculate_segment(p0, p2, p1, z)
                 end_edge_idx = 0
                 if p1[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
 
             elif z0 > z and z1 < z and z2 < z:
                 # What condition is this?
-                segment = calculate_segment(p0, p1, p2, z)
+                segment = slice_mesh.calculate_segment(p0, p1, p2, z)
                 end_edge_idx = 2
 
             elif z0 >= z and z1 < z and z2 >= z:
                 # What condition is this?
-                segment = calculate_segment(p1, p0, p2, z)
+                segment = slice_mesh.calculate_segment(p1, p0, p2, z)
                 end_edge_idx = 1
                 if p2[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
 
             elif z0 < z and z1 > z and z2 < z:
                 # What condition is this?
-                segment = calculate_segment(p1, p2, p0, z)
+                segment = slice_mesh.calculate_segment(p1, p2, p0, z)
                 end_edge_idx = 0
 
             elif z0 >= z and z1 >= z and z2 < z:
                 # What condition is this?
-                segment = calculate_segment(p2, p1, p0, z)
+                segment = slice_mesh.calculate_segment(p2, p1, p0, z)
                 end_edge_idx = 2
                 if p0[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
 
             elif z0 < z and z1 < z and z2 > z:
                 # What condition is this?
-                segment = calculate_segment(p2, p0, p1, z)
+                segment = slice_mesh.calculate_segment(p2, p0, p1, z)
                 end_edge_idx = 1
 
             else:
@@ -99,11 +101,11 @@ def slice_mesh(optimized_mesh, resolution):
 def calculate_segment(p0, p1, p2, z):
     """
     """
-    x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
-    x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])
+    x_start = slice_mesh.interpolate(z, p0[2], p1[2], p0[0], p1[0])
+    x_end = slice_mesh.interpolate(z, p0[2], p2[2], p0[0], p2[0])
 
-    y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
-    y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
+    y_start = slice_mesh.interpolate(z, p0[2], p1[2], p0[1], p1[1])
+    y_end = slice_mesh.interpolate(z, p0[2], p2[2], p0[1], p2[1])
 
     return [(x_start, y_start), (x_end, y_end)]
 
@@ -366,7 +368,7 @@ def pickle_slices(f, resolution):
     optimized_mesh = OptimizedMesh(f)
     optimized_mesh.complete()
 
-    Slices = slice_mesh(optimized_mesh, resolution)
+    Slices = mesh_slice(optimized_mesh, resolution)
     for layer in Slices:
         layer.make_polygons()
         all_polygons.append(layer.polygons)
@@ -376,14 +378,14 @@ def pickle_slices(f, resolution):
 
 def main():
     # f = './test_stl/logo.stl'
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
     # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
-    f = './test_stl/links.stl'
+    # f = './test_stl/links.stl'
     # f = './test_stl/square_cylinder.stl'
     # f = './test_stl/prism_hole.stl'
     # f = './test_stl/holey_prism.stl'
@@ -393,7 +395,7 @@ def main():
     optimized_mesh = OptimizedMesh(f)
     optimized_mesh.complete()
 
-    Slices = slice_mesh(optimized_mesh, resolution)
+    Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
     # pool = Pool(5)
     # pool.map(write_layer, Slices)
     for layer in Slices:

@@ -7,11 +7,11 @@ import numpy as np
 from collections import deque
 import cv2
 from PIL import Image, ImageDraw, ImageFont
-import tkioutils
+# import tkioutils
 import os
 
 
-FONT_BOLD = ImageFont.truetype(os.path.join(os.path.dirname(tkioutils.__file__), tkioutils.FONT_BOLD), 100)
+# FONT_BOLD = ImageFont.truetype(os.path.join(os.path.dirname(tkioutils.__file__), tkioutils.FONT_BOLD), 100)
 
 
 def transform_polygon(polygon, transform):
@@ -246,7 +246,7 @@ def pillow_rasterize(polygons, output_file, layer, height, width, transform=None
 
     # Add text of layer number
     draw = ImageDraw.Draw(im)
-    draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
+    # draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
     im.save(output_file)
 
 class Polygon(object):

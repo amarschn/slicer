@@ -1,3 +1,8 @@
+"""Module for exporting image files from the polygons created by slicer.py.
+
+Author: Drew Marschner
+"""
+
 import numpy as np
 from collections import deque
 import cv2
@@ -195,6 +200,7 @@ def cv2_rasterize(polygons, output_file, layer, height, width, transform=None):
                 bottomLeftOrigin=False)
 
     cv2.imwrite(output_file, img)
+
 
 
 class Polygon(object):

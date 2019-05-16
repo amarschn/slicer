@@ -1,13 +1,14 @@
 import stl
 import numpy as np
 import matplotlib.pyplot as plt
-from image_writer import cv2_rasterize
+from image_writer import cv2_rasterize, pillow_rasterize
 import os
 import sys
 from multiprocessing import Pool
 from optimized_mesh import OptimizedMesh
 import queue
 import networkx as nx
+import pickle
 
 CONNECTED_GAP = 0.01
 
@@ -359,6 +360,19 @@ def write_layer(layer):
     layer.make_polygons()
     cv2_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
+def pickle_slices(f, resolution):
+    all_polygons = []
+
+    optimized_mesh = OptimizedMesh(f)
+    optimized_mesh.complete()
+
+    Slices = slice_mesh(optimized_mesh, resolution)
+    for layer in Slices:
+        layer.make_polygons()
+        all_polygons.append(layer.polygons)
+
+    with open('all_polygons.pickle', 'wb') as f:
+        pickle.dump(all_polygons, f)
 
 def main():
     # f = './test_stl/logo.stl'
@@ -373,14 +387,17 @@ def main():
     # f = './test_stl/square_cylinder.stl'
     # f = './test_stl/prism_hole.stl'
     # f = './test_stl/holey_prism.stl'
+
+    resolution = 0.05
+
     optimized_mesh = OptimizedMesh(f)
     optimized_mesh.complete()
-    resolution = 0.05
+
     Slices = slice_mesh(optimized_mesh, resolution)
-    pool = Pool(5)
-    pool.map(write_layer, Slices)
-    # for layer in Slices:
-    #     layer.make_polygons()
+    # pool = Pool(5)
+    # pool.map(write_layer, Slices)
+    for layer in Slices:
+        layer.make_polygons()
         # print("Layer Number: {}".format(layer.layer_number))
         # print("Polygons: {}".format(layer.polygons))
         # layer.plot_segments()
@@ -389,12 +406,11 @@ def main():
         # if layer.open_polylines:
         #     layer.plot_segments(True)
         #     print(layer.open_polylines)
-        # cv2_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+        pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
 
 if __name__ == '__main__':
     import cProfile
     cProfile.runctx('main()', globals(), locals(), filename=None)
     # main()
-    # plt.arrow(0,0,2,2, head_width=0.05, length_includes_head=True)
-    # plt.show()
+    # pickle_slices('./test_stl/q01.stl', 0.05)

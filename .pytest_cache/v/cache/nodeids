@@ -1,1 +1,5 @@
-[]
+[
+  "raster_speed.py::test_cairo",
+  "raster_speed.py::test_cv2",
+  "raster_speed.py::test_pyglet"
+]

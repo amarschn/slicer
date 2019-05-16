@@ -1,3 +1,9 @@
 {
+  "raster_speed.py::test_cairo": true,
+  "raster_speed.py::test_cv2": true,
+  "raster_speed.py::test_pyglet": true,
+  "raster_speed_tests.py::test_cairo": true,
+  "raster_speed_tests.py::test_cv2": true,
+  "raster_speed_tests.py::test_pyglet": true,
   "test_run.py": true
 }

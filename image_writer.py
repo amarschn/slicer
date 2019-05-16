@@ -6,6 +6,12 @@ Author: Drew Marschner
 import numpy as np
 from collections import deque
 import cv2
+from PIL import Image, ImageDraw, ImageFont
+import tkioutils
+import os
+
+
+FONT_BOLD = ImageFont.truetype(os.path.join(os.path.dirname(tkioutils.__file__), tkioutils.FONT_BOLD), 100)
 
 
 def transform_polygon(polygon, transform):
@@ -202,6 +208,34 @@ def cv2_rasterize(polygons, output_file, layer, height, width, transform=None):
     cv2.imwrite(output_file, img)
 
 
+def pillow_rasterize(polygons, output_file, layer, height, width, transform=None):
+    """
+
+    :param polygons:
+    :param output_file:
+    :param layer:
+    :param height:
+    :param width:
+    :param transform:
+    :return:
+    """
+    arranged_polygons, is_hole = arrange_polygons(polygons)
+
+    im = Image.new("1", (width, height), 1)
+    draw = ImageDraw.Draw(im)
+    for idx, polygon in enumerate(arranged_polygons):
+        if is_hole[idx]:
+            color = 1
+        else:
+            color = 0
+
+        if transform:
+            polygon = transform_polygon(polygon, transform)
+        polygon = tuple(map(tuple, np.array(polygon)*24.606))
+        draw.polygon(polygon, fill=color)
+
+        draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
+    im.save(output_file)
 
 class Polygon(object):
     def __init__(self, polygons, layer):

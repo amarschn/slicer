@@ -236,7 +236,7 @@ def pillow_rasterize(polygons, output_file, layer, height, width, transform=None
 
         # Scale the polygon to get to the correct DPI
         polygon = np.array(polygon)
-        polygon = tuple(map(tuple, polygon*24.606))
+        polygon = tuple(map(tuple, polygon * 24.606))
         draw.polygon(polygon, fill=color)
 
     # Flip and rotate the image...there has to be a better way to do this...
@@ -248,6 +248,7 @@ def pillow_rasterize(polygons, output_file, layer, height, width, transform=None
     draw = ImageDraw.Draw(im)
     # draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
     im.save(output_file)
+
 
 class Polygon(object):
     def __init__(self, polygons, layer):

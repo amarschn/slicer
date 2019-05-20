@@ -21,6 +21,10 @@ def test_pyglet(all_polygons):
     pass
 
 
+def test_vips(all_polygons):
+    pass
+
+
 if __name__ == "__main__":
     import pickle
 

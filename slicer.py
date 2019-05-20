@@ -378,10 +378,10 @@ def pickle_slices(f, resolution):
 
 def main():
     # f = './test_stl/logo.stl'
-    f = './test_stl/q01.stl'
+    # f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    # f = './test_stl/nist.stl'
+    f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
@@ -395,12 +395,13 @@ def main():
     optimized_mesh = OptimizedMesh(f)
     optimized_mesh.complete()
 
+    # Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
     Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
     # pool = Pool(5)
     # pool.map(write_layer, Slices)
-    for layer in Slices:
-        layer.make_polygons()
-        pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+    # for layer in Slices:
+    #     layer.make_polygons()
+        # pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
 
 if __name__ == '__main__':

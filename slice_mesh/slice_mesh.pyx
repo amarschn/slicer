@@ -245,10 +245,18 @@ def slice_mesh(optimized_mesh, resolution):
     return slices
 
 
-def interpolate(float y, float y0, float y1, float x0, float x1):
+def slice_triangle(float [:] triangle, slice_layers):
+    """Slice an individual triangle for all slice layers
+    """
+    pass
+
+
+cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     """Interpolates an x value to match the y value, given a 
     line with start point at x0,y0 and end point at x1, y1
     """
+
+    # TODO: should these ints instead for speed reasons?
     cdef float dx = x1 - x0
     cdef float dy = y1 - y0
     cdef float p

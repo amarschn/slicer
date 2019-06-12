@@ -9,6 +9,7 @@ import cv2
 from PIL import Image, ImageDraw, ImageFont
 # import tkioutils
 import os
+import ipdb
 
 
 # FONT_BOLD = ImageFont.truetype(os.path.join(os.path.dirname(tkioutils.__file__), tkioutils.FONT_BOLD), 100)
@@ -219,6 +220,8 @@ def pillow_rasterize(polygons, output_file, layer, height, width, transform=None
     :param transform:
     :return:
     """
+    # if layer == 5:
+    #     ipdb.set_trace()
     arranged_polygons, is_hole = arrange_polygons(polygons)
 
     im = Image.new("1", (width, height), 1)

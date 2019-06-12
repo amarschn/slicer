@@ -1,19 +1,26 @@
 import stl
 import numpy as np
+from cpython cimport array
+import array
 
 DECIMALS = 3
 
-class MeshFace(object):
-    def __init__(self, idx, vertex_indices):
+cdef class MeshFace(object):
+
+    cdef int idx, has_disconnected_faces
+    cdef int[:] vertex_indices
+    cdef array.array connected_face_index
+    def __init__(self, int idx, int[:] vertex_indices):
         self.idx = idx
         self.vertex_indices = vertex_indices
         # The connected face index will have the same ordering as the
         # vertex indices, meaning connected face index 0 is connected
         # via vertex index 0 and 1, etc.
-        self.connected_face_index = []
-        self.has_disconnected_faces = False
+        self.connected_face_index = array.array('i', [])
+        self.has_disconnected_faces = 0
 
 class Vertex(object):
+
     def __init__(self, idx, p):
         self.idx = idx
         self.connected_faces = []
@@ -30,6 +37,7 @@ class OptimizedMesh(object):
     key (hash) : [array of indices representing vertices]
 
     """
+
     def __init__(self, file):
         self.mesh = stl.Mesh.from_file(file)
         self.vertex_hash_map = {}
@@ -38,6 +46,9 @@ class OptimizedMesh(object):
         self.add_faces()
 
     def add_faces(self):
+
+        cdef int[:] vi
+
         for triangle in self.mesh:
             v0 = triangle[0:3]
             v1 = triangle[3:6]
@@ -51,7 +62,11 @@ class OptimizedMesh(object):
                 continue
 
             face_idx = len(self.faces)
-            f = MeshFace(face_idx, (vi0, vi1, vi2))
+            vi = np.array([vi0, vi1, vi2], dtype=np.int32)
+            # cdef array.array vertex_indices = array.array('i', [vi0, vi1, vi2])
+            # cdef int[:] vi = vertex_indices
+            # vi = [vi0, vi1, vi2]
+            f = MeshFace(face_idx, vi)
             self.faces.append(f)
 
             self.vertices[vi0].connected_faces.append(face_idx)

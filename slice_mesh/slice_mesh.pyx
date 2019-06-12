@@ -1,3 +1,5 @@
+# cython: profile=True
+
 import numpy as np
 import networkx as nx
 
@@ -80,8 +82,7 @@ class Slice(object):
             # if the segment ended at a vertex, look for other faces to try to get the
             # next segment
             for face in seg.end_vertex.connected_faces:
-                result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
-
+                result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
                 if result_seg_idx == start_seg_idx:
                     return start_seg_idx
                 elif result_seg_idx != -1:
@@ -98,10 +99,10 @@ class Slice(object):
         """
         seg_idx = self.face_idx_to_seg_idx[face_idx]
 
+        if self.segments[seg_idx].added_to_polygon:
+            return -1
         if seg_idx == start_seg_idx:
             return start_seg_idx
-        elif self.segments[seg_idx].added_to_polygon:
-            return -1
         else:
             return seg_idx
 
@@ -162,7 +163,7 @@ class Segment(object):
         self.end_vertex = end_vertex
 
 
-def slice_mesh(optimized_mesh, resolution):
+def slice_mesh(optimized_mesh, float resolution):
     """
     For each triangle:
         Get points
@@ -272,7 +273,7 @@ cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     return x
 
 
-def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):
+cdef calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):
     """Calculates a segment.
     """
     cdef float x_start, x_end, y_start, y_end

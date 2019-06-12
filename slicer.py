@@ -5,11 +5,12 @@ from image_writer import cv2_rasterize, pillow_rasterize
 import os
 import sys
 from multiprocessing import Pool
-from optimized_mesh import OptimizedMesh
 import queue
 import networkx as nx
 import pickle
 import slice_mesh
+import optimized_mesh
+import ipdb
 
 
 CONNECTED_GAP = 0.01
@@ -91,9 +92,10 @@ def mesh_slice(optimized_mesh, resolution):
 
             if segment:
                 sliced_layer = slices[layer_num]
+                seg_idx = len(sliced_layer.segments)
                 next_face_idx = face.connected_face_index[end_edge_idx]
                 S = Segment(segment, face.idx, next_face_idx, end_vertex)
-                sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
+                sliced_layer.face_idx_to_seg_idx[face.idx] = seg_idx
                 sliced_layer.segments.append(S)
     return slices
 
@@ -169,23 +171,30 @@ class Slice(object):
         self.polygons = []
         self.face_idx_to_seg_idx = {}
         self.open_polylines = []
+        
 
     def make_polygons(self):
+
         for seg_idx, seg in enumerate(self.segments):
             if not seg.added_to_polygon:
                 self.make_basic_polygon_loop(seg, seg_idx)
 
         if self.open_polylines:
             self.polygons = self.layer_graph()
+
+        if self.layer_number == 5:
+            # ipdb.set_trace()
+            # print(self.polygons)
+            # self.plot_polygons()
+            pass
         # Clear the segment list for this layer as it is no longer useful
-        # self.segments = []
+        self.segments = []
 
     def make_basic_polygon_loop(self, seg, start_seg_idx):
         """
         Create polygons from segments within every slice
         """
-        # Start the polygon with the first piece of the segment
-        # polygon = [seg.segment[0]]
+        
         polygon = []
         # Begin tracking the segment index
         seg_idx = start_seg_idx
@@ -213,6 +222,7 @@ class Slice(object):
         Utilizes the next face index that was calculated at
         the loading of the mesh
         """
+        
         next_seg_idx = -1
 
         # If the segment end vertex is None, the segment ended at an edge
@@ -224,9 +234,13 @@ class Slice(object):
         else:
             # if the segment ended at a vertex, look for other faces to try to get the
             # next segment
+            # if self.layer_number == 5:
+            #     print("End vertex: ", np.round(seg.end_vertex.p))
+            #     print("Connected faces: ", seg.end_vertex.connected_faces)
+            #     print("Face Index to Segment Index: ", self.face_idx_to_seg_idx)
             for face in seg.end_vertex.connected_faces:
-                result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
-
+                # result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
+                result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
                 if result_seg_idx == start_seg_idx:
                     return start_seg_idx
                 elif result_seg_idx != -1:
@@ -241,12 +255,17 @@ class Slice(object):
         :param start_seg_idx:
         :return:
         """
-        seg_idx = self.face_idx_to_seg_idx[face_idx]
-
+        # if self.layer_number == 5:
+        #     ipdb.set_trace()
+        
+        try:
+            seg_idx = self.face_idx_to_seg_idx[face_idx]
+        except:
+            return -1
+        if self.segments[seg_idx].added_to_polygon:
+            return -1
         if seg_idx == start_seg_idx:
             return start_seg_idx
-        elif self.segments[seg_idx].added_to_polygon:
-            return -1
         else:
             return seg_idx
 
@@ -362,13 +381,14 @@ def write_layer(layer):
     layer.make_polygons()
     pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
+
 def pickle_slices(f, resolution):
     all_polygons = []
 
-    optimized_mesh = OptimizedMesh(f)
-    optimized_mesh.complete()
+    mesh = optimized_mesh.OptimizedMesh(f)
+    mesh.complete()
 
-    Slices = mesh_slice(optimized_mesh, resolution)
+    Slices = mesh_slice(mesh, resolution)
     for layer in Slices:
         layer.make_polygons()
         all_polygons.append(layer.polygons)
@@ -376,12 +396,13 @@ def pickle_slices(f, resolution):
     with open('all_polygons.pickle', 'wb') as f:
         pickle.dump(all_polygons, f)
 
+
 def main():
     # f = './test_stl/logo.stl'
-    # f = './test_stl/q01.stl'
+    f = './test_stl/q01.stl'
     # f = './test_stl/cylinder.stl'
     # f = './test_stl/prism.stl'
-    f = './test_stl/nist.stl'
+    # f = './test_stl/nist.stl'
     # f = './test_stl/hollow_prism.stl'
     # f = './test_stl/10_side_hollow_prism.stl'
     # f = './test_stl/concentric_1.stl'
@@ -391,17 +412,23 @@ def main():
     # f = './test_stl/holey_prism.stl'
 
     resolution = 0.05
+    mesh = optimized_mesh.OptimizedMesh(f)
+    mesh.complete()
 
-    optimized_mesh = OptimizedMesh(f)
-    optimized_mesh.complete()
+    # for face in mesh.faces:
+    #     print("Index: ", face.idx)
+    #     v_idx = face.vertex_indices
+    #     vertices = []
+    #     for v in v_idx:
+    #         print(np.round(mesh.vertices[v].p))
 
-    # Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
-    Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
+    # Slices = mesh_slice(mesh, resolution)
+    Slices = slice_mesh.slice_mesh(mesh, resolution)
     # pool = Pool(5)
     # pool.map(write_layer, Slices)
     # for layer in Slices:
     #     layer.make_polygons()
-        # pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+    #     pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
 
 
 if __name__ == '__main__':

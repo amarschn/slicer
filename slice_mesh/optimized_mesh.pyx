@@ -5,25 +5,14 @@ import numpy as np
 from cpython cimport array
 import array
 
-DECIMALS = 3
+cdef int DECIMALS = 3
 
-# cdef class MeshFace(object):
+cdef class MeshFace(object):
 
-#     cdef int idx, has_disconnected_faces
-#     cdef int[:] vertex_indices
-#     cdef array.array connected_face_index
-#     def __init__(self, int idx, int[:] vertex_indices):
-#         self.idx = idx
-#         self.vertex_indices = vertex_indices
-#         # The connected face index will have the same ordering as the
-#         # vertex indices, meaning connected face index 0 is connected
-#         # via vertex index 0 and 1, etc.
-#         self.connected_face_index = array.array('i', [])
-#         self.has_disconnected_faces = 0
-
-class MeshFace(object):
-
-    def __init__(self, idx, vertex_indices):
+    cdef int idx, has_disconnected_faces
+    cdef int[:] vertex_indices
+    cdef array.array connected_face_index
+    def __cinit__(self, int idx, int[:] vertex_indices):
         self.idx = idx
         self.vertex_indices = vertex_indices
         # The connected face index will have the same ordering as the
@@ -32,15 +21,20 @@ class MeshFace(object):
         self.connected_face_index = array.array('i', [])
         self.has_disconnected_faces = 0
 
-class Vertex(object):
 
-    def __init__(self, idx, p):
+cdef class Vertex(object):
+
+    cdef int idx
+    cdef array.array connected_faces
+    cdef (float, float, float) p
+
+    def __cinit__(self, int idx, (float, float, float) p):
         self.idx = idx
-        self.connected_faces = []
+        self.connected_faces = array.array('i', [])
         self.p = p
 
 
-class OptimizedMesh(object):
+cdef class OptimizedMesh(object):
     """
     Modeled on CuraEngine's optimized model of a mesh, links neighboring
     faces so that slicing can be much faster
@@ -51,35 +45,31 @@ class OptimizedMesh(object):
 
     """
 
+    cdef list triangles
+    cdef dict vertex_hash_map
+    cdef list vertices
+    cdef list faces
+
+    # def __cinit__(self):
     def __init__(self, file):
-        self.mesh = stl.Mesh.from_file(file)
-        self.triangles = np.round(self.mesh.points, decimals=DECIMALS)
+        mesh = stl.Mesh.from_file(file)
+        mesh = np.round(mesh.vectors, decimals=DECIMALS)
+        self.triangles = [tuple(map(tuple, v)) for v in mesh]
         self.vertex_hash_map = {}
         self.vertices = []
         self.faces = []
         self.add_faces()
 
-    def make_tuples(self):
-        return [tuple(map(tuple, v)) for v in self.mesh.vectors]
-
     def add_faces(self):
 
-        # cdef int[:] vi
-        # v0_all = map(tuple, self.mesh.v0)
-        # v1_all = map(tuple, self.mesh.v1)
-        # v2_all = map(tuple, self.mesh.v2)
+        cdef int[:] vi
+        cdef int face_idx
 
-        triangles = self.make_tuples()
+        for i in range(len(self.triangles)):
 
-        # for i, triangle in enumerate(self.mesh):
-        #     v0 = v0_all[i]
-        #     v1 = v1_all[i]
-        #     v2 = v2_all[i]
-        for triangle in triangles:
-
-            v0 = triangle[0]
-            v1 = triangle[1]
-            v2 = triangle[2]
+            v0 = self.triangles[i][0]
+            v1 = self.triangles[i][1]
+            v2 = self.triangles[i][2]
 
             vi0 = self.find_idx_of_vertex(v0)
             vi1 = self.find_idx_of_vertex(v1)
@@ -89,25 +79,18 @@ class OptimizedMesh(object):
                 continue
 
             face_idx = len(self.faces)
-            # vi = np.array([vi0, vi1, vi2], dtype=np.int32)
-            # cdef array.array vertex_indices = array.array('i', [vi0, vi1, vi2])
-            # cdef int[:] vi = vertex_indices
-            vi = [vi0, vi1, vi2]
+            vi = np.array([vi0, vi1, vi2], dtype=np.int32)
             f = MeshFace(face_idx, vi)
             self.faces.append(f)
-
-            self.vertices[vi0].connected_faces.append(face_idx)
-            self.vertices[vi1].connected_faces.append(face_idx)
-            self.vertices[vi2].connected_faces.append(face_idx)
+            # self.vertices[vi0].connected_faces.append(face_idx)
+            # self.vertices[vi1].connected_faces.append(face_idx)
+            # self.vertices[vi2].connected_faces.append(face_idx)
 
     def find_idx_of_vertex(self, v):
         """
         Returns the index of a vertex.
         If the vertex is not in the vertex hash map, it is added.
         """
-        # Find the hash of the vertex
-        # v_hash = tuple(v)   
-
         # If the vertex hash is already stored, then get the key
         index = self.vertex_hash_map.get(v)
 

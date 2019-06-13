@@ -22,7 +22,7 @@ if __name__ == '__main__':
     import optimized_mesh
 
     f = '../test_stl/links.stl'
-    cProfile.runctx("create_optimized_mesh(f)", globals(), locals(),
+    cProfile.runctx("optimized_mesh.OptimizedMesh(f)", globals(), locals(),
                     "optimized_mesh.prof")
     s = pstats.Stats("optimized_mesh.prof")
     s.strip_dirs().sort_stats("time").print_stats()

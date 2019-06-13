@@ -1,3 +1,5 @@
+#cython: profile=True
+
 import stl
 import numpy as np
 from cpython cimport array
@@ -5,12 +7,23 @@ import array
 
 DECIMALS = 3
 
-cdef class MeshFace(object):
+# cdef class MeshFace(object):
 
-    cdef int idx, has_disconnected_faces
-    cdef int[:] vertex_indices
-    cdef array.array connected_face_index
-    def __init__(self, int idx, int[:] vertex_indices):
+#     cdef int idx, has_disconnected_faces
+#     cdef int[:] vertex_indices
+#     cdef array.array connected_face_index
+#     def __init__(self, int idx, int[:] vertex_indices):
+#         self.idx = idx
+#         self.vertex_indices = vertex_indices
+#         # The connected face index will have the same ordering as the
+#         # vertex indices, meaning connected face index 0 is connected
+#         # via vertex index 0 and 1, etc.
+#         self.connected_face_index = array.array('i', [])
+#         self.has_disconnected_faces = 0
+
+class MeshFace(object):
+
+    def __init__(self, idx, vertex_indices):
         self.idx = idx
         self.vertex_indices = vertex_indices
         # The connected face index will have the same ordering as the
@@ -40,19 +53,33 @@ class OptimizedMesh(object):
 
     def __init__(self, file):
         self.mesh = stl.Mesh.from_file(file)
+        self.triangles = np.round(self.mesh.points, decimals=DECIMALS)
         self.vertex_hash_map = {}
         self.vertices = []
         self.faces = []
         self.add_faces()
 
+    def make_tuples(self):
+        return [tuple(map(tuple, v)) for v in self.mesh.vectors]
+
     def add_faces(self):
 
-        cdef int[:] vi
+        # cdef int[:] vi
+        # v0_all = map(tuple, self.mesh.v0)
+        # v1_all = map(tuple, self.mesh.v1)
+        # v2_all = map(tuple, self.mesh.v2)
 
-        for triangle in self.mesh:
-            v0 = triangle[0:3]
-            v1 = triangle[3:6]
-            v2 = triangle[6:9]
+        triangles = self.make_tuples()
+
+        # for i, triangle in enumerate(self.mesh):
+        #     v0 = v0_all[i]
+        #     v1 = v1_all[i]
+        #     v2 = v2_all[i]
+        for triangle in triangles:
+
+            v0 = triangle[0]
+            v1 = triangle[1]
+            v2 = triangle[2]
 
             vi0 = self.find_idx_of_vertex(v0)
             vi1 = self.find_idx_of_vertex(v1)
@@ -62,10 +89,10 @@ class OptimizedMesh(object):
                 continue
 
             face_idx = len(self.faces)
-            vi = np.array([vi0, vi1, vi2], dtype=np.int32)
+            # vi = np.array([vi0, vi1, vi2], dtype=np.int32)
             # cdef array.array vertex_indices = array.array('i', [vi0, vi1, vi2])
             # cdef int[:] vi = vertex_indices
-            # vi = [vi0, vi1, vi2]
+            vi = [vi0, vi1, vi2]
             f = MeshFace(face_idx, vi)
             self.faces.append(f)
 
@@ -79,16 +106,16 @@ class OptimizedMesh(object):
         If the vertex is not in the vertex hash map, it is added.
         """
         # Find the hash of the vertex
-        v_hash = self.point_hash(v)
+        # v_hash = tuple(v)   
 
         # If the vertex hash is already stored, then get the key
-        index = self.vertex_hash_map.get(v_hash)
+        index = self.vertex_hash_map.get(v)
 
         if index is not None:
             return index
         else:
             index = len(self.vertices)
-            self.vertex_hash_map[v_hash] = index
+            self.vertex_hash_map[v] = index
             vertex = Vertex(index, v)
             self.vertices.append(vertex)
             return index
@@ -99,7 +126,7 @@ class OptimizedMesh(object):
         Returns a hash for the vertex and any other point within
         the meld distance
         """
-        v = np.round(v, decimals = DECIMALS)
+        # v = np.round(v, decimals = DECIMALS)
         return tuple(v)
 
 
@@ -200,7 +227,16 @@ class OptimizedMesh(object):
 
 if __name__ == '__main__':
     # f = './test_stl/4_parts.stl'
-    f = './test_stl/q01.stl'
-    o = OptimizedMesh(f)
-    o.complete()
+    import pstats
+    import cProfile
+    import pyximport
+    pyximport.install()
+
+    import optimized_mesh
+
+    f = '../test_stl/links.stl'
+    cProfile.runctx("optimized_mesh.OptimizedMesh(f)", globals(), locals(),
+                    "optimized_mesh.prof")
+    s = pstats.Stats("optimized_mesh.prof")
+    s.strip_dirs().sort_stats("time").print_stats()
 

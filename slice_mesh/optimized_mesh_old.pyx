@@ -36,16 +36,17 @@ class OptimizedMesh(object):
 
     def __init__(self, file):
         self.mesh = stl.Mesh.from_file(file)
+        self.triangles = np.round(self.mesh.vectors, decimals=DECIMALS)
         self.vertex_hash_map = {}
         self.vertices = []
         self.faces = []
         self.add_faces()
 
     def add_faces(self):
-        for triangle in self.mesh:
-            v0 = triangle[0:3]
-            v1 = triangle[3:6]
-            v2 = triangle[6:9]
+        for triangle in self.triangles:
+            v0 = triangle[0]
+            v1 = triangle[1]
+            v2 = triangle[2]
 
             vi0 = self.find_idx_of_vertex(v0)
             vi1 = self.find_idx_of_vertex(v1)
@@ -68,7 +69,7 @@ class OptimizedMesh(object):
         If the vertex is not in the vertex hash map, it is added.
         """
         # Find the hash of the vertex
-        v_hash = self.point_hash(v)
+        v_hash = tuple(v)
 
         # If the vertex hash is already stored, then get the key
         index = self.vertex_hash_map.get(v_hash)

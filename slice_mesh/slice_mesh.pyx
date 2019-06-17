@@ -1,6 +1,7 @@
 # cython: profile=True
 
 import numpy as np
+cimport numpy as np
 import networkx as nx
 
 
@@ -273,7 +274,7 @@ cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     return x
 
 
-cdef calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):
+cdef calculate_segment(np.ndarray p0, np.ndarray p1, np.ndarray p2, float z):
     """Calculates a segment.
     """
     cdef float x_start, x_end, y_start, y_end

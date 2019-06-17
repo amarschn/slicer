@@ -5,13 +5,8 @@ import array
 
 DECIMALS = 3
 
-cdef class MeshFace(object):
-    cdef int idx;
-    cdef int[:] vertex_indices;
-    cdef int[:] connected_face_index;
-    cdef int has_disconnected_faces;
-
-    def __init__(self, int idx, int[:] vertex_indices):
+class MeshFace(object):
+    def __init__(self, idx, vertex_indices):
         self.idx = idx
         self.vertex_indices = vertex_indices
         # The connected face index will have the same ordering as the
@@ -20,17 +15,15 @@ cdef class MeshFace(object):
         self.connected_face_index = array.array('i', [])
         self.has_disconnected_faces = 0
 
-cdef class Vertex(object):
-    cdef int idx;
-    cdef float[:] connected_faces;
+class Vertex(object):
 
-    def __init__(self, int idx, float[:] p):
+    def __init__(self, idx, p):
         self.idx = idx
-        self.connected_faces = array.array('f', [])
+        self.connected_faces = []
         self.p = p
 
 
-cdef class OptimizedMesh(object):
+class OptimizedMesh(object):
     """
     Modeled on CuraEngine's optimized model of a mesh, links neighboring
     faces so that slicing can be much faster

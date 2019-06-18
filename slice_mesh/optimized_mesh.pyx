@@ -6,6 +6,7 @@ from cpython cimport array
 import array
 
 DECIMALS = 3
+ctypedef np.float_t DTYPE_t
 
 class MeshFace(object):
     def __init__(self, idx, vertex_indices):
@@ -18,7 +19,6 @@ class MeshFace(object):
         self.has_disconnected_faces = 0
 
 class Vertex(object):
-
     def __init__(self, idx, p):
         self.idx = idx
         self.connected_faces = []

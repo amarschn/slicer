@@ -7,8 +7,8 @@ from distutils.extension import Extension
 import numpy
 
 extensions = [
-    Extension("optimized_mesh",
-              sources=["optimized_mesh.pyx"],
+    Extension("slice_mesh",
+              sources=["slice_mesh.pyx"],
               include_dirs=[numpy.get_include()],
               language="c++",
               extra_compile_args=["-stdlib=libc++", "-fpic"])

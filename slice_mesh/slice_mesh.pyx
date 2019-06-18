@@ -1,8 +1,13 @@
 # cython: profile=True
+# cython: linetrace=True
+# distutils: define_macros=CYTHON_TRACE_NOGIL=1
 
 import numpy as np
 cimport numpy as np
 import networkx as nx
+
+DTYPE = np.float32
+ctypedef np.float32_t DTYPE_t
 
 
 class Slice(object):
@@ -175,8 +180,12 @@ def slice_mesh(optimized_mesh, float resolution):
     :param resolution:
     :return:
     """
-    height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()
+    cdef float height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()
     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
+    cdef float z0, z1, z2
+
+    cdef np.ndarray segment
+    cdef np.ndarray p0, p1, p2
 
     slices = []
 
@@ -192,7 +201,6 @@ def slice_mesh(optimized_mesh, float resolution):
         (z0, z1, z2) = p0[2], p1[2], p2[2]
 
         for layer_num, z in enumerate(layers):
-            segment = []
             end_vertex = None
             if z < min(z0, z1, z2):
                 continue
@@ -238,7 +246,7 @@ def slice_mesh(optimized_mesh, float resolution):
                 # Not all cases create a segment
                 continue
 
-            if segment:
+            if segment.size == 0:
                 sliced_layer = slices[layer_num]
                 next_face_idx = face.connected_face_index[end_edge_idx]
                 S = Segment(segment, face.idx, next_face_idx, end_vertex)
@@ -274,7 +282,10 @@ cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     return x
 
 
-cdef calculate_segment(np.ndarray p0, np.ndarray p1, np.ndarray p2, float z):
+cdef np.ndarray[DTYPE_t, ndim=2] calculate_segment(np.ndarray[DTYPE_t, ndim=1] p0,
+                                  np.ndarray[DTYPE_t, ndim=1] p1,
+                                  np.ndarray[DTYPE_t, ndim=1] p2,
+                                  float z):
     """Calculates a segment.
     """
     cdef float x_start, x_end, y_start, y_end
@@ -285,4 +296,4 @@ cdef calculate_segment(np.ndarray p0, np.ndarray p1, np.ndarray p2, float z):
     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
 
-    return [(x_start, y_start), (x_end, y_end)]
+    return np.array([[x_start, y_start], [x_end, y_end]])

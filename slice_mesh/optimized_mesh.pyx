@@ -1,12 +1,14 @@
 #cython: profile=True
 
 import stl
-import numpy as np
 from cpython cimport array
-import array
+import numpy as np
+cimport numpy as np
+
 
 DECIMALS = 3
-ctypedef np.float_t DTYPE_t
+DTYPE = np.float32
+ctypedef np.float32_t DTYPE_t
 
 class MeshFace(object):
     def __init__(self, idx, vertex_indices):
@@ -45,6 +47,10 @@ class OptimizedMesh(object):
         self.add_faces()
 
     def add_faces(self):
+        cdef np.ndarray[DTYPE_t, ndim=1] v0
+        cdef np.ndarray[DTYPE_t, ndim=1] v1
+        cdef np.ndarray[DTYPE_t, ndim=1] v2
+
         for triangle in self.triangles:
             v0 = triangle[0]
             v1 = triangle[1]

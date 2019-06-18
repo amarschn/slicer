@@ -185,7 +185,9 @@ def slice_mesh(optimized_mesh, float resolution):
     cdef float z0, z1, z2
 
     cdef np.ndarray segment
-    cdef np.ndarray p0, p1, p2
+    cdef np.ndarray[DTYPE_t, ndim=1] p0
+    cdef np.ndarray[DTYPE_t, ndim=1] p1
+    cdef np.ndarray[DTYPE_t, ndim=1]p2
 
     slices = []
 
@@ -261,7 +263,7 @@ def slice_triangle(float [:] triangle, slice_layers):
     pass
 
 
-cdef double interpolate(float y, float y0, float y1, float x0, float x1):
+cdef float interpolate(float y, float y0, float y1, float x0, float x1):
     """Interpolates an x value to match the y value, given a 
     line with start point at x0,y0 and end point at x1, y1
     """
@@ -289,6 +291,7 @@ cdef np.ndarray[DTYPE_t, ndim=2] calculate_segment(np.ndarray[DTYPE_t, ndim=1] p
     """Calculates a segment.
     """
     cdef float x_start, x_end, y_start, y_end
+    cdef np.ndarray[DTYPE_t, ndim=2] segment = np.zeros([2,2], dtype=DTYPE)
 
     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
     x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])
@@ -296,4 +299,8 @@ cdef np.ndarray[DTYPE_t, ndim=2] calculate_segment(np.ndarray[DTYPE_t, ndim=1] p
     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
 
-    return np.array([[x_start, y_start], [x_end, y_end]])
+    segment[0][0] = x_start
+    segment[0][1] = y_start
+    segment[1][0] = x_end
+    segment[1][1] = y_end 
+    return segment

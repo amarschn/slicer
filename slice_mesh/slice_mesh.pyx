@@ -181,13 +181,15 @@ def slice_mesh(optimized_mesh, float resolution):
     :return:
     """
     cdef float height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()
-    layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
-    cdef float z0, z1, z2
+    layers = np.array([zi for zi in range(int(height / resolution) + 1)], dtype=DTYPE) * resolution
+    cdef float[:] layers_view = layers
+    cdef float z, z0, z1, z2
 
-    cdef np.ndarray segment
-    cdef np.ndarray[DTYPE_t, ndim=1] p0
-    cdef np.ndarray[DTYPE_t, ndim=1] p1
-    cdef np.ndarray[DTYPE_t, ndim=1]p2
+    cdef float[:] p0
+    cdef float[:] p1
+    cdef float[:] p2
+    cdef segment = np.zeros([2,2], dtype=DTYPE)
+    cdef float[:,:] seg_view = segment
 
     slices = []
 
@@ -202,7 +204,8 @@ def slice_mesh(optimized_mesh, float resolution):
 
         (z0, z1, z2) = p0[2], p1[2], p2[2]
 
-        for layer_num, z in enumerate(layers):
+        for layer_num in range(layers_view.shape[0]):
+            z = layers_view[layer_num]
             end_vertex = None
             if z < min(z0, z1, z2):
                 continue
@@ -210,38 +213,38 @@ def slice_mesh(optimized_mesh, float resolution):
                 continue
             elif z0 < z and z1 >= z and z2 >= z:
                 # What condition is this?
-                segment = calculate_segment(p0, p2, p1, z)
+                segment = calculate_segment(seg_view, p0, p2, p1, z)
                 end_edge_idx = 0
                 if p1[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
 
             elif z0 > z and z1 < z and z2 < z:
                 # What condition is this?
-                segment = calculate_segment(p0, p1, p2, z)
+                segment = calculate_segment(seg_view, p0, p1, p2, z)
                 end_edge_idx = 2
 
             elif z0 >= z and z1 < z and z2 >= z:
                 # What condition is this?
-                segment = calculate_segment(p1, p0, p2, z)
+                segment = calculate_segment(seg_view, p1, p0, p2, z)
                 end_edge_idx = 1
                 if p2[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
 
             elif z0 < z and z1 > z and z2 < z:
                 # What condition is this?
-                segment = calculate_segment(p1, p2, p0, z)
+                segment = calculate_segment(seg_view, p1, p2, p0, z)
                 end_edge_idx = 0
 
             elif z0 >= z and z1 >= z and z2 < z:
                 # What condition is this?
-                segment = calculate_segment(p2, p1, p0, z)
+                segment = calculate_segment(seg_view, p2, p1, p0, z)
                 end_edge_idx = 2
                 if p0[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
 
             elif z0 < z and z1 < z and z2 > z:
                 # What condition is this?
-                segment = calculate_segment(p2, p0, p1, z)
+                segment = calculate_segment(seg_view, p2, p0, p1, z)
                 end_edge_idx = 1
 
             else:
@@ -284,14 +287,14 @@ cdef float interpolate(float y, float y0, float y1, float x0, float x1):
     return x
 
 
-cdef np.ndarray[DTYPE_t, ndim=2] calculate_segment(np.ndarray[DTYPE_t, ndim=1] p0,
-                                  np.ndarray[DTYPE_t, ndim=1] p1,
-                                  np.ndarray[DTYPE_t, ndim=1] p2,
+cdef float[:,:] calculate_segment(float[:,:] segment,
+                                  float[:] p0,
+                                  float[:] p1,
+                                  float[:] p2,
                                   float z):
     """Calculates a segment.
     """
     cdef float x_start, x_end, y_start, y_end
-    cdef np.ndarray[DTYPE_t, ndim=2] segment = np.zeros([2,2], dtype=DTYPE)
 
     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
     x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])

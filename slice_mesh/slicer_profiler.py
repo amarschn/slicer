@@ -26,7 +26,7 @@ if __name__ == '__main__':
     import pstats
     import cProfile
 
-    f = '../test_stl/q01.stl'
+    f = '../test_stl/links.stl'
     cProfile.runctx("mesh_slice(f)", globals(), locals(),
                     "mesh_slice.prof")
     s = pstats.Stats("mesh_slice.prof")

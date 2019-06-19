@@ -1,5 +1,16 @@
+"""Tests different methods for rastering an image from polygon data.
+
+Drew Marschner
+Impossible Objects
+6/18/19
+"""
+
 from image_writer import cv2_rasterize, pillow_rasterize
 import os
+
+
+def test_pil_SIMD(all_polygons):
+    pass
 
 
 def test_pil(all_polygons):

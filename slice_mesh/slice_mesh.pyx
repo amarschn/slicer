@@ -19,8 +19,10 @@ class Slice(object):
                  layer_number=-1,
                  height=4800,
                  width=7200,
-                 transform=np.eye(3)):
-        self.filename = "./output/layer_{}.bmp".format(layer_number)
+                 transform=np.eye(3),
+                 output_folder='../output/'):
+        self.output_folder=output_folder
+        self.filename = output_folder + "layer_{}.bmp".format(layer_number)
         if segments is None:
             self.segments = []
         else:
@@ -41,7 +43,7 @@ class Slice(object):
         if self.open_polylines:
             self.polygons = self.layer_graph()
         # Clear the segment list for this layer as it is no longer useful
-        # self.segments = []
+        self.segments = []
 
     def make_basic_polygon_loop(self, seg, start_seg_idx):
         """
@@ -190,6 +192,7 @@ def slice_mesh(optimized_mesh, float resolution):
     cdef float[:] p2
     cdef segment = np.zeros([2,2], dtype=DTYPE)
     cdef float[:,:] seg_view = segment
+    cdef int segment_flag = 0
 
     slices = []
 
@@ -207,6 +210,8 @@ def slice_mesh(optimized_mesh, float resolution):
         for layer_num in range(layers_view.shape[0]):
             z = layers_view[layer_num]
             end_vertex = None
+            segment_flag = 0
+
             if z < min(z0, z1, z2):
                 continue
             elif z > max(z0, z1, z2):
@@ -214,6 +219,7 @@ def slice_mesh(optimized_mesh, float resolution):
             elif z0 < z and z1 >= z and z2 >= z:
                 # What condition is this?
                 segment = calculate_segment(seg_view, p0, p2, p1, z)
+                segment_flag = 1
                 end_edge_idx = 0
                 if p1[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
@@ -221,11 +227,13 @@ def slice_mesh(optimized_mesh, float resolution):
             elif z0 > z and z1 < z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(seg_view, p0, p1, p2, z)
+                segment_flag = 1
                 end_edge_idx = 2
 
             elif z0 >= z and z1 < z and z2 >= z:
                 # What condition is this?
                 segment = calculate_segment(seg_view, p1, p0, p2, z)
+                segment_flag = 1
                 end_edge_idx = 1
                 if p2[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
@@ -233,11 +241,13 @@ def slice_mesh(optimized_mesh, float resolution):
             elif z0 < z and z1 > z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(seg_view, p1, p2, p0, z)
+                segment_flag = 1
                 end_edge_idx = 0
 
             elif z0 >= z and z1 >= z and z2 < z:
                 # What condition is this?
                 segment = calculate_segment(seg_view, p2, p1, p0, z)
+                segment_flag = 1
                 end_edge_idx = 2
                 if p0[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
@@ -245,13 +255,14 @@ def slice_mesh(optimized_mesh, float resolution):
             elif z0 < z and z1 < z and z2 > z:
                 # What condition is this?
                 segment = calculate_segment(seg_view, p2, p0, p1, z)
+                segment_flag = 1
                 end_edge_idx = 1
 
             else:
                 # Not all cases create a segment
                 continue
 
-            if segment.size == 0:
+            if segment_flag == 1:
                 sliced_layer = slices[layer_num]
                 next_face_idx = face.connected_face_index[end_edge_idx]
                 S = Segment(segment, face.idx, next_face_idx, end_vertex)

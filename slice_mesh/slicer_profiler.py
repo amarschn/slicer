@@ -6,6 +6,9 @@ Drew Marschner
 """
 import optimized_mesh
 import slice_mesh
+import slice_imager
+from multiprocessing import Pool
+import ipdb
 
 
 def create_optimized_mesh(f):
@@ -20,6 +23,14 @@ def mesh_slice(f, resolution=0.05):
     opt_mesh = create_optimized_mesh(f)
     slices = slice_mesh.slice_mesh(opt_mesh, resolution)
     return slices
+
+
+def mesh_image_slice(f, resolution=0.05, output_folder='../output/'):
+    """Slice a mesh and outputs sliced images in an output folder."""
+    slices = mesh_slice(f, resolution)
+    ipdb.set_trace()
+    pool = Pool(5)
+    pool.map(slice_imager.rasterize, slices)
 
 
 if __name__ == '__main__':

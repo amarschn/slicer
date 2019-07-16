@@ -98,10 +98,12 @@ class Slice(object):
         """
         seg_idx = self.face_idx_to_seg_idx[face_idx]
 
+        if self.segments[seg_idx].added_to_polygon:
+            return -1
+
         if seg_idx == start_seg_idx:
             return start_seg_idx
-        elif self.segments[seg_idx].added_to_polygon:
-            return -1
+
         else:
             return seg_idx
 
@@ -255,8 +257,7 @@ cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     """Interpolates an x value to match the y value, given a 
     line with start point at x0,y0 and end point at x1, y1
     """
-
-    # TODO: should these ints instead for speed reasons?
+    # TODO: should these be ints instead for speed reasons?
     cdef float dx = x1 - x0
     cdef float dy = y1 - y0
     cdef float p

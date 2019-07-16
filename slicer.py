@@ -397,8 +397,8 @@ def main():
 
     # Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
     Slices = slice_mesh.slice_mesh(optimized_mesh, resolution)
-    # pool = Pool(5)
-    # pool.map(write_layer, Slices)
+    pool = Pool(5)
+    pool.map(write_layer, Slices)
     # for layer in Slices:
     #     layer.make_polygons()
         # pillow_rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)

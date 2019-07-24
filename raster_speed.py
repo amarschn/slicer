@@ -1,4 +1,4 @@
-from image_writer import cv2_rasterize, pillow_rasterize
+from test_scripts.image_writer import cv2_rasterize, pillow_rasterize
 import os
 
 

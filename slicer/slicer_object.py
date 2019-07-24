@@ -1,0 +1,78 @@
+from slicer.image_writer import rasterize
+from multiprocessing import Pool
+from slicer.optimized_mesh import OptimizedMesh
+import slice_mesh
+
+
+DEFAULT_SETTINGS = {
+    "layer_height": 0.05,
+}
+
+class Slicer(object):
+    """
+    A Slicer object will slice a build
+    """
+    def __init__(self, mesh_filename, settings=DEFAULT_SETTINGS):
+        print("hello")
+        self.mesh_filename = mesh_filename
+        self.settings = settings
+        self.optimized_mesh = None
+        self.slices = []
+        self.mesh_is_processed = False
+
+    def process_mesh(self):
+        self.optimized_mesh = OptimizedMesh(self.mesh_filename)
+        self.optimized_mesh.complete()
+        self.slices = slice_mesh.slice_mesh(self.optimized_mesh, self.settings["layer_height"])
+        self.mesh_is_processed = True
+
+    def create_images(self, workers=5):
+        if not self.mesh_is_processed:
+            self.process_mesh()
+        pool = Pool(workers)
+        pool.map(write_layer, self.slices)
+
+
+    def _layer_image(self, layer_num):
+        layer = self.slices[layer_num]
+        layer.make_polygons()
+        rasterize(layer.polygons,
+                  self.mesh_filename,
+                  layer_num,
+                  self.settings["page_height"],
+                  self.settings["page_width"])
+
+    def layer_image(self, layer_num):
+        if not self.mesh_is_processed:
+            self.process_mesh()
+        if layer_num > len(self.slices) or layer_num < 0:
+            return -1
+        else:
+            self._layer_image(layer_num)
+
+
+def write_layer(layer):
+    layer.make_polygons()
+    rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+
+
+def main():
+    # f = './test_stl/logo.stl'
+    # f = './test_stl/q01.stl'
+    # f = './test_stl/cylinder.stl'
+    f = './test_stl/prism.stl'
+    # f = './test_stl/nist.stl'
+    # f = './test_stl/hollow_prism.stl'
+    # f = './test_stl/10_side_hollow_prism.stl'
+    # f = './test_stl/concentric_1.stl'
+    # f = './test_stl/links.stl'
+    # f = './test_stl/square_cylinder.stl'
+    # f = './test_stl/prism_hole.stl'
+    # f = './test_stl/holey_prism.stl'
+    # import slicer
+    s = Slicer(f)
+    s.create_images()
+
+if __name__ == '__main__':
+    import cProfile
+    cProfile.runctx('main()', globals(), locals(), filename=None)

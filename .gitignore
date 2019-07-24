@@ -1,5 +1,10 @@
 # Ignore idea files
 .idea/
+.pytest_cache/
 output/
 slic3r/
 slic3r_output/
+build/
+slicer.egg-info/
+*.pyd
+*.so

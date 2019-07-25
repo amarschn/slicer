@@ -2,10 +2,14 @@ from slicer.image_writer import rasterize
 from multiprocessing import Pool
 from slicer.optimized_mesh import OptimizedMesh
 import slice_mesh
+import os
 
 
 DEFAULT_SETTINGS = {
     "layer_height": 0.05,
+    "page_height": 4800,
+    "page_width": 7200,
+    "output_directory": './output/'
 }
 
 class Slicer(object):
@@ -13,7 +17,6 @@ class Slicer(object):
     A Slicer object will slice a build
     """
     def __init__(self, mesh_filename, settings=DEFAULT_SETTINGS):
-        print("hello")
         self.mesh_filename = mesh_filename
         self.settings = settings
         self.optimized_mesh = None
@@ -30,30 +33,25 @@ class Slicer(object):
         if not self.mesh_is_processed:
             self.process_mesh()
         pool = Pool(workers)
-        pool.map(write_layer, self.slices)
+        pool.map(self.layer_image, self.slices)
 
 
-    def _layer_image(self, layer_num):
-        layer = self.slices[layer_num]
+    def _layer_image(self, layer):
+        filename = os.path.join(self.settings["output_directory"], "layer_{}.bmp".format(layer.layer_number))
         layer.make_polygons()
         rasterize(layer.polygons,
-                  self.mesh_filename,
-                  layer_num,
+                  filename,
+                  layer.layer_number,
                   self.settings["page_height"],
                   self.settings["page_width"])
 
-    def layer_image(self, layer_num):
+    def layer_image(self, layer):
         if not self.mesh_is_processed:
             self.process_mesh()
-        if layer_num > len(self.slices) or layer_num < 0:
+        if layer.layer_number > len(self.slices) or layer.layer_number < 0:
             return -1
         else:
-            self._layer_image(layer_num)
-
-
-def write_layer(layer):
-    layer.make_polygons()
-    rasterize(layer.polygons, layer.filename, layer.layer_number, layer.height, layer.width)
+            self._layer_image(layer)
 
 
 def main():
@@ -69,7 +67,7 @@ def main():
     # f = './test_stl/square_cylinder.stl'
     # f = './test_stl/prism_hole.stl'
     # f = './test_stl/holey_prism.stl'
-    # import slicer
+    # f = './test_stl/q05.stl'
     s = Slicer(f)
     s.create_images()
 

@@ -33,7 +33,7 @@ class Slice(object):
         if self.open_polylines:
             self.polygons = self.layer_graph()
         # Clear the segment list for this layer as it is no longer useful
-        # self.segments = []
+        self.segments = []
 
     def make_basic_polygon_loop(self, seg, start_seg_idx):
         """
@@ -59,7 +59,6 @@ class Slice(object):
                 return
 
         self.open_polylines.append(polygon)
-        # sliced_layer.polygons.append(polygon)
         return
 
     def get_next_seg_idx(self, seg, start_seg_idx):
@@ -129,6 +128,7 @@ class Slice(object):
         - https://visualgo.net/en/dfsbfs
         :return:
         """
+        print("Graph layer: " + str(self.layer_number))
         digraph = nx.DiGraph()
         segs = [s.segment for s in self.segments]
         for seg in np.round(segs, decimals=3):

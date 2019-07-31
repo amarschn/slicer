@@ -4,7 +4,6 @@ Author: Drew Marschner
 """
 
 import numpy as np
-from collections import deque
 from PIL import Image, ImageDraw, ImageFont
 
 

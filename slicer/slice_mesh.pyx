@@ -6,24 +6,14 @@ class Slice(object):
     """
     A slice of a build, containing all segments within that layer
     """
-    def __init__(self,
-                 segments=None,
-                 layer_number=-1,
-                 height=4800,
-                 width=7200,
-                 transform=np.eye(3)):
+    def __init__(self, layer_number=-1, settings=None):
         self.filename = "./output/layer_{}.bmp".format(layer_number)
-        if segments is None:
-            self.segments = []
-        else:
-            self.segments = segments
+        self.segments = []
         self.layer_number = layer_number
-        self.height = height
-        self.width = width
-        self.transform = transform
         self.polygons = []
         self.face_idx_to_seg_idx = {}
         self.open_polylines = []
+        self.settings = settings
 
     def make_polygons(self):
         for seg_idx, seg in enumerate(self.segments):
@@ -126,6 +116,7 @@ class Slice(object):
         - https://visualgo.net/en/dfsbfs
         :return:
         """
+        print("Layer Graph: {}".format(self.layer_number))
         digraph = nx.DiGraph()
         segs = [s.segment for s in self.segments]
         for seg in np.round(segs, decimals=3):
@@ -161,7 +152,7 @@ class Segment(object):
         self.end_vertex = end_vertex
 
 
-def slice_mesh(optimized_mesh, resolution):
+def slice_mesh(optimized_mesh, settings):
     """
     For each triangle:
         Get points
@@ -172,13 +163,14 @@ def slice_mesh(optimized_mesh, resolution):
     :param resolution:
     :return:
     """
+    resolution = settings["layer_height"]
     height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()
     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
 
     slices = []
 
     for i, layer in enumerate(layers):
-        sl = Slice(layer_number=i)
+        sl = Slice(layer_number=i, settings=settings)
         slices.append(sl)
 
     for face in optimized_mesh.faces:

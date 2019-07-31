@@ -46,38 +46,23 @@ def polygon_orientation(polygon):
     """
     if len(polygon) < 3:
         return -1
-    # Make sure that the polygon doesn't have a first and last duplicate
-    if polygon[0] == polygon[-1]:
-        polygon.pop()
 
-    min_y = polygon[0][1]
-    min_y_x = polygon[0][0]
-
-    left_neighbor = polygon[-1]
-    right_neighbor = polygon[1]
-
-
+    hull_pt_idx = 0
 
     for idx, pt in enumerate(polygon):
         x = pt[0]
         y = pt[1]
+        if (y < polygon[hull_pt_idx][1]) or \
+           (y == polygon[hull_pt_idx][1] and x > polygon[hull_pt_idx][0]):
+            hull_pt_idx = idx
 
-        if (y < min_y) or (y == min_y and x > min_y_x):
-            min_y = y
-            min_y_x = x
-            if idx > 0:
-                left_neighbor = polygon[idx - 1]
-            else:
-                left_neighbor = polygon[len(polygon) - 1]
-            if idx < len(polygon) - 1:
-                right_neighbor = polygon[idx + 1]
-            else:
-                right_neighbor = polygon[0]
+    right_neighbor = neighbor_point(polygon, hull_pt_idx, "RIGHT")
+    left_neighbor = neighbor_point(polygon, hull_pt_idx, "LEFT")
 
     xa = right_neighbor[0]
     ya = right_neighbor[1]
-    xb = min_y_x
-    yb = min_y
+    xb = polygon[hull_pt_idx][0]
+    yb = polygon[hull_pt_idx][1]
     xc = left_neighbor[0]
     yc = left_neighbor[1]
     det = (xb - xa)*(yc - ya) - (xc - xa)*(yb - ya)
@@ -89,51 +74,29 @@ def polygon_orientation(polygon):
     return direction
 
 
-def layer_svg(polygons, layer, width=304.8, height=203.2):
+def neighbor_point(polygon, pt_idx, direction):
     """
-    """
-    svg = """<svg width=\"{}mm\" height=\"{}mm\" units=\"mm\" xmlns=\"http://www.w3.org/2000/svg\" 
-    xmlns:svg=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" 
-    viewport-fill=\"black\">\n
-    <!-- Generated using Drew's Slicer -->\n
-    """.format(width, height)
-
-    svg += "<rect x=\"0\" y=\"0\" style=\"stroke-width:1; stroke:rgb(0,0,0)\" width=\"304.8\" height=\"203.2\" fill=\"white\"></rect>"
-    all_poly_str = deque([])
-
-    for polygon in polygons:
-        orientation = polygon_orientation(polygon)
-        if orientation == -1:
-            color = "black"
-        else:
-            color = "white"
-
-        poly_str = "\n<polygon units=\"mm\" style=\"fill: {}\" points=\"".format(color)
-
-        for segment in polygon:
-            x_start, y_start = segment[0]
-            x_end, y_end = segment[1]
-            poly_str += "{},{} ".format(x_start,y_start,x_end,y_end)
-        poly_str += "\"></polygon>"
-
-        if orientation == -1:
-            all_poly_str.appendleft(poly_str)
-        else:
-            all_poly_str.append(poly_str)
-    svg += ''.join(all_poly_str)
-    text = "<text x=\"{}\" y=\"{}\" fill=\"black\">{}</text>".format(width/2, height, layer)
-    svg += text
-    svg += "</svg>"
-    return svg
-
-
-def save_png(svg_string, output_file):
-    """
-    :param svg_string:
+    Determine a non-copy point that is the right or left neighbor of a point in a list
+    of tuple points representing a 2D polygon
+    :param polygon:
+    :param direction: "RIGHT" or "LEFT"
     :return:
     """
-    svg = svg_string.encode('utf-8')
-    cairosvg.svg2png(svg, write_to=output_file)
+    assert direction in ["RIGHT", "LEFT"]
+    neighbor_idx = pt_idx
+
+    while polygon[neighbor_idx] == polygon[pt_idx]:
+        if direction == "RIGHT":
+            neighbor_idx += 1
+            if neighbor_idx >= len(polygon):
+                neighbor_idx = 0
+        elif direction == "LEFT":
+            neighbor_idx -= 1
+            if neighbor_idx < 0:
+                neighbor_idx = len(polygon) - 1
+
+    return polygon[neighbor_idx]
+
 
 
 def polygon_size(polygon):
@@ -142,8 +105,8 @@ def polygon_size(polygon):
     """
     np_polygon = np.array(polygon)
 
-    bbox_x = np.max(np_polygon[:,0]) - np.min(np_polygon[:,0])
-    bbox_y = np.max(np_polygon[:,1]) - np.min(np_polygon[:,1])
+    bbox_x = np.max(np_polygon[:,0]) - np.min(np_polygon[:, 0])
+    bbox_y = np.max(np_polygon[:,1]) - np.min(np_polygon[:, 1])
 
     return bbox_x * bbox_y
 
@@ -181,7 +144,6 @@ def rasterize(polygons, output_file, layer, height, width, transform=None):
     :return:
     """
     arranged_polygons, is_hole = arrange_polygons(polygons)
-
     im = Image.new("1", (width, height), 1)
     draw = ImageDraw.Draw(im)
     for idx, polygon in enumerate(arranged_polygons):

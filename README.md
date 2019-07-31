@@ -22,6 +22,10 @@ On MacOSX, type in:
 
 export MACOSX_DEPLOYMENT_TARGET=10.9
 
+Development
+-----------
+pip install -e .
+
 Packaging
 ---------
 python setup.py sdist bdist_wheel

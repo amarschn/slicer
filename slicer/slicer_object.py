@@ -39,6 +39,11 @@ class Slicer(object):
         pool = Pool(workers)
         pool.map(write_layer, self.slices)
 
+    def _linear_create_images(self):
+        if not self.mesh_is_processed:
+            self.process_mesh()
+        for layer in self.slices:
+            write_layer(layer)
 
     def _layer_image(self, layer):
         filename = os.path.join(self.settings["output_directory"], "layer_{}.bmp".format(layer.layer_number))
@@ -78,7 +83,7 @@ def main():
     # f = '../test_stl/holey_prism.stl'
     f = '../test_stl/q05.stl'
     s = Slicer(f)
-    s.create_images()
+    s._linear_create_images()
 
 if __name__ == '__main__':
     import cProfile

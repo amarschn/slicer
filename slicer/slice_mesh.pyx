@@ -72,22 +72,23 @@ class Slice(object):
         # If the segment end vertex is None, the segment ended at an edge
         if seg.end_vertex is None:
             if seg.next_face_idx != -1:
-                return self.try_next_face_seg_idx(seg, seg.next_face_idx, start_seg_idx)
+                return self.try_next_face_seg_idx(seg.next_face_idx, start_seg_idx)
             else:
                 return -1
         else:
             # if the segment ended at a vertex, look for other faces to try to get the
             # next segment
             for face in seg.end_vertex.connected_faces:
-                result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
+                if face != seg.face_idx:
+                    result_seg_idx = self.try_next_face_seg_idx(face, start_seg_idx)
 
-                if result_seg_idx == start_seg_idx:
-                    return start_seg_idx
-                elif result_seg_idx != -1:
-                    next_seg_idx = result_seg_idx
+                    if result_seg_idx == start_seg_idx:
+                        return start_seg_idx
+                    elif result_seg_idx != -1:
+                        next_seg_idx = result_seg_idx
         return next_seg_idx
 
-    def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):
+    def try_next_face_seg_idx(self, face_idx, start_seg_idx):
         """
         This function finds another face that will continue the given segment
         :param segment:
@@ -98,24 +99,15 @@ class Slice(object):
         try:
             seg_idx = self.face_idx_to_seg_idx[face_idx]
         except KeyError:
-            # print("Face Index: {}".format(face_idx))
-            # print("Segment: {}".format(segment.segment))
-            print("Face -> Segment Dict: {}".format(self.face_idx_to_seg_idx))
             return -1
 
         if seg_idx == start_seg_idx:
             return start_seg_idx
-
         if self.segments[seg_idx].added_to_polygon:
             return -1
-
         else:
             return seg_idx
 
-    def connect_open_polylines(self):
-        # Find all possible stitches
-        # stitch_pq = self.find_possible_stitches()
-        pass
 
     def layer_graph(self):
         """
@@ -134,7 +126,6 @@ class Slice(object):
         - https://visualgo.net/en/dfsbfs
         :return:
         """
-        print("Graph layer: " + str(self.layer_number))
         digraph = nx.DiGraph()
         segs = [s.segment for s in self.segments]
         for seg in np.round(segs, decimals=3):

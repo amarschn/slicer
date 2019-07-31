@@ -1226,26 +1226,6 @@ static PyObject* __Pyx__PyObject_CallMethod1(PyObject* method, PyObject* arg);
 /* append.proto */
 static CYTHON_INLINE int __Pyx_PyObject_Append(PyObject* L, PyObject* x);
 
-/* GetModuleGlobalName.proto */
-static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
-
-/* ListCompAppend.proto */
-#if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
-static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
-    PyListObject* L = (PyListObject*) list;
-    Py_ssize_t len = Py_SIZE(list);
-    if (likely(L->allocated > len)) {
-        Py_INCREF(x);
-        PyList_SET_ITEM(list, len, x);
-        Py_SIZE(list) = len+1;
-        return 0;
-    }
-    return PyList_Append(list, x);
-}
-#else
-#define __Pyx_ListComp_Append(L,x) PyList_Append(L,x)
-#endif
-
 /* PyThreadStateGet.proto */
 #if CYTHON_FAST_THREAD_STATE
 #define __Pyx_PyThreadState_declare  PyThreadState *__pyx_tstate;
@@ -1282,6 +1262,26 @@ static CYTHON_INLINE int __Pyx_PyErr_ExceptionMatchesInState(PyThreadState* tsta
 static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb);
 #else
 static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb);
+#endif
+
+/* GetModuleGlobalName.proto */
+static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name);
+
+/* ListCompAppend.proto */
+#if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
+static CYTHON_INLINE int __Pyx_ListComp_Append(PyObject* list, PyObject* x) {
+    PyListObject* L = (PyListObject*) list;
+    Py_ssize_t len = Py_SIZE(list);
+    if (likely(L->allocated > len)) {
+        Py_INCREF(x);
+        PyList_SET_ITEM(list, len, x);
+        Py_SIZE(list) = len+1;
+        return 0;
+    }
+    return PyList_Append(list, x);
+}
+#else
+#define __Pyx_ListComp_Append(L,x) PyList_Append(L,x)
 #endif
 
 /* MemviewSliceInit.proto */
@@ -1750,6 +1750,7 @@ int __pyx_module_is_main_slicer__slice_mesh = 0;
 /* Implementation of 'slicer.slice_mesh' */
 static PyObject *__pyx_builtin_object;
 static PyObject *__pyx_builtin_enumerate;
+static PyObject *__pyx_builtin_KeyError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_ValueError;
 static PyObject *__pyx_builtin_MemoryError;
@@ -1837,7 +1838,7 @@ static const char __pyx_k_struct[] = "struct";
 static const char __pyx_k_unpack[] = "unpack";
 static const char __pyx_k_update[] = "update";
 static const char __pyx_k_DiGraph[] = "DiGraph";
-static const char __pyx_k_Segment[] = "Segment";
+static const char __pyx_k_Segment[] = "Segment: {}";
 static const char __pyx_k_bridges[] = "bridges";
 static const char __pyx_k_digraph[] = "digraph";
 static const char __pyx_k_fortran[] = "fortran";
@@ -1849,6 +1850,7 @@ static const char __pyx_k_segment[] = "segment";
 static const char __pyx_k_x_start[] = "x_start";
 static const char __pyx_k_y_start[] = "y_start";
 static const char __pyx_k_Ellipsis[] = "Ellipsis";
+static const char __pyx_k_KeyError[] = "KeyError";
 static const char __pyx_k_add_edge[] = "add_edge";
 static const char __pyx_k_decimals[] = "decimals";
 static const char __pyx_k_face_idx[] = "face_idx";
@@ -1864,6 +1866,7 @@ static const char __pyx_k_setstate[] = "__setstate__";
 static const char __pyx_k_triangle[] = "triangle";
 static const char __pyx_k_vertices[] = "vertices";
 static const char __pyx_k_A_segment[] = "\n    A segment \n    ";
+static const char __pyx_k_Segment_2[] = "Segment";
 static const char __pyx_k_TypeError[] = "TypeError";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_layer_num[] = "layer_num";
@@ -1891,6 +1894,7 @@ static const char __pyx_k_pyx_checksum[] = "__pyx_checksum";
 static const char __pyx_k_slice_layers[] = "slice_layers";
 static const char __pyx_k_sliced_layer[] = "sliced_layer";
 static const char __pyx_k_stringsource[] = "stringsource";
+static const char __pyx_k_Segment_Index[] = "Segment Index: {}";
 static const char __pyx_k_make_polygons[] = "make_polygons";
 static const char __pyx_k_next_face_idx[] = "next_face_idx";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
@@ -1903,6 +1907,7 @@ static const char __pyx_k_optimized_mesh[] = "optimized_mesh";
 static const char __pyx_k_result_seg_idx[] = "result_seg_idx";
 static const char __pyx_k_slice_triangle[] = "slice_triangle";
 static const char __pyx_k_vertex_indices[] = "vertex_indices";
+static const char __pyx_k_Connected_Faces[] = "Connected Faces: {}";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_connected_faces[] = "connected_faces";
@@ -1911,6 +1916,7 @@ static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_added_to_polygon[] = "added_to_polygon";
 static const char __pyx_k_get_next_seg_idx[] = "get_next_seg_idx";
+static const char __pyx_k_Face_Segment_Dict[] = "Face -> Segment Dict: {}";
 static const char __pyx_k_Slice_layer_graph[] = "Slice.layer_graph";
 static const char __pyx_k_calculate_segment[] = "calculate_segment";
 static const char __pyx_k_output_layer__bmp[] = "./output/layer_{}.bmp";
@@ -1919,6 +1925,7 @@ static const char __pyx_k_slicer_slice_mesh[] = "slicer.slice_mesh";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
 static const char __pyx_k_strided_and_direct[] = "<strided and direct>";
 static const char __pyx_k_Slice_make_polygons[] = "Slice.make_polygons";
+static const char __pyx_k_Start_Segment_Index[] = "Start Segment Index: {}";
 static const char __pyx_k_face_idx_to_seg_idx[] = "face_idx_to_seg_idx";
 static const char __pyx_k_connected_face_index[] = "connected_face_index";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
@@ -1961,9 +1968,11 @@ static PyObject *__pyx_kp_s_Can_only_create_a_buffer_that_is;
 static PyObject *__pyx_kp_s_Cannot_assign_to_read_only_memor;
 static PyObject *__pyx_kp_s_Cannot_create_writable_memory_vi;
 static PyObject *__pyx_kp_s_Cannot_index_with_type_s;
+static PyObject *__pyx_kp_s_Connected_Faces;
 static PyObject *__pyx_n_s_DiGraph;
 static PyObject *__pyx_n_s_Ellipsis;
 static PyObject *__pyx_kp_s_Empty_shape_tuple_for_cython_arr;
+static PyObject *__pyx_kp_s_Face_Segment_Dict;
 static PyObject *__pyx_n_s_Graph;
 static PyObject *__pyx_kp_s_Graph_layer;
 static PyObject *__pyx_kp_s_Incompatible_checksums_s_vs_0xb0;
@@ -1971,6 +1980,7 @@ static PyObject *__pyx_n_s_IndexError;
 static PyObject *__pyx_kp_s_Indirect_dimensions_not_supporte;
 static PyObject *__pyx_kp_s_Invalid_mode_expected_c_or_fortr;
 static PyObject *__pyx_kp_s_Invalid_shape_in_axis_d_d;
+static PyObject *__pyx_n_s_KeyError;
 static PyObject *__pyx_n_s_MemoryError;
 static PyObject *__pyx_kp_s_MemoryView_of_r_at_0x_x;
 static PyObject *__pyx_kp_s_MemoryView_of_r_object;
@@ -1978,7 +1988,9 @@ static PyObject *__pyx_n_b_O;
 static PyObject *__pyx_kp_s_Out_of_bounds_on_buffer_access_a;
 static PyObject *__pyx_n_s_PickleError;
 static PyObject *__pyx_n_s_S;
-static PyObject *__pyx_n_s_Segment;
+static PyObject *__pyx_kp_s_Segment;
+static PyObject *__pyx_n_s_Segment_2;
+static PyObject *__pyx_kp_s_Segment_Index;
 static PyObject *__pyx_n_s_Segment___init;
 static PyObject *__pyx_n_s_Slice;
 static PyObject *__pyx_n_s_Slice___init;
@@ -1988,6 +2000,7 @@ static PyObject *__pyx_n_s_Slice_layer_graph;
 static PyObject *__pyx_n_s_Slice_make_basic_polygon_loop;
 static PyObject *__pyx_n_s_Slice_make_polygons;
 static PyObject *__pyx_n_s_Slice_try_next_face_seg_idx;
+static PyObject *__pyx_kp_s_Start_Segment_Index;
 static PyObject *__pyx_n_s_TypeError;
 static PyObject *__pyx_kp_s_Unable_to_convert_item_to_object;
 static PyObject *__pyx_n_s_ValueError;
@@ -2159,7 +2172,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
 static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_8try_next_face_seg_idx(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *__pyx_v_segment, PyObject *__pyx_v_face_idx, PyObject *__pyx_v_start_seg_idx); /* proto */
 static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_10connect_open_polylines(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED PyObject *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self); /* proto */
-static PyObject *__pyx_pf_6slicer_10slice_mesh_7Segment___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_segment, PyObject *__pyx_v_face_idx, PyObject *__pyx_v_next_face_idx, PyObject *__pyx_v_end_vertex); /* proto */
+static PyObject *__pyx_pf_6slicer_10slice_mesh_7Segment___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_segment, PyObject *__pyx_v_face_idx, PyObject *__pyx_v_next_face_idx, PyObject *__pyx_v_end_vertex, PyObject *__pyx_v_idx); /* proto */
 static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_optimized_mesh, PyObject *__pyx_v_resolution); /* proto */
 static PyObject *__pyx_pf_6slicer_10slice_mesh_2slice_triangle(CYTHON_UNUSED PyObject *__pyx_self, CYTHON_UNUSED __Pyx_memviewslice __pyx_v_triangle, CYTHON_UNUSED PyObject *__pyx_v_slice_layers); /* proto */
 static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_p0, __Pyx_memviewslice __pyx_v_p1, __Pyx_memviewslice __pyx_v_p2, float __pyx_v_z); /* proto */
@@ -3040,8 +3053,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
-  int __pyx_t_2;
-  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_t_3;
   int __pyx_t_4;
   PyObject *__pyx_t_5 = NULL;
   int __pyx_t_6;
@@ -3049,20 +3062,28 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
   __Pyx_RefNannySetupContext("make_basic_polygon_loop", 0);
   __Pyx_INCREF(__pyx_v_seg);
 
-  /* "slicer/slice_mesh.pyx":44
+  /* "slicer/slice_mesh.pyx":43
+ *         """
  *         # Start the polygon with the first piece of the segment
- *         # polygon = [seg.segment[0]]
- *         polygon = []             # <<<<<<<<<<<<<<
+ *         polygon = [seg.segment[0]]             # <<<<<<<<<<<<<<
+ *         # polygon = []
  *         # Begin tracking the segment index
- *         seg_idx = start_seg_idx
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 44, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_segment); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_1, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __pyx_t_1 = PyList_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 43, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __Pyx_GIVEREF(__pyx_t_2);
+  PyList_SET_ITEM(__pyx_t_1, 0, __pyx_t_2);
+  __pyx_t_2 = 0;
   __pyx_v_polygon = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
   /* "slicer/slice_mesh.pyx":46
- *         polygon = []
+ *         # polygon = []
  *         # Begin tracking the segment index
  *         seg_idx = start_seg_idx             # <<<<<<<<<<<<<<
  * 
@@ -3080,9 +3101,9 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
  */
   while (1) {
     __pyx_t_1 = PyObject_RichCompare(__pyx_v_seg_idx, __pyx_int_neg_1, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 49, __pyx_L1_error)
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 49, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (!__pyx_t_2) break;
+    if (!__pyx_t_3) break;
 
     /* "slicer/slice_mesh.pyx":51
  *         while seg_idx != -1:
@@ -3093,11 +3114,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
  */
     __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_segments); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 51, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_3 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_v_seg_idx); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 51, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_v_seg_idx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 51, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __Pyx_DECREF_SET(__pyx_v_seg, __pyx_t_3);
-    __pyx_t_3 = 0;
+    __Pyx_DECREF_SET(__pyx_v_seg, __pyx_t_2);
+    __pyx_t_2 = 0;
 
     /* "slicer/slice_mesh.pyx":52
  *             # Add segment end to the polygon
@@ -3106,11 +3127,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
  *             seg.added_to_polygon = True
  *             seg_idx = self.get_next_seg_idx(seg, start_seg_idx)
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_segment); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 52, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_3, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_segment); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 52, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 52, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __pyx_t_4 = __Pyx_PyList_Append(__pyx_v_polygon, __pyx_t_1); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(0, 52, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
@@ -3130,32 +3151,32 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
  *             # If the polygon closes, add it to the list of polygons and
  *             # return
  */
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_get_next_seg_idx); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 54, __pyx_L1_error)
-    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_get_next_seg_idx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 54, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_5 = NULL;
     __pyx_t_6 = 0;
-    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
-      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_2))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_2);
       if (likely(__pyx_t_5)) {
-        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
         __Pyx_INCREF(__pyx_t_5);
         __Pyx_INCREF(function);
-        __Pyx_DECREF_SET(__pyx_t_3, function);
+        __Pyx_DECREF_SET(__pyx_t_2, function);
         __pyx_t_6 = 1;
       }
     }
     #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_3)) {
+    if (PyFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_seg, __pyx_v_start_seg_idx};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
       PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_v_seg, __pyx_v_start_seg_idx};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_GOTREF(__pyx_t_1);
     } else
@@ -3172,11 +3193,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
       __Pyx_INCREF(__pyx_v_start_seg_idx);
       __Pyx_GIVEREF(__pyx_v_start_seg_idx);
       PyTuple_SET_ITEM(__pyx_t_7, 1+__pyx_t_6, __pyx_v_start_seg_idx);
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_7, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 54, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     }
-    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF_SET(__pyx_v_seg_idx, __pyx_t_1);
     __pyx_t_1 = 0;
 
@@ -3188,9 +3209,9 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
  *                 return
  */
     __pyx_t_1 = PyObject_RichCompare(__pyx_v_seg_idx, __pyx_v_start_seg_idx, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
-    __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 57, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 57, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    if (__pyx_t_2) {
+    if (__pyx_t_3) {
 
       /* "slicer/slice_mesh.pyx":58
  *             # return
@@ -3259,7 +3280,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_4make_basic_polygon_loop(C
   /* function exit code */
   __pyx_L1_error:;
   __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_2);
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_AddTraceback("slicer.slice_mesh.Slice.make_basic_polygon_loop", __pyx_clineno, __pyx_lineno, __pyx_filename);
@@ -3357,7 +3378,7 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_5Slice_7get_next_seg_idx(PyObject
 
 static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_seg, PyObject *__pyx_v_start_seg_idx) {
   PyObject *__pyx_v_next_seg_idx = NULL;
-  CYTHON_UNUSED PyObject *__pyx_v_face = NULL;
+  PyObject *__pyx_v_face = NULL;
   PyObject *__pyx_v_result_seg_idx = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3371,7 +3392,6 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
   PyObject *__pyx_t_8 = NULL;
   Py_ssize_t __pyx_t_9;
   PyObject *(*__pyx_t_10)(PyObject *);
-  PyObject *__pyx_t_11 = NULL;
   __Pyx_RefNannySetupContext("get_next_seg_idx", 0);
 
   /* "slicer/slice_mesh.pyx":70
@@ -3514,23 +3534,261 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
   /* "slicer/slice_mesh.pyx":81
  *             # if the segment ended at a vertex, look for other faces to try to get the
  *             # next segment
- *             for face in seg.end_vertex.connected_faces:             # <<<<<<<<<<<<<<
- *                 result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
- * 
+ *             print("Start Segment Index: {}".format(start_seg_idx))             # <<<<<<<<<<<<<<
+ *             print("Segment Index: {}".format(seg.idx))
+ *             print("Segment: {}".format(seg.segment))
  */
   /*else*/ {
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_end_vertex); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Start_Segment_Index, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_8 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_8)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_8);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
+      }
+    }
+    if (!__pyx_t_8) {
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_start_seg_idx); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_4);
+    } else {
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_8, __pyx_v_start_seg_idx};
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_8, __pyx_v_start_seg_idx};
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+      } else
+      #endif
+      {
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 81, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_8); __pyx_t_8 = NULL;
+        __Pyx_INCREF(__pyx_v_start_seg_idx);
+        __Pyx_GIVEREF(__pyx_v_start_seg_idx);
+        PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_v_start_seg_idx);
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      }
+    }
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (__Pyx_PrintOne(0, __pyx_t_4) < 0) __PYX_ERR(0, 81, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "slicer/slice_mesh.pyx":82
+ *             # next segment
+ *             print("Start Segment Index: {}".format(start_seg_idx))
+ *             print("Segment Index: {}".format(seg.idx))             # <<<<<<<<<<<<<<
+ *             print("Segment: {}".format(seg.segment))
+ *             print("Connected Faces: {}".format(seg.end_vertex.connected_faces))
+ */
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Segment_Index, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_idx); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_8 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_8)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_8);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
+      }
+    }
+    if (!__pyx_t_8) {
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_GOTREF(__pyx_t_4);
+    } else {
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_8, __pyx_t_5};
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_8, __pyx_t_5};
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 82, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_6);
+        __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_8); __pyx_t_8 = NULL;
+        __Pyx_GIVEREF(__pyx_t_5);
+        PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_5);
+        __pyx_t_5 = 0;
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_6, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 82, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      }
+    }
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (__Pyx_PrintOne(0, __pyx_t_4) < 0) __PYX_ERR(0, 82, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "slicer/slice_mesh.pyx":83
+ *             print("Start Segment Index: {}".format(start_seg_idx))
+ *             print("Segment Index: {}".format(seg.idx))
+ *             print("Segment: {}".format(seg.segment))             # <<<<<<<<<<<<<<
+ *             print("Connected Faces: {}".format(seg.end_vertex.connected_faces))
+ *             for face in seg.end_vertex.connected_faces:
+ */
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Segment, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_segment); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 83, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_5)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_5);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
+      }
+    }
+    if (!__pyx_t_5) {
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_GOTREF(__pyx_t_4);
+    } else {
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_6};
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_5, __pyx_t_6};
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_8 = PyTuple_New(1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 83, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+        __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_5); __pyx_t_5 = NULL;
+        __Pyx_GIVEREF(__pyx_t_6);
+        PyTuple_SET_ITEM(__pyx_t_8, 0+1, __pyx_t_6);
+        __pyx_t_6 = 0;
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_8, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 83, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      }
+    }
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (__Pyx_PrintOne(0, __pyx_t_4) < 0) __PYX_ERR(0, 83, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "slicer/slice_mesh.pyx":84
+ *             print("Segment Index: {}".format(seg.idx))
+ *             print("Segment: {}".format(seg.segment))
+ *             print("Connected Faces: {}".format(seg.end_vertex.connected_faces))             # <<<<<<<<<<<<<<
+ *             for face in seg.end_vertex.connected_faces:
+ *                 result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
+ */
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Connected_Faces, __pyx_n_s_format); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_1);
+    __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_end_vertex); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_8);
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_connected_faces); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_6);
+    __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+    __pyx_t_8 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_1))) {
+      __pyx_t_8 = PyMethod_GET_SELF(__pyx_t_1);
+      if (likely(__pyx_t_8)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_1);
+        __Pyx_INCREF(__pyx_t_8);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_1, function);
+      }
+    }
+    if (!__pyx_t_8) {
+      __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 84, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      __Pyx_GOTREF(__pyx_t_4);
+    } else {
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_8, __pyx_t_6};
+        __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 84, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
+        PyObject *__pyx_temp[2] = {__pyx_t_8, __pyx_t_6};
+        __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 84, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 84, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_8); __pyx_t_8 = NULL;
+        __Pyx_GIVEREF(__pyx_t_6);
+        PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_6);
+        __pyx_t_6 = 0;
+        __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 84, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_4);
+        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      }
+    }
+    __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+    if (__Pyx_PrintOne(0, __pyx_t_4) < 0) __PYX_ERR(0, 84, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+    /* "slicer/slice_mesh.pyx":85
+ *             print("Segment: {}".format(seg.segment))
+ *             print("Connected Faces: {}".format(seg.end_vertex.connected_faces))
+ *             for face in seg.end_vertex.connected_faces:             # <<<<<<<<<<<<<<
+ *                 result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
+ * 
+ */
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_end_vertex); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 85, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_connected_faces); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_connected_faces); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
       __pyx_t_4 = __pyx_t_1; __Pyx_INCREF(__pyx_t_4); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 85, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_10 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 81, __pyx_L1_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 85, __pyx_L1_error)
     }
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     for (;;) {
@@ -3538,17 +3796,17 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
         if (likely(PyList_CheckExact(__pyx_t_4))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_1); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 81, __pyx_L1_error)
+          __pyx_t_1 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_1); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 85, __pyx_L1_error)
           #else
-          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_1); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 81, __pyx_L1_error)
+          __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_1); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 85, __pyx_L1_error)
           #else
-          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 81, __pyx_L1_error)
+          __pyx_t_1 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 85, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_1);
           #endif
         }
@@ -3558,7 +3816,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 81, __pyx_L1_error)
+            else __PYX_ERR(0, 85, __pyx_L1_error)
           }
           break;
         }
@@ -3567,83 +3825,79 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
       __Pyx_XDECREF_SET(__pyx_v_face, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "slicer/slice_mesh.pyx":82
- *             # next segment
+      /* "slicer/slice_mesh.pyx":86
+ *             print("Connected Faces: {}".format(seg.end_vertex.connected_faces))
  *             for face in seg.end_vertex.connected_faces:
- *                 result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)             # <<<<<<<<<<<<<<
+ *                 result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)             # <<<<<<<<<<<<<<
  * 
  *                 if result_seg_idx == start_seg_idx:
  */
-      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_try_next_face_seg_idx); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 82, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_8);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_seg, __pyx_n_s_face_idx); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 82, __pyx_L1_error)
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_try_next_face_seg_idx); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 86, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_6 = NULL;
       __pyx_t_7 = 0;
-      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_8))) {
-        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_8);
+      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
+        __pyx_t_6 = PyMethod_GET_SELF(__pyx_t_5);
         if (likely(__pyx_t_6)) {
-          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_8);
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
           __Pyx_INCREF(__pyx_t_6);
           __Pyx_INCREF(function);
-          __Pyx_DECREF_SET(__pyx_t_8, function);
+          __Pyx_DECREF_SET(__pyx_t_5, function);
           __pyx_t_7 = 1;
         }
       }
       #if CYTHON_FAST_PYCALL
-      if (PyFunction_Check(__pyx_t_8)) {
-        PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_seg, __pyx_t_5, __pyx_v_start_seg_idx};
-        __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+      if (PyFunction_Check(__pyx_t_5)) {
+        PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_seg, __pyx_v_face, __pyx_v_start_seg_idx};
+        __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_1);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       } else
       #endif
       #if CYTHON_FAST_PYCCALL
-      if (__Pyx_PyFastCFunction_Check(__pyx_t_8)) {
-        PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_seg, __pyx_t_5, __pyx_v_start_seg_idx};
-        __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_8, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
+        PyObject *__pyx_temp[4] = {__pyx_t_6, __pyx_v_seg, __pyx_v_face, __pyx_v_start_seg_idx};
+        __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_7, 3+__pyx_t_7); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_GOTREF(__pyx_t_1);
-        __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       } else
       #endif
       {
-        __pyx_t_11 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 82, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_11);
+        __pyx_t_8 = PyTuple_New(3+__pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 86, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
         if (__pyx_t_6) {
-          __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_6); __pyx_t_6 = NULL;
+          __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_6); __pyx_t_6 = NULL;
         }
         __Pyx_INCREF(__pyx_v_seg);
         __Pyx_GIVEREF(__pyx_v_seg);
-        PyTuple_SET_ITEM(__pyx_t_11, 0+__pyx_t_7, __pyx_v_seg);
-        __Pyx_GIVEREF(__pyx_t_5);
-        PyTuple_SET_ITEM(__pyx_t_11, 1+__pyx_t_7, __pyx_t_5);
+        PyTuple_SET_ITEM(__pyx_t_8, 0+__pyx_t_7, __pyx_v_seg);
+        __Pyx_INCREF(__pyx_v_face);
+        __Pyx_GIVEREF(__pyx_v_face);
+        PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_7, __pyx_v_face);
         __Pyx_INCREF(__pyx_v_start_seg_idx);
         __Pyx_GIVEREF(__pyx_v_start_seg_idx);
-        PyTuple_SET_ITEM(__pyx_t_11, 2+__pyx_t_7, __pyx_v_start_seg_idx);
-        __pyx_t_5 = 0;
-        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_11, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 82, __pyx_L1_error)
+        PyTuple_SET_ITEM(__pyx_t_8, 2+__pyx_t_7, __pyx_v_start_seg_idx);
+        __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_8, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       }
-      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_XDECREF_SET(__pyx_v_result_seg_idx, __pyx_t_1);
       __pyx_t_1 = 0;
 
-      /* "slicer/slice_mesh.pyx":84
- *                 result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
+      /* "slicer/slice_mesh.pyx":88
+ *                 result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
  * 
  *                 if result_seg_idx == start_seg_idx:             # <<<<<<<<<<<<<<
  *                     return start_seg_idx
  *                 elif result_seg_idx != -1:
  */
-      __pyx_t_1 = PyObject_RichCompare(__pyx_v_result_seg_idx, __pyx_v_start_seg_idx, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 84, __pyx_L1_error)
-      __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 84, __pyx_L1_error)
+      __pyx_t_1 = PyObject_RichCompare(__pyx_v_result_seg_idx, __pyx_v_start_seg_idx, Py_EQ); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 88, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 88, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (__pyx_t_3) {
 
-        /* "slicer/slice_mesh.pyx":85
+        /* "slicer/slice_mesh.pyx":89
  * 
  *                 if result_seg_idx == start_seg_idx:
  *                     return start_seg_idx             # <<<<<<<<<<<<<<
@@ -3656,8 +3910,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
         __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
         goto __pyx_L0;
 
-        /* "slicer/slice_mesh.pyx":84
- *                 result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
+        /* "slicer/slice_mesh.pyx":88
+ *                 result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
  * 
  *                 if result_seg_idx == start_seg_idx:             # <<<<<<<<<<<<<<
  *                     return start_seg_idx
@@ -3665,19 +3919,19 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
  */
       }
 
-      /* "slicer/slice_mesh.pyx":86
+      /* "slicer/slice_mesh.pyx":90
  *                 if result_seg_idx == start_seg_idx:
  *                     return start_seg_idx
  *                 elif result_seg_idx != -1:             # <<<<<<<<<<<<<<
  *                     next_seg_idx = result_seg_idx
  *         return next_seg_idx
  */
-      __pyx_t_1 = PyObject_RichCompare(__pyx_v_result_seg_idx, __pyx_int_neg_1, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 86, __pyx_L1_error)
-      __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 86, __pyx_L1_error)
+      __pyx_t_1 = PyObject_RichCompare(__pyx_v_result_seg_idx, __pyx_int_neg_1, Py_NE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 90, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       if (__pyx_t_3) {
 
-        /* "slicer/slice_mesh.pyx":87
+        /* "slicer/slice_mesh.pyx":91
  *                     return start_seg_idx
  *                 elif result_seg_idx != -1:
  *                     next_seg_idx = result_seg_idx             # <<<<<<<<<<<<<<
@@ -3687,7 +3941,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
         __Pyx_INCREF(__pyx_v_result_seg_idx);
         __Pyx_DECREF_SET(__pyx_v_next_seg_idx, __pyx_v_result_seg_idx);
 
-        /* "slicer/slice_mesh.pyx":86
+        /* "slicer/slice_mesh.pyx":90
  *                 if result_seg_idx == start_seg_idx:
  *                     return start_seg_idx
  *                 elif result_seg_idx != -1:             # <<<<<<<<<<<<<<
@@ -3696,18 +3950,18 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
  */
       }
 
-      /* "slicer/slice_mesh.pyx":81
- *             # if the segment ended at a vertex, look for other faces to try to get the
- *             # next segment
+      /* "slicer/slice_mesh.pyx":85
+ *             print("Segment: {}".format(seg.segment))
+ *             print("Connected Faces: {}".format(seg.end_vertex.connected_faces))
  *             for face in seg.end_vertex.connected_faces:             # <<<<<<<<<<<<<<
- *                 result_seg_idx = self.try_next_face_seg_idx(seg, seg.face_idx, start_seg_idx)
+ *                 result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
  * 
  */
     }
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
 
-  /* "slicer/slice_mesh.pyx":88
+  /* "slicer/slice_mesh.pyx":92
  *                 elif result_seg_idx != -1:
  *                     next_seg_idx = result_seg_idx
  *         return next_seg_idx             # <<<<<<<<<<<<<<
@@ -3734,7 +3988,6 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_6);
   __Pyx_XDECREF(__pyx_t_8);
-  __Pyx_XDECREF(__pyx_t_11);
   __Pyx_AddTraceback("slicer.slice_mesh.Slice.get_next_seg_idx", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3746,7 +3999,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_6get_next_seg_idx(CYTHON_U
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":90
+/* "slicer/slice_mesh.pyx":94
  *         return next_seg_idx
  * 
  *     def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):             # <<<<<<<<<<<<<<
@@ -3793,23 +4046,23 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_5Slice_9try_next_face_seg_idx(PyO
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_segment)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, 1); __PYX_ERR(0, 90, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, 1); __PYX_ERR(0, 94, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_face_idx)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, 2); __PYX_ERR(0, 90, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, 2); __PYX_ERR(0, 94, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_start_seg_idx)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, 3); __PYX_ERR(0, 90, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, 3); __PYX_ERR(0, 94, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "try_next_face_seg_idx") < 0)) __PYX_ERR(0, 90, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "try_next_face_seg_idx") < 0)) __PYX_ERR(0, 94, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -3826,7 +4079,7 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_5Slice_9try_next_face_seg_idx(PyO
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 90, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("try_next_face_seg_idx", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 94, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("slicer.slice_mesh.Slice.try_next_face_seg_idx", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -3845,89 +4098,205 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_8try_next_face_seg_idx(CYT
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
-  int __pyx_t_3;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  int __pyx_t_6;
+  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_8 = NULL;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  PyObject *__pyx_t_12 = NULL;
+  int __pyx_t_13;
   __Pyx_RefNannySetupContext("try_next_face_seg_idx", 0);
 
-  /* "slicer/slice_mesh.pyx":98
+  /* "slicer/slice_mesh.pyx":102
  *         :return:
  *         """
- *         seg_idx = self.face_idx_to_seg_idx[face_idx]             # <<<<<<<<<<<<<<
- * 
- *         if self.segments[seg_idx].added_to_polygon:
+ *         try:             # <<<<<<<<<<<<<<
+ *             seg_idx = self.face_idx_to_seg_idx[face_idx]
+ *         except KeyError:
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_face_idx_to_seg_idx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 98, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_v_face_idx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 98, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_v_seg_idx = __pyx_t_2;
-  __pyx_t_2 = 0;
+  {
+    __Pyx_PyThreadState_declare
+    __Pyx_PyThreadState_assign
+    __Pyx_ExceptionSave(&__pyx_t_1, &__pyx_t_2, &__pyx_t_3);
+    __Pyx_XGOTREF(__pyx_t_1);
+    __Pyx_XGOTREF(__pyx_t_2);
+    __Pyx_XGOTREF(__pyx_t_3);
+    /*try:*/ {
 
-  /* "slicer/slice_mesh.pyx":100
- *         seg_idx = self.face_idx_to_seg_idx[face_idx]
- * 
- *         if self.segments[seg_idx].added_to_polygon:             # <<<<<<<<<<<<<<
+      /* "slicer/slice_mesh.pyx":103
+ *         """
+ *         try:
+ *             seg_idx = self.face_idx_to_seg_idx[face_idx]             # <<<<<<<<<<<<<<
+ *         except KeyError:
+ *             # print("Face Index: {}".format(face_idx))
+ */
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_face_idx_to_seg_idx); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 103, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_t_4, __pyx_v_face_idx); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L3_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __pyx_v_seg_idx = __pyx_t_5;
+      __pyx_t_5 = 0;
+
+      /* "slicer/slice_mesh.pyx":102
+ *         :return:
+ *         """
+ *         try:             # <<<<<<<<<<<<<<
+ *             seg_idx = self.face_idx_to_seg_idx[face_idx]
+ *         except KeyError:
+ */
+    }
+    __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+    __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
+    goto __pyx_L8_try_end;
+    __pyx_L3_error:;
+    __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+    /* "slicer/slice_mesh.pyx":104
+ *         try:
+ *             seg_idx = self.face_idx_to_seg_idx[face_idx]
+ *         except KeyError:             # <<<<<<<<<<<<<<
+ *             # print("Face Index: {}".format(face_idx))
+ *             # print("Segment: {}".format(segment.segment))
+ */
+    __pyx_t_6 = __Pyx_PyErr_ExceptionMatches(__pyx_builtin_KeyError);
+    if (__pyx_t_6) {
+      __Pyx_AddTraceback("slicer.slice_mesh.Slice.try_next_face_seg_idx", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_4, &__pyx_t_7) < 0) __PYX_ERR(0, 104, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_GOTREF(__pyx_t_4);
+      __Pyx_GOTREF(__pyx_t_7);
+
+      /* "slicer/slice_mesh.pyx":107
+ *             # print("Face Index: {}".format(face_idx))
+ *             # print("Segment: {}".format(segment.segment))
+ *             print("Face -> Segment Dict: {}".format(self.face_idx_to_seg_idx))             # <<<<<<<<<<<<<<
  *             return -1
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_segments); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_v_seg_idx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_1);
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_added_to_polygon); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__pyx_t_3) {
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Face_Segment_Dict, __pyx_n_s_format); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_10 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_face_idx_to_seg_idx); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+      __Pyx_GOTREF(__pyx_t_10);
+      __pyx_t_11 = NULL;
+      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_9))) {
+        __pyx_t_11 = PyMethod_GET_SELF(__pyx_t_9);
+        if (likely(__pyx_t_11)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
+          __Pyx_INCREF(__pyx_t_11);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_9, function);
+        }
+      }
+      if (!__pyx_t_11) {
+        __pyx_t_8 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_t_10); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+        __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        __Pyx_GOTREF(__pyx_t_8);
+      } else {
+        #if CYTHON_FAST_PYCALL
+        if (PyFunction_Check(__pyx_t_9)) {
+          PyObject *__pyx_temp[2] = {__pyx_t_11, __pyx_t_10};
+          __pyx_t_8 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+          __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_GOTREF(__pyx_t_8);
+          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        } else
+        #endif
+        #if CYTHON_FAST_PYCCALL
+        if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
+          PyObject *__pyx_temp[2] = {__pyx_t_11, __pyx_t_10};
+          __pyx_t_8 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+          __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+          __Pyx_GOTREF(__pyx_t_8);
+          __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+        } else
+        #endif
+        {
+          __pyx_t_12 = PyTuple_New(1+1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+          __Pyx_GOTREF(__pyx_t_12);
+          __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_11); __pyx_t_11 = NULL;
+          __Pyx_GIVEREF(__pyx_t_10);
+          PyTuple_SET_ITEM(__pyx_t_12, 0+1, __pyx_t_10);
+          __pyx_t_10 = 0;
+          __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_12, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 107, __pyx_L5_except_error)
+          __Pyx_GOTREF(__pyx_t_8);
+          __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+        }
+      }
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      if (__Pyx_PrintOne(0, __pyx_t_8) < 0) __PYX_ERR(0, 107, __pyx_L5_except_error)
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
 
-    /* "slicer/slice_mesh.pyx":101
- * 
- *         if self.segments[seg_idx].added_to_polygon:
+      /* "slicer/slice_mesh.pyx":108
+ *             # print("Segment: {}".format(segment.segment))
+ *             print("Face -> Segment Dict: {}".format(self.face_idx_to_seg_idx))
  *             return -1             # <<<<<<<<<<<<<<
  * 
  *         if seg_idx == start_seg_idx:
  */
-    __Pyx_XDECREF(__pyx_r);
-    __Pyx_INCREF(__pyx_int_neg_1);
-    __pyx_r = __pyx_int_neg_1;
-    goto __pyx_L0;
+      __Pyx_XDECREF(__pyx_r);
+      __Pyx_INCREF(__pyx_int_neg_1);
+      __pyx_r = __pyx_int_neg_1;
+      __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      goto __pyx_L6_except_return;
+    }
+    goto __pyx_L5_except_error;
+    __pyx_L5_except_error:;
 
-    /* "slicer/slice_mesh.pyx":100
- *         seg_idx = self.face_idx_to_seg_idx[face_idx]
- * 
- *         if self.segments[seg_idx].added_to_polygon:             # <<<<<<<<<<<<<<
- *             return -1
- * 
+    /* "slicer/slice_mesh.pyx":102
+ *         :return:
+ *         """
+ *         try:             # <<<<<<<<<<<<<<
+ *             seg_idx = self.face_idx_to_seg_idx[face_idx]
+ *         except KeyError:
  */
+    __Pyx_XGIVEREF(__pyx_t_1);
+    __Pyx_XGIVEREF(__pyx_t_2);
+    __Pyx_XGIVEREF(__pyx_t_3);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    goto __pyx_L1_error;
+    __pyx_L6_except_return:;
+    __Pyx_XGIVEREF(__pyx_t_1);
+    __Pyx_XGIVEREF(__pyx_t_2);
+    __Pyx_XGIVEREF(__pyx_t_3);
+    __Pyx_ExceptionReset(__pyx_t_1, __pyx_t_2, __pyx_t_3);
+    goto __pyx_L0;
+    __pyx_L8_try_end:;
   }
 
-  /* "slicer/slice_mesh.pyx":103
+  /* "slicer/slice_mesh.pyx":110
  *             return -1
  * 
  *         if seg_idx == start_seg_idx:             # <<<<<<<<<<<<<<
  *             return start_seg_idx
  * 
  */
-  __pyx_t_2 = PyObject_RichCompare(__pyx_v_seg_idx, __pyx_v_start_seg_idx, Py_EQ); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 103, __pyx_L1_error)
-  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__pyx_t_3) {
+  __pyx_t_7 = PyObject_RichCompare(__pyx_v_seg_idx, __pyx_v_start_seg_idx, Py_EQ); __Pyx_XGOTREF(__pyx_t_7); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  if (__pyx_t_13) {
 
-    /* "slicer/slice_mesh.pyx":104
+    /* "slicer/slice_mesh.pyx":111
  * 
  *         if seg_idx == start_seg_idx:
  *             return start_seg_idx             # <<<<<<<<<<<<<<
  * 
- *         else:
+ *         if self.segments[seg_idx].added_to_polygon:
  */
     __Pyx_XDECREF(__pyx_r);
     __Pyx_INCREF(__pyx_v_start_seg_idx);
     __pyx_r = __pyx_v_start_seg_idx;
     goto __pyx_L0;
 
-    /* "slicer/slice_mesh.pyx":103
+    /* "slicer/slice_mesh.pyx":110
  *             return -1
  * 
  *         if seg_idx == start_seg_idx:             # <<<<<<<<<<<<<<
@@ -3936,7 +4305,47 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_8try_next_face_seg_idx(CYT
  */
   }
 
-  /* "slicer/slice_mesh.pyx":107
+  /* "slicer/slice_mesh.pyx":113
+ *             return start_seg_idx
+ * 
+ *         if self.segments[seg_idx].added_to_polygon:             # <<<<<<<<<<<<<<
+ *             return -1
+ * 
+ */
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_segments); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_7, __pyx_v_seg_idx); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_added_to_polygon); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_7);
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_7); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  if (__pyx_t_13) {
+
+    /* "slicer/slice_mesh.pyx":114
+ * 
+ *         if self.segments[seg_idx].added_to_polygon:
+ *             return -1             # <<<<<<<<<<<<<<
+ * 
+ *         else:
+ */
+    __Pyx_XDECREF(__pyx_r);
+    __Pyx_INCREF(__pyx_int_neg_1);
+    __pyx_r = __pyx_int_neg_1;
+    goto __pyx_L0;
+
+    /* "slicer/slice_mesh.pyx":113
+ *             return start_seg_idx
+ * 
+ *         if self.segments[seg_idx].added_to_polygon:             # <<<<<<<<<<<<<<
+ *             return -1
+ * 
+ */
+  }
+
+  /* "slicer/slice_mesh.pyx":117
  * 
  *         else:
  *             return seg_idx             # <<<<<<<<<<<<<<
@@ -3950,7 +4359,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_8try_next_face_seg_idx(CYT
     goto __pyx_L0;
   }
 
-  /* "slicer/slice_mesh.pyx":90
+  /* "slicer/slice_mesh.pyx":94
  *         return next_seg_idx
  * 
  *     def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):             # <<<<<<<<<<<<<<
@@ -3960,8 +4369,14 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_8try_next_face_seg_idx(CYT
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_1);
-  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_8);
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_XDECREF(__pyx_t_10);
+  __Pyx_XDECREF(__pyx_t_11);
+  __Pyx_XDECREF(__pyx_t_12);
   __Pyx_AddTraceback("slicer.slice_mesh.Slice.try_next_face_seg_idx", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -3971,7 +4386,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_8try_next_face_seg_idx(CYT
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":109
+/* "slicer/slice_mesh.pyx":119
  *             return seg_idx
  * 
  *     def connect_open_polylines(self):             # <<<<<<<<<<<<<<
@@ -4005,7 +4420,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_10connect_open_polylines(C
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":114
+/* "slicer/slice_mesh.pyx":124
  *         pass
  * 
  *     def layer_graph(self):             # <<<<<<<<<<<<<<
@@ -4057,34 +4472,34 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   PyObject *__pyx_t_14 = NULL;
   __Pyx_RefNannySetupContext("layer_graph", 0);
 
-  /* "slicer/slice_mesh.pyx":131
+  /* "slicer/slice_mesh.pyx":141
  *         :return:
  *         """
  *         print("Graph layer: " + str(self.layer_number))             # <<<<<<<<<<<<<<
  *         digraph = nx.DiGraph()
  *         segs = [s.segment for s in self.segments]
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_layer_number); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_layer_number); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyString_Type)), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_CallOneArg(((PyObject *)(&PyString_Type)), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Add(__pyx_kp_s_Graph_layer, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Add(__pyx_kp_s_Graph_layer, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (__Pyx_PrintOne(0, __pyx_t_1) < 0) __PYX_ERR(0, 131, __pyx_L1_error)
+  if (__Pyx_PrintOne(0, __pyx_t_1) < 0) __PYX_ERR(0, 141, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":132
+  /* "slicer/slice_mesh.pyx":142
  *         """
  *         print("Graph layer: " + str(self.layer_number))
  *         digraph = nx.DiGraph()             # <<<<<<<<<<<<<<
  *         segs = [s.segment for s in self.segments]
  *         for seg in np.round(segs, decimals=3):
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_DiGraph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_DiGraph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -4098,34 +4513,34 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     }
   }
   if (__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_digraph = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":133
+  /* "slicer/slice_mesh.pyx":143
  *         print("Graph layer: " + str(self.layer_number))
  *         digraph = nx.DiGraph()
  *         segs = [s.segment for s in self.segments]             # <<<<<<<<<<<<<<
  *         for seg in np.round(segs, decimals=3):
  *             p1 = tuple(seg[0])
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_segments); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_self, __pyx_n_s_segments); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
     __pyx_t_2 = __pyx_t_3; __Pyx_INCREF(__pyx_t_2); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_4 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_4 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_5 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_5 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 143, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   for (;;) {
@@ -4133,17 +4548,17 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_4 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 133, __pyx_L1_error)
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 143, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       } else {
         if (__pyx_t_4 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 133, __pyx_L1_error)
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_4); __Pyx_INCREF(__pyx_t_3); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 143, __pyx_L1_error)
         #else
-        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_3);
         #endif
       }
@@ -4153,7 +4568,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 133, __pyx_L1_error)
+          else __PYX_ERR(0, 143, __pyx_L1_error)
         }
         break;
       }
@@ -4161,36 +4576,36 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     }
     __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_s, __pyx_n_s_segment); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_s, __pyx_n_s_segment); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 133, __pyx_L1_error)
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_1, (PyObject*)__pyx_t_3))) __PYX_ERR(0, 143, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_segs = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":134
+  /* "slicer/slice_mesh.pyx":144
  *         digraph = nx.DiGraph()
  *         segs = [s.segment for s in self.segments]
  *         for seg in np.round(segs, decimals=3):             # <<<<<<<<<<<<<<
  *             p1 = tuple(seg[0])
  *             p2 = tuple(seg[1])
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_round); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_round); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_segs);
   __Pyx_GIVEREF(__pyx_v_segs);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_segs);
-  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 134, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_decimals, __pyx_int_3) < 0) __PYX_ERR(0, 134, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_decimals, __pyx_int_3) < 0) __PYX_ERR(0, 144, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_1, __pyx_t_3); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 144, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4199,9 +4614,9 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     __pyx_t_3 = __pyx_t_6; __Pyx_INCREF(__pyx_t_3); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_4 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_4 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 144, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 134, __pyx_L1_error)
+    __pyx_t_5 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 144, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   for (;;) {
@@ -4209,17 +4624,17 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       if (likely(PyList_CheckExact(__pyx_t_3))) {
         if (__pyx_t_4 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 134, __pyx_L1_error)
+        __pyx_t_6 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 144, __pyx_L1_error)
         #else
-        __pyx_t_6 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+        __pyx_t_6 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 144, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         #endif
       } else {
         if (__pyx_t_4 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 134, __pyx_L1_error)
+        __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_6); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 144, __pyx_L1_error)
         #else
-        __pyx_t_6 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 134, __pyx_L1_error)
+        __pyx_t_6 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 144, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         #endif
       }
@@ -4229,7 +4644,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 134, __pyx_L1_error)
+          else __PYX_ERR(0, 144, __pyx_L1_error)
         }
         break;
       }
@@ -4238,51 +4653,51 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     __Pyx_XDECREF_SET(__pyx_v_seg, __pyx_t_6);
     __pyx_t_6 = 0;
 
-    /* "slicer/slice_mesh.pyx":135
+    /* "slicer/slice_mesh.pyx":145
  *         segs = [s.segment for s in self.segments]
  *         for seg in np.round(segs, decimals=3):
  *             p1 = tuple(seg[0])             # <<<<<<<<<<<<<<
  *             p2 = tuple(seg[1])
  * 
  */
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_seg, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_v_seg, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 145, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = __Pyx_PySequence_Tuple(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PySequence_Tuple(__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_XDECREF_SET(__pyx_v_p1, ((PyObject*)__pyx_t_1));
     __pyx_t_1 = 0;
 
-    /* "slicer/slice_mesh.pyx":136
+    /* "slicer/slice_mesh.pyx":146
  *         for seg in np.round(segs, decimals=3):
  *             p1 = tuple(seg[0])
  *             p2 = tuple(seg[1])             # <<<<<<<<<<<<<<
  * 
  *             if p1 == p2:
  */
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_seg, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_seg, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_6 = __Pyx_PySequence_Tuple(__pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 136, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PySequence_Tuple(__pyx_t_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 146, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_XDECREF_SET(__pyx_v_p2, ((PyObject*)__pyx_t_6));
     __pyx_t_6 = 0;
 
-    /* "slicer/slice_mesh.pyx":138
+    /* "slicer/slice_mesh.pyx":148
  *             p2 = tuple(seg[1])
  * 
  *             if p1 == p2:             # <<<<<<<<<<<<<<
  *                 pass
  *             else:
  */
-    __pyx_t_6 = PyObject_RichCompare(__pyx_v_p1, __pyx_v_p2, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 138, __pyx_L1_error)
-    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 138, __pyx_L1_error)
+    __pyx_t_6 = PyObject_RichCompare(__pyx_v_p1, __pyx_v_p2, Py_EQ); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 148, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_7 < 0)) __PYX_ERR(0, 148, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (__pyx_t_7) {
       goto __pyx_L7;
     }
 
-    /* "slicer/slice_mesh.pyx":141
+    /* "slicer/slice_mesh.pyx":151
  *                 pass
  *             else:
  *                 digraph.add_edge(p1, p2)             # <<<<<<<<<<<<<<
@@ -4290,7 +4705,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
  *         bridges = nx.bridges(graph)
  */
     /*else*/ {
-      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_digraph, __pyx_n_s_add_edge); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 141, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_digraph, __pyx_n_s_add_edge); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 151, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __pyx_t_2 = NULL;
       __pyx_t_8 = 0;
@@ -4307,7 +4722,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_1)) {
         PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_p1, __pyx_v_p2};
-        __pyx_t_6 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 141, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 151, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_GOTREF(__pyx_t_6);
       } else
@@ -4315,13 +4730,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
         PyObject *__pyx_temp[3] = {__pyx_t_2, __pyx_v_p1, __pyx_v_p2};
-        __pyx_t_6 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 141, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 151, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_GOTREF(__pyx_t_6);
       } else
       #endif
       {
-        __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 141, __pyx_L1_error)
+        __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 151, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         if (__pyx_t_2) {
           __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_2); __pyx_t_2 = NULL;
@@ -4332,7 +4747,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         __Pyx_INCREF(__pyx_v_p2);
         __Pyx_GIVEREF(__pyx_v_p2);
         PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_v_p2);
-        __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_9, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 141, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_9, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 151, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       }
@@ -4341,7 +4756,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     }
     __pyx_L7:;
 
-    /* "slicer/slice_mesh.pyx":134
+    /* "slicer/slice_mesh.pyx":144
  *         digraph = nx.DiGraph()
  *         segs = [s.segment for s in self.segments]
  *         for seg in np.round(segs, decimals=3):             # <<<<<<<<<<<<<<
@@ -4351,16 +4766,16 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":142
+  /* "slicer/slice_mesh.pyx":152
  *             else:
  *                 digraph.add_edge(p1, p2)
  *         graph = nx.Graph(digraph)             # <<<<<<<<<<<<<<
  *         bridges = nx.bridges(graph)
  * 
  */
-  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_Graph); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_Graph); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 152, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_t_6 = NULL;
@@ -4374,13 +4789,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     }
   }
   if (!__pyx_t_6) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_digraph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_v_digraph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_v_digraph};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
@@ -4388,19 +4803,19 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[2] = {__pyx_t_6, __pyx_v_digraph};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_GIVEREF(__pyx_t_6); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_6); __pyx_t_6 = NULL;
       __Pyx_INCREF(__pyx_v_digraph);
       __Pyx_GIVEREF(__pyx_v_digraph);
       PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_v_digraph);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
@@ -4409,16 +4824,16 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   __pyx_v_graph = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":143
+  /* "slicer/slice_mesh.pyx":153
  *                 digraph.add_edge(p1, p2)
  *         graph = nx.Graph(digraph)
  *         bridges = nx.bridges(graph)             # <<<<<<<<<<<<<<
  * 
  *         for bridge in bridges:
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_bridges); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 143, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_bridges); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 153, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_1 = NULL;
@@ -4432,13 +4847,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     }
   }
   if (!__pyx_t_1) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_v_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_9, __pyx_v_graph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_9)) {
       PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_v_graph};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
@@ -4446,19 +4861,19 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
       PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_v_graph};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
     #endif
     {
-      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 143, __pyx_L1_error)
+      __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_1); __pyx_t_1 = NULL;
       __Pyx_INCREF(__pyx_v_graph);
       __Pyx_GIVEREF(__pyx_v_graph);
       PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_graph);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 143, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 153, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     }
@@ -4467,7 +4882,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   __pyx_v_bridges = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":145
+  /* "slicer/slice_mesh.pyx":155
  *         bridges = nx.bridges(graph)
  * 
  *         for bridge in bridges:             # <<<<<<<<<<<<<<
@@ -4478,26 +4893,26 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     __pyx_t_3 = __pyx_v_bridges; __Pyx_INCREF(__pyx_t_3); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
   } else {
-    __pyx_t_4 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_bridges); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
+    __pyx_t_4 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_bridges); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_5 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 145, __pyx_L1_error)
+    __pyx_t_5 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 155, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_5)) {
       if (likely(PyList_CheckExact(__pyx_t_3))) {
         if (__pyx_t_4 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_9 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_9); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 145, __pyx_L1_error)
+        __pyx_t_9 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_9); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 155, __pyx_L1_error)
         #else
-        __pyx_t_9 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 145, __pyx_L1_error)
+        __pyx_t_9 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 155, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         #endif
       } else {
         if (__pyx_t_4 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_9 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_9); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 145, __pyx_L1_error)
+        __pyx_t_9 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_4); __Pyx_INCREF(__pyx_t_9); __pyx_t_4++; if (unlikely(0 < 0)) __PYX_ERR(0, 155, __pyx_L1_error)
         #else
-        __pyx_t_9 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 145, __pyx_L1_error)
+        __pyx_t_9 = PySequence_ITEM(__pyx_t_3, __pyx_t_4); __pyx_t_4++; if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 155, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         #endif
       }
@@ -4507,7 +4922,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 145, __pyx_L1_error)
+          else __PYX_ERR(0, 155, __pyx_L1_error)
         }
         break;
       }
@@ -4516,7 +4931,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     __Pyx_XDECREF_SET(__pyx_v_bridge, __pyx_t_9);
     __pyx_t_9 = 0;
 
-    /* "slicer/slice_mesh.pyx":146
+    /* "slicer/slice_mesh.pyx":156
  * 
  *         for bridge in bridges:
  *             try:             # <<<<<<<<<<<<<<
@@ -4532,18 +4947,18 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       __Pyx_XGOTREF(__pyx_t_12);
       /*try:*/ {
 
-        /* "slicer/slice_mesh.pyx":147
+        /* "slicer/slice_mesh.pyx":157
  *         for bridge in bridges:
  *             try:
  *                 digraph.remove_edge(bridge[0], bridge[1])             # <<<<<<<<<<<<<<
  *             except Exception:
  *                 continue
  */
-        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_digraph, __pyx_n_s_remove_edge); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 147, __pyx_L10_error)
+        __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_digraph, __pyx_n_s_remove_edge); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 157, __pyx_L10_error)
         __Pyx_GOTREF(__pyx_t_6);
-        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_bridge, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 147, __pyx_L10_error)
+        __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_bridge, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L10_error)
         __Pyx_GOTREF(__pyx_t_1);
-        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_bridge, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L10_error)
+        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_bridge, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L10_error)
         __Pyx_GOTREF(__pyx_t_2);
         __pyx_t_13 = NULL;
         __pyx_t_8 = 0;
@@ -4560,7 +4975,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_6)) {
           PyObject *__pyx_temp[3] = {__pyx_t_13, __pyx_t_1, __pyx_t_2};
-          __pyx_t_9 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 147, __pyx_L10_error)
+          __pyx_t_9 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 157, __pyx_L10_error)
           __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_GOTREF(__pyx_t_9);
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4570,7 +4985,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
           PyObject *__pyx_temp[3] = {__pyx_t_13, __pyx_t_1, __pyx_t_2};
-          __pyx_t_9 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 147, __pyx_L10_error)
+          __pyx_t_9 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 157, __pyx_L10_error)
           __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_GOTREF(__pyx_t_9);
           __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4578,7 +4993,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
         } else
         #endif
         {
-          __pyx_t_14 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 147, __pyx_L10_error)
+          __pyx_t_14 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 157, __pyx_L10_error)
           __Pyx_GOTREF(__pyx_t_14);
           if (__pyx_t_13) {
             __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_13); __pyx_t_13 = NULL;
@@ -4589,14 +5004,14 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
           PyTuple_SET_ITEM(__pyx_t_14, 1+__pyx_t_8, __pyx_t_2);
           __pyx_t_1 = 0;
           __pyx_t_2 = 0;
-          __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_14, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 147, __pyx_L10_error)
+          __pyx_t_9 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_14, NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 157, __pyx_L10_error)
           __Pyx_GOTREF(__pyx_t_9);
           __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
         }
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-        /* "slicer/slice_mesh.pyx":146
+        /* "slicer/slice_mesh.pyx":156
  * 
  *         for bridge in bridges:
  *             try:             # <<<<<<<<<<<<<<
@@ -4616,7 +5031,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       __Pyx_XDECREF(__pyx_t_6); __pyx_t_6 = 0;
       __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
 
-      /* "slicer/slice_mesh.pyx":148
+      /* "slicer/slice_mesh.pyx":158
  *             try:
  *                 digraph.remove_edge(bridge[0], bridge[1])
  *             except Exception:             # <<<<<<<<<<<<<<
@@ -4626,12 +5041,12 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       __pyx_t_8 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
       if (__pyx_t_8) {
         __Pyx_AddTraceback("slicer.slice_mesh.Slice.layer_graph", __pyx_clineno, __pyx_lineno, __pyx_filename);
-        if (__Pyx_GetException(&__pyx_t_9, &__pyx_t_6, &__pyx_t_14) < 0) __PYX_ERR(0, 148, __pyx_L12_except_error)
+        if (__Pyx_GetException(&__pyx_t_9, &__pyx_t_6, &__pyx_t_14) < 0) __PYX_ERR(0, 158, __pyx_L12_except_error)
         __Pyx_GOTREF(__pyx_t_9);
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_GOTREF(__pyx_t_14);
 
-        /* "slicer/slice_mesh.pyx":149
+        /* "slicer/slice_mesh.pyx":159
  *                 digraph.remove_edge(bridge[0], bridge[1])
  *             except Exception:
  *                 continue             # <<<<<<<<<<<<<<
@@ -4648,7 +5063,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       goto __pyx_L12_except_error;
       __pyx_L12_except_error:;
 
-      /* "slicer/slice_mesh.pyx":146
+      /* "slicer/slice_mesh.pyx":156
  * 
  *         for bridge in bridges:
  *             try:             # <<<<<<<<<<<<<<
@@ -4669,7 +5084,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
       __pyx_L17_try_end:;
     }
 
-    /* "slicer/slice_mesh.pyx":145
+    /* "slicer/slice_mesh.pyx":155
  *         bridges = nx.bridges(graph)
  * 
  *         for bridge in bridges:             # <<<<<<<<<<<<<<
@@ -4680,16 +5095,16 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":151
+  /* "slicer/slice_mesh.pyx":161
  *                 continue
  * 
  *         cycles = nx.simple_cycles(digraph)             # <<<<<<<<<<<<<<
  *         return list(cycles)
  * 
  */
-  __pyx_t_14 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_14 = __Pyx_GetModuleGlobalName(__pyx_n_s_nx); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_simple_cycles); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 151, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_14, __pyx_n_s_simple_cycles); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
   __pyx_t_14 = NULL;
@@ -4703,13 +5118,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     }
   }
   if (!__pyx_t_14) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_digraph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_6, __pyx_v_digraph); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[2] = {__pyx_t_14, __pyx_v_digraph};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
@@ -4717,19 +5132,19 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[2] = {__pyx_t_14, __pyx_v_digraph};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_14); __pyx_t_14 = 0;
       __Pyx_GOTREF(__pyx_t_3);
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 151, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(1+1); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 161, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __Pyx_GIVEREF(__pyx_t_14); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_14); __pyx_t_14 = NULL;
       __Pyx_INCREF(__pyx_v_digraph);
       __Pyx_GIVEREF(__pyx_v_digraph);
       PyTuple_SET_ITEM(__pyx_t_9, 0+1, __pyx_v_digraph);
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 151, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 161, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
@@ -4738,7 +5153,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   __pyx_v_cycles = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":152
+  /* "slicer/slice_mesh.pyx":162
  * 
  *         cycles = nx.simple_cycles(digraph)
  *         return list(cycles)             # <<<<<<<<<<<<<<
@@ -4746,13 +5161,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = PySequence_List(__pyx_v_cycles); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 152, __pyx_L1_error)
+  __pyx_t_3 = PySequence_List(__pyx_v_cycles); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 162, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_r = __pyx_t_3;
   __pyx_t_3 = 0;
   goto __pyx_L0;
 
-  /* "slicer/slice_mesh.pyx":114
+  /* "slicer/slice_mesh.pyx":124
  *         pass
  * 
  *     def layer_graph(self):             # <<<<<<<<<<<<<<
@@ -4787,10 +5202,10 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_5Slice_12layer_graph(CYTHON_UNUSE
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":159
+/* "slicer/slice_mesh.pyx":169
  *     A segment
  *     """
- *     def __init__(self, segment, face_idx, next_face_idx, end_vertex):             # <<<<<<<<<<<<<<
+ *     def __init__(self, segment, face_idx, next_face_idx, end_vertex, idx):             # <<<<<<<<<<<<<<
  *         self.segment = segment
  *         self.face_idx = face_idx
  */
@@ -4804,16 +5219,19 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_7Segment_1__init__(PyObject *__py
   PyObject *__pyx_v_face_idx = 0;
   PyObject *__pyx_v_next_face_idx = 0;
   PyObject *__pyx_v_end_vertex = 0;
+  PyObject *__pyx_v_idx = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_self,&__pyx_n_s_segment,&__pyx_n_s_face_idx,&__pyx_n_s_next_face_idx,&__pyx_n_s_end_vertex,0};
-    PyObject* values[5] = {0,0,0,0,0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_self,&__pyx_n_s_segment,&__pyx_n_s_face_idx,&__pyx_n_s_next_face_idx,&__pyx_n_s_end_vertex,&__pyx_n_s_idx,0};
+    PyObject* values[6] = {0,0,0,0,0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  6: values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
+        CYTHON_FALLTHROUGH;
         case  5: values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
         CYTHON_FALLTHROUGH;
         case  4: values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
@@ -4836,31 +5254,37 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_7Segment_1__init__(PyObject *__py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_segment)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 5, 5, 1); __PYX_ERR(0, 159, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 1); __PYX_ERR(0, 169, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_face_idx)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 5, 5, 2); __PYX_ERR(0, 159, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 2); __PYX_ERR(0, 169, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_next_face_idx)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 5, 5, 3); __PYX_ERR(0, 159, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 3); __PYX_ERR(0, 169, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
         if (likely((values[4] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_end_vertex)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("__init__", 1, 5, 5, 4); __PYX_ERR(0, 159, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 4); __PYX_ERR(0, 169, __pyx_L3_error)
+        }
+        CYTHON_FALLTHROUGH;
+        case  5:
+        if (likely((values[5] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_idx)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, 5); __PYX_ERR(0, 169, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 159, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) __PYX_ERR(0, 169, __pyx_L3_error)
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 5) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 6) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
@@ -4868,82 +5292,93 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_7Segment_1__init__(PyObject *__py
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
       values[4] = PyTuple_GET_ITEM(__pyx_args, 4);
+      values[5] = PyTuple_GET_ITEM(__pyx_args, 5);
     }
     __pyx_v_self = values[0];
     __pyx_v_segment = values[1];
     __pyx_v_face_idx = values[2];
     __pyx_v_next_face_idx = values[3];
     __pyx_v_end_vertex = values[4];
+    __pyx_v_idx = values[5];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 159, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 6, 6, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 169, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("slicer.slice_mesh.Segment.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_6slicer_10slice_mesh_7Segment___init__(__pyx_self, __pyx_v_self, __pyx_v_segment, __pyx_v_face_idx, __pyx_v_next_face_idx, __pyx_v_end_vertex);
+  __pyx_r = __pyx_pf_6slicer_10slice_mesh_7Segment___init__(__pyx_self, __pyx_v_self, __pyx_v_segment, __pyx_v_face_idx, __pyx_v_next_face_idx, __pyx_v_end_vertex, __pyx_v_idx);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_6slicer_10slice_mesh_7Segment___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_segment, PyObject *__pyx_v_face_idx, PyObject *__pyx_v_next_face_idx, PyObject *__pyx_v_end_vertex) {
+static PyObject *__pyx_pf_6slicer_10slice_mesh_7Segment___init__(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_self, PyObject *__pyx_v_segment, PyObject *__pyx_v_face_idx, PyObject *__pyx_v_next_face_idx, PyObject *__pyx_v_end_vertex, PyObject *__pyx_v_idx) {
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__", 0);
 
-  /* "slicer/slice_mesh.pyx":160
+  /* "slicer/slice_mesh.pyx":170
  *     """
- *     def __init__(self, segment, face_idx, next_face_idx, end_vertex):
+ *     def __init__(self, segment, face_idx, next_face_idx, end_vertex, idx):
  *         self.segment = segment             # <<<<<<<<<<<<<<
  *         self.face_idx = face_idx
  *         self.next_face_idx = next_face_idx
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_segment, __pyx_v_segment) < 0) __PYX_ERR(0, 160, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_segment, __pyx_v_segment) < 0) __PYX_ERR(0, 170, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":161
- *     def __init__(self, segment, face_idx, next_face_idx, end_vertex):
+  /* "slicer/slice_mesh.pyx":171
+ *     def __init__(self, segment, face_idx, next_face_idx, end_vertex, idx):
  *         self.segment = segment
  *         self.face_idx = face_idx             # <<<<<<<<<<<<<<
  *         self.next_face_idx = next_face_idx
  *         self.added_to_polygon = False
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_face_idx, __pyx_v_face_idx) < 0) __PYX_ERR(0, 161, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_face_idx, __pyx_v_face_idx) < 0) __PYX_ERR(0, 171, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":162
+  /* "slicer/slice_mesh.pyx":172
  *         self.segment = segment
  *         self.face_idx = face_idx
  *         self.next_face_idx = next_face_idx             # <<<<<<<<<<<<<<
  *         self.added_to_polygon = False
  *         self.end_vertex = end_vertex
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_next_face_idx, __pyx_v_next_face_idx) < 0) __PYX_ERR(0, 162, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_next_face_idx, __pyx_v_next_face_idx) < 0) __PYX_ERR(0, 172, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":163
+  /* "slicer/slice_mesh.pyx":173
  *         self.face_idx = face_idx
  *         self.next_face_idx = next_face_idx
  *         self.added_to_polygon = False             # <<<<<<<<<<<<<<
  *         self.end_vertex = end_vertex
- * 
+ *         self.idx = idx
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_added_to_polygon, Py_False) < 0) __PYX_ERR(0, 163, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_added_to_polygon, Py_False) < 0) __PYX_ERR(0, 173, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":164
+  /* "slicer/slice_mesh.pyx":174
  *         self.next_face_idx = next_face_idx
  *         self.added_to_polygon = False
  *         self.end_vertex = end_vertex             # <<<<<<<<<<<<<<
- * 
+ *         self.idx = idx
  * 
  */
-  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_end_vertex, __pyx_v_end_vertex) < 0) __PYX_ERR(0, 164, __pyx_L1_error)
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_end_vertex, __pyx_v_end_vertex) < 0) __PYX_ERR(0, 174, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":159
+  /* "slicer/slice_mesh.pyx":175
+ *         self.added_to_polygon = False
+ *         self.end_vertex = end_vertex
+ *         self.idx = idx             # <<<<<<<<<<<<<<
+ * 
+ * def slice_mesh(optimized_mesh, resolution):
+ */
+  if (__Pyx_PyObject_SetAttrStr(__pyx_v_self, __pyx_n_s_idx, __pyx_v_idx) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
+
+  /* "slicer/slice_mesh.pyx":169
  *     A segment
  *     """
- *     def __init__(self, segment, face_idx, next_face_idx, end_vertex):             # <<<<<<<<<<<<<<
+ *     def __init__(self, segment, face_idx, next_face_idx, end_vertex, idx):             # <<<<<<<<<<<<<<
  *         self.segment = segment
  *         self.face_idx = face_idx
  */
@@ -4960,8 +5395,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_7Segment___init__(CYTHON_UNUSED P
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":167
- * 
+/* "slicer/slice_mesh.pyx":177
+ *         self.idx = idx
  * 
  * def slice_mesh(optimized_mesh, resolution):             # <<<<<<<<<<<<<<
  *     """
@@ -5001,11 +5436,11 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_1slice_mesh(PyObject *__pyx_self,
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_resolution)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("slice_mesh", 1, 2, 2, 1); __PYX_ERR(0, 167, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("slice_mesh", 1, 2, 2, 1); __PYX_ERR(0, 177, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "slice_mesh") < 0)) __PYX_ERR(0, 167, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "slice_mesh") < 0)) __PYX_ERR(0, 177, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -5018,7 +5453,7 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_1slice_mesh(PyObject *__pyx_self,
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("slice_mesh", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 167, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("slice_mesh", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 177, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("slicer.slice_mesh.slice_mesh", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5072,21 +5507,22 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
   int __pyx_t_15;
   int __pyx_t_16;
   Py_ssize_t __pyx_t_17;
+  PyObject *__pyx_t_18 = NULL;
   __Pyx_RefNannySetupContext("slice_mesh", 0);
 
-  /* "slicer/slice_mesh.pyx":178
+  /* "slicer/slice_mesh.pyx":188
  *     :return:
  *     """
  *     height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()             # <<<<<<<<<<<<<<
  *     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_mesh); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_mesh); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_z); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_z); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_max); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_max); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -5100,19 +5536,19 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     }
   }
   if (__pyx_t_3) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 178, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else {
-    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 178, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallNoArg(__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_mesh); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_mesh); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_z); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_z); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_min); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -5126,52 +5562,52 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     }
   }
   if (__pyx_t_4) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else {
-    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 178, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
   }
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 178, __pyx_L1_error)
+  __pyx_t_3 = PyNumber_Subtract(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 188, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_height = __pyx_t_3;
   __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":179
+  /* "slicer/slice_mesh.pyx":189
  *     """
  *     height = optimized_mesh.mesh.z.max() - optimized_mesh.mesh.z.min()
  *     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution             # <<<<<<<<<<<<<<
  * 
  *     slices = []
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_v_height, __pyx_v_resolution); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyNumber_Divide(__pyx_v_height, __pyx_v_resolution); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyNumber_Int(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyNumber_Int(__pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PyInt_AddObjC(__pyx_t_5, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_AddObjC(__pyx_t_5, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (likely(PyList_CheckExact(__pyx_t_5)) || PyTuple_CheckExact(__pyx_t_5)) {
     __pyx_t_4 = __pyx_t_5; __Pyx_INCREF(__pyx_t_4); __pyx_t_6 = 0;
     __pyx_t_7 = NULL;
   } else {
-    __pyx_t_6 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 179, __pyx_L1_error)
+    __pyx_t_6 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_7 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 179, __pyx_L1_error)
+    __pyx_t_7 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 189, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   for (;;) {
@@ -5179,17 +5615,17 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       if (likely(PyList_CheckExact(__pyx_t_4))) {
         if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 179, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 189, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 189, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 179, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 189, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 189, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -5199,7 +5635,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 179, __pyx_L1_error)
+          else __PYX_ERR(0, 189, __pyx_L1_error)
         }
         break;
       }
@@ -5207,7 +5643,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     }
     __Pyx_XDECREF_SET(__pyx_v_z, __pyx_t_5);
     __pyx_t_5 = 0;
-    if (unlikely(__Pyx_ListComp_Append(__pyx_t_2, (PyObject*)__pyx_v_z))) __PYX_ERR(0, 179, __pyx_L1_error)
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_2, (PyObject*)__pyx_v_z))) __PYX_ERR(0, 189, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -5221,14 +5657,14 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 179, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 189, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_GOTREF(__pyx_t_3);
   } else {
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 189, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
@@ -5237,44 +5673,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
       PyObject *__pyx_temp[2] = {__pyx_t_4, __pyx_t_2};
-      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 189, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     } else
     #endif
     {
-      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 189, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_4); __pyx_t_4 = NULL;
       __Pyx_GIVEREF(__pyx_t_2);
       PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
       __pyx_t_2 = 0;
-      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 179, __pyx_L1_error)
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 189, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     }
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyNumber_Multiply(__pyx_t_3, __pyx_v_resolution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_t_1 = PyNumber_Multiply(__pyx_t_3, __pyx_v_resolution); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_layers = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":181
+  /* "slicer/slice_mesh.pyx":191
  *     layers = np.array([z for z in range(int(height / resolution) + 1)]) * resolution
  * 
  *     slices = []             # <<<<<<<<<<<<<<
  * 
  *     for i, layer in enumerate(layers):
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 181, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_slices = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":183
+  /* "slicer/slice_mesh.pyx":193
  *     slices = []
  * 
  *     for i, layer in enumerate(layers):             # <<<<<<<<<<<<<<
@@ -5287,26 +5723,26 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     __pyx_t_3 = __pyx_v_layers; __Pyx_INCREF(__pyx_t_3); __pyx_t_6 = 0;
     __pyx_t_7 = NULL;
   } else {
-    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_layers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_v_layers); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 193, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 193, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_7)) {
       if (likely(PyList_CheckExact(__pyx_t_3))) {
         if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 183, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 193, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 183, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 193, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 183, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_5); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 193, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 183, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 193, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -5316,7 +5752,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 183, __pyx_L1_error)
+          else __PYX_ERR(0, 193, __pyx_L1_error)
         }
         break;
       }
@@ -5326,41 +5762,41 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     __pyx_t_5 = 0;
     __Pyx_INCREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 193, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_1);
     __pyx_t_1 = __pyx_t_5;
     __pyx_t_5 = 0;
 
-    /* "slicer/slice_mesh.pyx":184
+    /* "slicer/slice_mesh.pyx":194
  * 
  *     for i, layer in enumerate(layers):
  *         sl = Slice(layer_number=i)             # <<<<<<<<<<<<<<
  *         slices.append(sl)
  * 
  */
-    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_Slice); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_Slice); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 194, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_layer_number, __pyx_v_i) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 184, __pyx_L1_error)
+    if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_layer_number, __pyx_v_i) < 0) __PYX_ERR(0, 194, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 194, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_XDECREF_SET(__pyx_v_sl, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "slicer/slice_mesh.pyx":185
+    /* "slicer/slice_mesh.pyx":195
  *     for i, layer in enumerate(layers):
  *         sl = Slice(layer_number=i)
  *         slices.append(sl)             # <<<<<<<<<<<<<<
  * 
  *     for face in optimized_mesh.faces:
  */
-    __pyx_t_8 = __Pyx_PyList_Append(__pyx_v_slices, __pyx_v_sl); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 185, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyList_Append(__pyx_v_slices, __pyx_v_sl); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 195, __pyx_L1_error)
 
-    /* "slicer/slice_mesh.pyx":183
+    /* "slicer/slice_mesh.pyx":193
  *     slices = []
  * 
  *     for i, layer in enumerate(layers):             # <<<<<<<<<<<<<<
@@ -5371,22 +5807,22 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":187
+  /* "slicer/slice_mesh.pyx":197
  *         slices.append(sl)
  * 
  *     for face in optimized_mesh.faces:             # <<<<<<<<<<<<<<
  *         p0 = optimized_mesh.vertices[face.vertex_indices[0]].p
  *         p1 = optimized_mesh.vertices[face.vertex_indices[1]].p
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_faces); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_faces); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_3 = __pyx_t_1; __Pyx_INCREF(__pyx_t_3); __pyx_t_6 = 0;
     __pyx_t_7 = NULL;
   } else {
-    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 187, __pyx_L1_error)
+    __pyx_t_6 = -1; __pyx_t_3 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 197, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 187, __pyx_L1_error)
+    __pyx_t_7 = Py_TYPE(__pyx_t_3)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 197, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -5394,17 +5830,17 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       if (likely(PyList_CheckExact(__pyx_t_3))) {
         if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_1); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_1); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_1); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_6); __Pyx_INCREF(__pyx_t_1); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 187, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_3, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 197, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -5414,7 +5850,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 187, __pyx_L1_error)
+          else __PYX_ERR(0, 197, __pyx_L1_error)
         }
         break;
       }
@@ -5423,90 +5859,90 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     __Pyx_XDECREF_SET(__pyx_v_face, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "slicer/slice_mesh.pyx":188
+    /* "slicer/slice_mesh.pyx":198
  * 
  *     for face in optimized_mesh.faces:
  *         p0 = optimized_mesh.vertices[face.vertex_indices[0]].p             # <<<<<<<<<<<<<<
  *         p1 = optimized_mesh.vertices[face.vertex_indices[1]].p
  *         p2 = optimized_mesh.vertices[face.vertex_indices[2]].p
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_p); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 188, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_p); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 198, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF_SET(__pyx_v_p0, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "slicer/slice_mesh.pyx":189
+    /* "slicer/slice_mesh.pyx":199
  *     for face in optimized_mesh.faces:
  *         p0 = optimized_mesh.vertices[face.vertex_indices[0]].p
  *         p1 = optimized_mesh.vertices[face.vertex_indices[1]].p             # <<<<<<<<<<<<<<
  *         p2 = optimized_mesh.vertices[face.vertex_indices[2]].p
  * 
  */
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_4, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_t_4, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_2, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_p); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 189, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_p); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 199, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF_SET(__pyx_v_p1, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "slicer/slice_mesh.pyx":190
+    /* "slicer/slice_mesh.pyx":200
  *         p0 = optimized_mesh.vertices[face.vertex_indices[0]].p
  *         p1 = optimized_mesh.vertices[face.vertex_indices[1]].p
  *         p2 = optimized_mesh.vertices[face.vertex_indices[2]].p             # <<<<<<<<<<<<<<
  * 
  *         (z0, z1, z2) = p0[2], p1[2], p2[2]
  */
-    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 200, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 200, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_t_4, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_t_1, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 200, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_p); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 190, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_p); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 200, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_XDECREF_SET(__pyx_v_p2, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "slicer/slice_mesh.pyx":192
+    /* "slicer/slice_mesh.pyx":202
  *         p2 = optimized_mesh.vertices[face.vertex_indices[2]].p
  * 
  *         (z0, z1, z2) = p0[2], p1[2], p2[2]             # <<<<<<<<<<<<<<
  * 
  *         for layer_num, z in enumerate(layers):
  */
-    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p0, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 192, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p0, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_p1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 192, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_GetItemInt(__pyx_v_p1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 192, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_GetItemInt(__pyx_v_p2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 202, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_XDECREF_SET(__pyx_v_z0, __pyx_t_2);
     __pyx_t_2 = 0;
@@ -5515,7 +5951,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     __Pyx_XDECREF_SET(__pyx_v_z2, __pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "slicer/slice_mesh.pyx":194
+    /* "slicer/slice_mesh.pyx":204
  *         (z0, z1, z2) = p0[2], p1[2], p2[2]
  * 
  *         for layer_num, z in enumerate(layers):             # <<<<<<<<<<<<<<
@@ -5528,26 +5964,26 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __pyx_t_4 = __pyx_v_layers; __Pyx_INCREF(__pyx_t_4); __pyx_t_9 = 0;
       __pyx_t_10 = NULL;
     } else {
-      __pyx_t_9 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_layers); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __pyx_t_9 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_layers); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 204, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_10 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __pyx_t_10 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 204, __pyx_L1_error)
     }
     for (;;) {
       if (likely(!__pyx_t_10)) {
         if (likely(PyList_CheckExact(__pyx_t_4))) {
           if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 194, __pyx_L1_error)
+          __pyx_t_2 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 204, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         } else {
           if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 194, __pyx_L1_error)
+          __pyx_t_2 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_9); __Pyx_INCREF(__pyx_t_2); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 204, __pyx_L1_error)
           #else
-          __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+          __pyx_t_2 = PySequence_ITEM(__pyx_t_4, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 204, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           #endif
         }
@@ -5557,7 +5993,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 194, __pyx_L1_error)
+            else __PYX_ERR(0, 204, __pyx_L1_error)
           }
           break;
         }
@@ -5567,25 +6003,25 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __pyx_t_2 = 0;
       __Pyx_INCREF(__pyx_t_1);
       __Pyx_XDECREF_SET(__pyx_v_layer_num, __pyx_t_1);
-      __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 194, __pyx_L1_error)
+      __pyx_t_2 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 204, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_1);
       __pyx_t_1 = __pyx_t_2;
       __pyx_t_2 = 0;
 
-      /* "slicer/slice_mesh.pyx":195
+      /* "slicer/slice_mesh.pyx":205
  * 
  *         for layer_num, z in enumerate(layers):
  *             segment = []             # <<<<<<<<<<<<<<
  *             end_vertex = None
  *             if z < min(z0, z1, z2):
  */
-      __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 195, __pyx_L1_error)
+      __pyx_t_2 = PyList_New(0); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 205, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_XDECREF_SET(__pyx_v_segment, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "slicer/slice_mesh.pyx":196
+      /* "slicer/slice_mesh.pyx":206
  *         for layer_num, z in enumerate(layers):
  *             segment = []
  *             end_vertex = None             # <<<<<<<<<<<<<<
@@ -5595,7 +6031,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __Pyx_INCREF(Py_None);
       __Pyx_XDECREF_SET(__pyx_v_end_vertex, Py_None);
 
-      /* "slicer/slice_mesh.pyx":197
+      /* "slicer/slice_mesh.pyx":207
  *             segment = []
  *             end_vertex = None
  *             if z < min(z0, z1, z2):             # <<<<<<<<<<<<<<
@@ -5608,8 +6044,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __pyx_t_5 = __pyx_v_z2;
       __Pyx_INCREF(__pyx_v_z0);
       __pyx_t_11 = __pyx_v_z0;
-      __pyx_t_13 = PyObject_RichCompare(__pyx_t_2, __pyx_t_11, Py_LT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 197, __pyx_L1_error)
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
+      __pyx_t_13 = PyObject_RichCompare(__pyx_t_2, __pyx_t_11, Py_LT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 207, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 207, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       if (__pyx_t_14) {
         __Pyx_INCREF(__pyx_t_2);
@@ -5622,8 +6058,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __Pyx_INCREF(__pyx_t_12);
       __pyx_t_11 = __pyx_t_12;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_13 = PyObject_RichCompare(__pyx_t_5, __pyx_t_11, Py_LT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 197, __pyx_L1_error)
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
+      __pyx_t_13 = PyObject_RichCompare(__pyx_t_5, __pyx_t_11, Py_LT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 207, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 207, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       if (__pyx_t_14) {
         __Pyx_INCREF(__pyx_t_5);
@@ -5635,13 +6071,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z, __pyx_t_12, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 197, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z, __pyx_t_12, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 207, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 207, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":198
+        /* "slicer/slice_mesh.pyx":208
  *             end_vertex = None
  *             if z < min(z0, z1, z2):
  *                 continue             # <<<<<<<<<<<<<<
@@ -5650,7 +6086,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         goto __pyx_L9_continue;
 
-        /* "slicer/slice_mesh.pyx":197
+        /* "slicer/slice_mesh.pyx":207
  *             segment = []
  *             end_vertex = None
  *             if z < min(z0, z1, z2):             # <<<<<<<<<<<<<<
@@ -5659,7 +6095,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
       }
 
-      /* "slicer/slice_mesh.pyx":199
+      /* "slicer/slice_mesh.pyx":209
  *             if z < min(z0, z1, z2):
  *                 continue
  *             elif z > max(z0, z1, z2):             # <<<<<<<<<<<<<<
@@ -5672,8 +6108,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __pyx_t_12 = __pyx_v_z2;
       __Pyx_INCREF(__pyx_v_z0);
       __pyx_t_5 = __pyx_v_z0;
-      __pyx_t_13 = PyObject_RichCompare(__pyx_t_2, __pyx_t_5, Py_GT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 199, __pyx_L1_error)
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_13 = PyObject_RichCompare(__pyx_t_2, __pyx_t_5, Py_GT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 209, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 209, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       if (__pyx_t_14) {
         __Pyx_INCREF(__pyx_t_2);
@@ -5686,8 +6122,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __Pyx_INCREF(__pyx_t_11);
       __pyx_t_5 = __pyx_t_11;
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_13 = PyObject_RichCompare(__pyx_t_12, __pyx_t_5, Py_GT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 199, __pyx_L1_error)
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_13 = PyObject_RichCompare(__pyx_t_12, __pyx_t_5, Py_GT); __Pyx_XGOTREF(__pyx_t_13); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 209, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_13); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 209, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       if (__pyx_t_14) {
         __Pyx_INCREF(__pyx_t_12);
@@ -5699,13 +6135,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z, __pyx_t_11, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z, __pyx_t_11, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 209, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 199, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 209, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":200
+        /* "slicer/slice_mesh.pyx":210
  *                 continue
  *             elif z > max(z0, z1, z2):
  *                 continue             # <<<<<<<<<<<<<<
@@ -5714,7 +6150,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         goto __pyx_L9_continue;
 
-        /* "slicer/slice_mesh.pyx":199
+        /* "slicer/slice_mesh.pyx":209
  *             if z < min(z0, z1, z2):
  *                 continue
  *             elif z > max(z0, z1, z2):             # <<<<<<<<<<<<<<
@@ -5723,44 +6159,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
       }
 
-      /* "slicer/slice_mesh.pyx":201
+      /* "slicer/slice_mesh.pyx":211
  *             elif z > max(z0, z1, z2):
  *                 continue
  *             elif z0 < z and z1 >= z and z2 >= z:             # <<<<<<<<<<<<<<
  *                 # What condition is this?
  *                 segment = calculate_segment(p0, p2, p1, z)
  */
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 211, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L12_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 211, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L12_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 201, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 211, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 211, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_14 = __pyx_t_15;
       __pyx_L12_bool_binop_done:;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":203
+        /* "slicer/slice_mesh.pyx":213
  *             elif z0 < z and z1 >= z and z2 >= z:
  *                 # What condition is this?
  *                 segment = calculate_segment(p0, p2, p1, z)             # <<<<<<<<<<<<<<
  *                 end_edge_idx = 0
  *                 if p1[2] == z:
  */
-        __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 203, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 213, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __pyx_t_12 = NULL;
         __pyx_t_16 = 0;
@@ -5777,7 +6213,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_11)) {
           PyObject *__pyx_temp[5] = {__pyx_t_12, __pyx_v_p0, __pyx_v_p2, __pyx_v_p1, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -5785,13 +6221,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_11)) {
           PyObject *__pyx_temp[5] = {__pyx_t_12, __pyx_v_p0, __pyx_v_p2, __pyx_v_p1, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_5 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 203, __pyx_L1_error)
+          __pyx_t_5 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 213, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           if (__pyx_t_12) {
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_12); __pyx_t_12 = NULL;
@@ -5808,7 +6244,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           __Pyx_INCREF(__pyx_v_z);
           __Pyx_GIVEREF(__pyx_v_z);
           PyTuple_SET_ITEM(__pyx_t_5, 3+__pyx_t_16, __pyx_v_z);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 203, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         }
@@ -5816,7 +6252,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         __Pyx_DECREF_SET(__pyx_v_segment, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":204
+        /* "slicer/slice_mesh.pyx":214
  *                 # What condition is this?
  *                 segment = calculate_segment(p0, p2, p1, z)
  *                 end_edge_idx = 0             # <<<<<<<<<<<<<<
@@ -5825,43 +6261,43 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         __pyx_v_end_edge_idx = 0;
 
-        /* "slicer/slice_mesh.pyx":205
+        /* "slicer/slice_mesh.pyx":215
  *                 segment = calculate_segment(p0, p2, p1, z)
  *                 end_edge_idx = 0
  *                 if p1[2] == z:             # <<<<<<<<<<<<<<
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
  * 
  */
-        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 205, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p1, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_11 = PyObject_RichCompare(__pyx_t_2, __pyx_v_z, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 205, __pyx_L1_error)
+        __pyx_t_11 = PyObject_RichCompare(__pyx_t_2, __pyx_v_z, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 215, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 205, __pyx_L1_error)
+        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 215, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         if (__pyx_t_14) {
 
-          /* "slicer/slice_mesh.pyx":206
+          /* "slicer/slice_mesh.pyx":216
  *                 end_edge_idx = 0
  *                 if p1[2] == z:
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]             # <<<<<<<<<<<<<<
  * 
  *             elif z0 > z and z1 < z and z2 < z:
  */
-          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 206, __pyx_L1_error)
+          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 216, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
-          __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 206, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_2, 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 216, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_11, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 206, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_11, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 216, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF_SET(__pyx_v_end_vertex, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "slicer/slice_mesh.pyx":205
+          /* "slicer/slice_mesh.pyx":215
  *                 segment = calculate_segment(p0, p2, p1, z)
  *                 end_edge_idx = 0
  *                 if p1[2] == z:             # <<<<<<<<<<<<<<
@@ -5870,7 +6306,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         }
 
-        /* "slicer/slice_mesh.pyx":201
+        /* "slicer/slice_mesh.pyx":211
  *             elif z > max(z0, z1, z2):
  *                 continue
  *             elif z0 < z and z1 >= z and z2 >= z:             # <<<<<<<<<<<<<<
@@ -5880,44 +6316,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         goto __pyx_L11;
       }
 
-      /* "slicer/slice_mesh.pyx":208
+      /* "slicer/slice_mesh.pyx":218
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
  * 
  *             elif z0 > z and z1 < z and z2 < z:             # <<<<<<<<<<<<<<
  *                 # What condition is this?
  *                 segment = calculate_segment(p0, p1, p2, z)
  */
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 208, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 208, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L16_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 208, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 208, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L16_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 208, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 208, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 218, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_14 = __pyx_t_15;
       __pyx_L16_bool_binop_done:;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":210
+        /* "slicer/slice_mesh.pyx":220
  *             elif z0 > z and z1 < z and z2 < z:
  *                 # What condition is this?
  *                 segment = calculate_segment(p0, p1, p2, z)             # <<<<<<<<<<<<<<
  *                 end_edge_idx = 2
  * 
  */
-        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 210, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 220, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_11 = NULL;
         __pyx_t_16 = 0;
@@ -5934,7 +6370,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_v_p0, __pyx_v_p1, __pyx_v_p2, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -5942,13 +6378,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_v_p0, __pyx_v_p1, __pyx_v_p2, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_12 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 210, __pyx_L1_error)
+          __pyx_t_12 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 220, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_12);
           if (__pyx_t_11) {
             __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_11); __pyx_t_11 = NULL;
@@ -5965,7 +6401,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           __Pyx_INCREF(__pyx_v_z);
           __Pyx_GIVEREF(__pyx_v_z);
           PyTuple_SET_ITEM(__pyx_t_12, 3+__pyx_t_16, __pyx_v_z);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         }
@@ -5973,7 +6409,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         __Pyx_DECREF_SET(__pyx_v_segment, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":211
+        /* "slicer/slice_mesh.pyx":221
  *                 # What condition is this?
  *                 segment = calculate_segment(p0, p1, p2, z)
  *                 end_edge_idx = 2             # <<<<<<<<<<<<<<
@@ -5982,7 +6418,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         __pyx_v_end_edge_idx = 2;
 
-        /* "slicer/slice_mesh.pyx":208
+        /* "slicer/slice_mesh.pyx":218
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
  * 
  *             elif z0 > z and z1 < z and z2 < z:             # <<<<<<<<<<<<<<
@@ -5992,44 +6428,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         goto __pyx_L11;
       }
 
-      /* "slicer/slice_mesh.pyx":213
+      /* "slicer/slice_mesh.pyx":223
  *                 end_edge_idx = 2
  * 
  *             elif z0 >= z and z1 < z and z2 >= z:             # <<<<<<<<<<<<<<
  *                 # What condition is this?
  *                 segment = calculate_segment(p1, p0, p2, z)
  */
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 213, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L19_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 213, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L19_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 213, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 213, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 223, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 223, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_14 = __pyx_t_15;
       __pyx_L19_bool_binop_done:;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":215
+        /* "slicer/slice_mesh.pyx":225
  *             elif z0 >= z and z1 < z and z2 >= z:
  *                 # What condition is this?
  *                 segment = calculate_segment(p1, p0, p2, z)             # <<<<<<<<<<<<<<
  *                 end_edge_idx = 1
  *                 if p2[2] == z:
  */
-        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 215, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 225, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_12 = NULL;
         __pyx_t_16 = 0;
@@ -6046,7 +6482,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[5] = {__pyx_t_12, __pyx_v_p1, __pyx_v_p0, __pyx_v_p2, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -6054,13 +6490,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[5] = {__pyx_t_12, __pyx_v_p1, __pyx_v_p0, __pyx_v_p2, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_11 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 215, __pyx_L1_error)
+          __pyx_t_11 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 225, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
           if (__pyx_t_12) {
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_11, 0, __pyx_t_12); __pyx_t_12 = NULL;
@@ -6077,7 +6513,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           __Pyx_INCREF(__pyx_v_z);
           __Pyx_GIVEREF(__pyx_v_z);
           PyTuple_SET_ITEM(__pyx_t_11, 3+__pyx_t_16, __pyx_v_z);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 215, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_11, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         }
@@ -6085,7 +6521,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         __Pyx_DECREF_SET(__pyx_v_segment, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":216
+        /* "slicer/slice_mesh.pyx":226
  *                 # What condition is this?
  *                 segment = calculate_segment(p1, p0, p2, z)
  *                 end_edge_idx = 1             # <<<<<<<<<<<<<<
@@ -6094,43 +6530,43 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         __pyx_v_end_edge_idx = 1;
 
-        /* "slicer/slice_mesh.pyx":217
+        /* "slicer/slice_mesh.pyx":227
  *                 segment = calculate_segment(p1, p0, p2, z)
  *                 end_edge_idx = 1
  *                 if p2[2] == z:             # <<<<<<<<<<<<<<
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
  * 
  */
-        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 217, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_5 = PyObject_RichCompare(__pyx_t_2, __pyx_v_z, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 217, __pyx_L1_error)
+        __pyx_t_5 = PyObject_RichCompare(__pyx_t_2, __pyx_v_z, Py_EQ); __Pyx_XGOTREF(__pyx_t_5); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 227, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 217, __pyx_L1_error)
+        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 227, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         if (__pyx_t_14) {
 
-          /* "slicer/slice_mesh.pyx":218
+          /* "slicer/slice_mesh.pyx":228
  *                 end_edge_idx = 1
  *                 if p2[2] == z:
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]             # <<<<<<<<<<<<<<
  * 
  *             elif z0 < z and z1 > z and z2 < z:
  */
-          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 218, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 228, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
-          __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_11 = __Pyx_GetItemInt(__pyx_t_2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 218, __pyx_L1_error)
+          __pyx_t_11 = __Pyx_GetItemInt(__pyx_t_2, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 228, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_t_11); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 218, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_5, __pyx_t_11); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 228, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_DECREF_SET(__pyx_v_end_vertex, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "slicer/slice_mesh.pyx":217
+          /* "slicer/slice_mesh.pyx":227
  *                 segment = calculate_segment(p1, p0, p2, z)
  *                 end_edge_idx = 1
  *                 if p2[2] == z:             # <<<<<<<<<<<<<<
@@ -6139,7 +6575,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         }
 
-        /* "slicer/slice_mesh.pyx":213
+        /* "slicer/slice_mesh.pyx":223
  *                 end_edge_idx = 2
  * 
  *             elif z0 >= z and z1 < z and z2 >= z:             # <<<<<<<<<<<<<<
@@ -6149,44 +6585,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         goto __pyx_L11;
       }
 
-      /* "slicer/slice_mesh.pyx":220
+      /* "slicer/slice_mesh.pyx":230
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
  * 
  *             elif z0 < z and z1 > z and z2 < z:             # <<<<<<<<<<<<<<
  *                 # What condition is this?
  *                 segment = calculate_segment(p1, p2, p0, z)
  */
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 220, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 230, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L23_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 220, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 230, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L23_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 220, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 220, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 230, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_14 = __pyx_t_15;
       __pyx_L23_bool_binop_done:;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":222
+        /* "slicer/slice_mesh.pyx":232
  *             elif z0 < z and z1 > z and z2 < z:
  *                 # What condition is this?
  *                 segment = calculate_segment(p1, p2, p0, z)             # <<<<<<<<<<<<<<
  *                 end_edge_idx = 0
  * 
  */
-        __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 222, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 232, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __pyx_t_5 = NULL;
         __pyx_t_16 = 0;
@@ -6203,7 +6639,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_11)) {
           PyObject *__pyx_temp[5] = {__pyx_t_5, __pyx_v_p1, __pyx_v_p2, __pyx_v_p0, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -6211,13 +6647,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_11)) {
           PyObject *__pyx_temp[5] = {__pyx_t_5, __pyx_v_p1, __pyx_v_p2, __pyx_v_p0, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_12 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 222, __pyx_L1_error)
+          __pyx_t_12 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 232, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_12);
           if (__pyx_t_5) {
             __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -6234,7 +6670,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           __Pyx_INCREF(__pyx_v_z);
           __Pyx_GIVEREF(__pyx_v_z);
           PyTuple_SET_ITEM(__pyx_t_12, 3+__pyx_t_16, __pyx_v_z);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 222, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         }
@@ -6242,7 +6678,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         __Pyx_DECREF_SET(__pyx_v_segment, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":223
+        /* "slicer/slice_mesh.pyx":233
  *                 # What condition is this?
  *                 segment = calculate_segment(p1, p2, p0, z)
  *                 end_edge_idx = 0             # <<<<<<<<<<<<<<
@@ -6251,7 +6687,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         __pyx_v_end_edge_idx = 0;
 
-        /* "slicer/slice_mesh.pyx":220
+        /* "slicer/slice_mesh.pyx":230
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
  * 
  *             elif z0 < z and z1 > z and z2 < z:             # <<<<<<<<<<<<<<
@@ -6261,44 +6697,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         goto __pyx_L11;
       }
 
-      /* "slicer/slice_mesh.pyx":225
+      /* "slicer/slice_mesh.pyx":235
  *                 end_edge_idx = 0
  * 
  *             elif z0 >= z and z1 >= z and z2 < z:             # <<<<<<<<<<<<<<
  *                 # What condition is this?
  *                 segment = calculate_segment(p2, p1, p0, z)
  */
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 225, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L26_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 225, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_GE); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L26_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 225, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 225, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 235, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 235, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_14 = __pyx_t_15;
       __pyx_L26_bool_binop_done:;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":227
+        /* "slicer/slice_mesh.pyx":237
  *             elif z0 >= z and z1 >= z and z2 < z:
  *                 # What condition is this?
  *                 segment = calculate_segment(p2, p1, p0, z)             # <<<<<<<<<<<<<<
  *                 end_edge_idx = 2
  *                 if p0[2] == z:
  */
-        __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 227, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 237, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __pyx_t_12 = NULL;
         __pyx_t_16 = 0;
@@ -6315,7 +6751,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_11)) {
           PyObject *__pyx_temp[5] = {__pyx_t_12, __pyx_v_p2, __pyx_v_p1, __pyx_v_p0, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -6323,13 +6759,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_11)) {
           PyObject *__pyx_temp[5] = {__pyx_t_12, __pyx_v_p2, __pyx_v_p1, __pyx_v_p0, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_5 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 227, __pyx_L1_error)
+          __pyx_t_5 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 237, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           if (__pyx_t_12) {
             __Pyx_GIVEREF(__pyx_t_12); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_12); __pyx_t_12 = NULL;
@@ -6346,7 +6782,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           __Pyx_INCREF(__pyx_v_z);
           __Pyx_GIVEREF(__pyx_v_z);
           PyTuple_SET_ITEM(__pyx_t_5, 3+__pyx_t_16, __pyx_v_z);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 227, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_5, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 237, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
         }
@@ -6354,7 +6790,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         __Pyx_DECREF_SET(__pyx_v_segment, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":228
+        /* "slicer/slice_mesh.pyx":238
  *                 # What condition is this?
  *                 segment = calculate_segment(p2, p1, p0, z)
  *                 end_edge_idx = 2             # <<<<<<<<<<<<<<
@@ -6363,43 +6799,43 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         __pyx_v_end_edge_idx = 2;
 
-        /* "slicer/slice_mesh.pyx":229
+        /* "slicer/slice_mesh.pyx":239
  *                 segment = calculate_segment(p2, p1, p0, z)
  *                 end_edge_idx = 2
  *                 if p0[2] == z:             # <<<<<<<<<<<<<<
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
  * 
  */
-        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p0, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 229, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_GetItemInt(__pyx_v_p0, 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 239, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_11 = PyObject_RichCompare(__pyx_t_2, __pyx_v_z, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 229, __pyx_L1_error)
+        __pyx_t_11 = PyObject_RichCompare(__pyx_t_2, __pyx_v_z, Py_EQ); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 239, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 229, __pyx_L1_error)
+        __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 239, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         if (__pyx_t_14) {
 
-          /* "slicer/slice_mesh.pyx":230
+          /* "slicer/slice_mesh.pyx":240
  *                 end_edge_idx = 2
  *                 if p0[2] == z:
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]             # <<<<<<<<<<<<<<
  * 
  *             elif z0 < z and z1 < z and z2 > z:
  */
-          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 230, __pyx_L1_error)
+          __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_optimized_mesh, __pyx_n_s_vertices); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 240, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_11);
-          __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_vertex_indices); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
-          __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 230, __pyx_L1_error)
+          __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_2, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 240, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-          __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_11, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 230, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_t_11, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 240, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
           __Pyx_DECREF_SET(__pyx_v_end_vertex, __pyx_t_2);
           __pyx_t_2 = 0;
 
-          /* "slicer/slice_mesh.pyx":229
+          /* "slicer/slice_mesh.pyx":239
  *                 segment = calculate_segment(p2, p1, p0, z)
  *                 end_edge_idx = 2
  *                 if p0[2] == z:             # <<<<<<<<<<<<<<
@@ -6408,7 +6844,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         }
 
-        /* "slicer/slice_mesh.pyx":225
+        /* "slicer/slice_mesh.pyx":235
  *                 end_edge_idx = 0
  * 
  *             elif z0 >= z and z1 >= z and z2 < z:             # <<<<<<<<<<<<<<
@@ -6418,44 +6854,44 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         goto __pyx_L11;
       }
 
-      /* "slicer/slice_mesh.pyx":232
+      /* "slicer/slice_mesh.pyx":242
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
  * 
  *             elif z0 < z and z1 < z and z2 > z:             # <<<<<<<<<<<<<<
  *                 # What condition is this?
  *                 segment = calculate_segment(p2, p0, p1, z)
  */
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 232, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z0, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 242, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 242, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L30_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 232, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z1, __pyx_v_z, Py_LT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 242, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 242, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       if (__pyx_t_15) {
       } else {
         __pyx_t_14 = __pyx_t_15;
         goto __pyx_L30_bool_binop_done;
       }
-      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 232, __pyx_L1_error)
-      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 232, __pyx_L1_error)
+      __pyx_t_2 = PyObject_RichCompare(__pyx_v_z2, __pyx_v_z, Py_GT); __Pyx_XGOTREF(__pyx_t_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 242, __pyx_L1_error)
+      __pyx_t_15 = __Pyx_PyObject_IsTrue(__pyx_t_2); if (unlikely(__pyx_t_15 < 0)) __PYX_ERR(0, 242, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
       __pyx_t_14 = __pyx_t_15;
       __pyx_L30_bool_binop_done:;
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":234
+        /* "slicer/slice_mesh.pyx":244
  *             elif z0 < z and z1 < z and z2 > z:
  *                 # What condition is this?
  *                 segment = calculate_segment(p2, p0, p1, z)             # <<<<<<<<<<<<<<
  *                 end_edge_idx = 1
  * 
  */
-        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 234, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_calculate_segment); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 244, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __pyx_t_11 = NULL;
         __pyx_t_16 = 0;
@@ -6472,7 +6908,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_v_p2, __pyx_v_p0, __pyx_v_p1, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
@@ -6480,13 +6916,13 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_5)) {
           PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_v_p2, __pyx_v_p0, __pyx_v_p1, __pyx_v_z};
-          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_5, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
           __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
           __Pyx_GOTREF(__pyx_t_2);
         } else
         #endif
         {
-          __pyx_t_12 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 234, __pyx_L1_error)
+          __pyx_t_12 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 244, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_12);
           if (__pyx_t_11) {
             __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_11); __pyx_t_11 = NULL;
@@ -6503,7 +6939,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
           __Pyx_INCREF(__pyx_v_z);
           __Pyx_GIVEREF(__pyx_v_z);
           PyTuple_SET_ITEM(__pyx_t_12, 3+__pyx_t_16, __pyx_v_z);
-          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 234, __pyx_L1_error)
+          __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_12, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_2);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
         }
@@ -6511,7 +6947,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         __Pyx_DECREF_SET(__pyx_v_segment, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":235
+        /* "slicer/slice_mesh.pyx":245
  *                 # What condition is this?
  *                 segment = calculate_segment(p2, p0, p1, z)
  *                 end_edge_idx = 1             # <<<<<<<<<<<<<<
@@ -6520,7 +6956,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
         __pyx_v_end_edge_idx = 1;
 
-        /* "slicer/slice_mesh.pyx":232
+        /* "slicer/slice_mesh.pyx":242
  *                     end_vertex = optimized_mesh.vertices[face.vertex_indices[0]]
  * 
  *             elif z0 < z and z1 < z and z2 > z:             # <<<<<<<<<<<<<<
@@ -6530,7 +6966,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         goto __pyx_L11;
       }
 
-      /* "slicer/slice_mesh.pyx":239
+      /* "slicer/slice_mesh.pyx":249
  *             else:
  *                 # Not all cases create a segment
  *                 continue             # <<<<<<<<<<<<<<
@@ -6542,61 +6978,67 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
       }
       __pyx_L11:;
 
-      /* "slicer/slice_mesh.pyx":241
+      /* "slicer/slice_mesh.pyx":251
  *                 continue
  * 
  *             if segment:             # <<<<<<<<<<<<<<
  *                 sliced_layer = slices[layer_num]
  *                 next_face_idx = face.connected_face_index[end_edge_idx]
  */
-      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_v_segment); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 241, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_IsTrue(__pyx_v_segment); if (unlikely(__pyx_t_14 < 0)) __PYX_ERR(0, 251, __pyx_L1_error)
       if (__pyx_t_14) {
 
-        /* "slicer/slice_mesh.pyx":242
+        /* "slicer/slice_mesh.pyx":252
  * 
  *             if segment:
  *                 sliced_layer = slices[layer_num]             # <<<<<<<<<<<<<<
  *                 next_face_idx = face.connected_face_index[end_edge_idx]
- *                 S = Segment(segment, face.idx, next_face_idx, end_vertex)
+ *                 S = Segment(segment, face.idx, next_face_idx, end_vertex, len(sliced_layer.segments))
  */
-        __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_slices, __pyx_v_layer_num); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 242, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_GetItem(__pyx_v_slices, __pyx_v_layer_num); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 252, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_XDECREF_SET(__pyx_v_sliced_layer, __pyx_t_2);
         __pyx_t_2 = 0;
 
-        /* "slicer/slice_mesh.pyx":243
+        /* "slicer/slice_mesh.pyx":253
  *             if segment:
  *                 sliced_layer = slices[layer_num]
  *                 next_face_idx = face.connected_face_index[end_edge_idx]             # <<<<<<<<<<<<<<
- *                 S = Segment(segment, face.idx, next_face_idx, end_vertex)
+ *                 S = Segment(segment, face.idx, next_face_idx, end_vertex, len(sliced_layer.segments))
  *                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
  */
-        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_connected_face_index); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 243, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_connected_face_index); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 253, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_end_edge_idx, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 243, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_GetItemInt(__pyx_t_2, __pyx_v_end_edge_idx, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 253, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_XDECREF_SET(__pyx_v_next_face_idx, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "slicer/slice_mesh.pyx":244
+        /* "slicer/slice_mesh.pyx":254
  *                 sliced_layer = slices[layer_num]
  *                 next_face_idx = face.connected_face_index[end_edge_idx]
- *                 S = Segment(segment, face.idx, next_face_idx, end_vertex)             # <<<<<<<<<<<<<<
+ *                 S = Segment(segment, face.idx, next_face_idx, end_vertex, len(sliced_layer.segments))             # <<<<<<<<<<<<<<
  *                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
  *                 sliced_layer.segments.append(S)
  */
-        __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_Segment); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 244, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_Segment_2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 254, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_idx); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 244, __pyx_L1_error)
+        __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_idx); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 254, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_12);
-        __pyx_t_11 = NULL;
+        __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_segments); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 254, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_11);
+        __pyx_t_17 = PyObject_Length(__pyx_t_11); if (unlikely(__pyx_t_17 == ((Py_ssize_t)-1))) __PYX_ERR(0, 254, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __pyx_t_11 = PyInt_FromSsize_t(__pyx_t_17); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 254, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_11);
+        __pyx_t_13 = NULL;
         __pyx_t_16 = 0;
         if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
-          __pyx_t_11 = PyMethod_GET_SELF(__pyx_t_2);
-          if (likely(__pyx_t_11)) {
+          __pyx_t_13 = PyMethod_GET_SELF(__pyx_t_2);
+          if (likely(__pyx_t_13)) {
             PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
-            __Pyx_INCREF(__pyx_t_11);
+            __Pyx_INCREF(__pyx_t_13);
             __Pyx_INCREF(function);
             __Pyx_DECREF_SET(__pyx_t_2, function);
             __pyx_t_16 = 1;
@@ -6604,83 +7046,88 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
         }
         #if CYTHON_FAST_PYCALL
         if (PyFunction_Check(__pyx_t_2)) {
-          PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_v_segment, __pyx_t_12, __pyx_v_next_face_idx, __pyx_v_end_vertex};
-          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 244, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+          PyObject *__pyx_temp[6] = {__pyx_t_13, __pyx_v_segment, __pyx_t_12, __pyx_v_next_face_idx, __pyx_v_end_vertex, __pyx_t_11};
+          __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_16, 5+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 254, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         } else
         #endif
         #if CYTHON_FAST_PYCCALL
         if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
-          PyObject *__pyx_temp[5] = {__pyx_t_11, __pyx_v_segment, __pyx_t_12, __pyx_v_next_face_idx, __pyx_v_end_vertex};
-          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_16, 4+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 244, __pyx_L1_error)
-          __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
+          PyObject *__pyx_temp[6] = {__pyx_t_13, __pyx_v_segment, __pyx_t_12, __pyx_v_next_face_idx, __pyx_v_end_vertex, __pyx_t_11};
+          __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_16, 5+__pyx_t_16); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 254, __pyx_L1_error)
+          __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
           __Pyx_GOTREF(__pyx_t_5);
           __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
+          __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         } else
         #endif
         {
-          __pyx_t_13 = PyTuple_New(4+__pyx_t_16); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 244, __pyx_L1_error)
-          __Pyx_GOTREF(__pyx_t_13);
-          if (__pyx_t_11) {
-            __Pyx_GIVEREF(__pyx_t_11); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_11); __pyx_t_11 = NULL;
+          __pyx_t_18 = PyTuple_New(5+__pyx_t_16); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 254, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_18);
+          if (__pyx_t_13) {
+            __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_18, 0, __pyx_t_13); __pyx_t_13 = NULL;
           }
           __Pyx_INCREF(__pyx_v_segment);
           __Pyx_GIVEREF(__pyx_v_segment);
-          PyTuple_SET_ITEM(__pyx_t_13, 0+__pyx_t_16, __pyx_v_segment);
+          PyTuple_SET_ITEM(__pyx_t_18, 0+__pyx_t_16, __pyx_v_segment);
           __Pyx_GIVEREF(__pyx_t_12);
-          PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_16, __pyx_t_12);
+          PyTuple_SET_ITEM(__pyx_t_18, 1+__pyx_t_16, __pyx_t_12);
           __Pyx_INCREF(__pyx_v_next_face_idx);
           __Pyx_GIVEREF(__pyx_v_next_face_idx);
-          PyTuple_SET_ITEM(__pyx_t_13, 2+__pyx_t_16, __pyx_v_next_face_idx);
+          PyTuple_SET_ITEM(__pyx_t_18, 2+__pyx_t_16, __pyx_v_next_face_idx);
           __Pyx_INCREF(__pyx_v_end_vertex);
           __Pyx_GIVEREF(__pyx_v_end_vertex);
-          PyTuple_SET_ITEM(__pyx_t_13, 3+__pyx_t_16, __pyx_v_end_vertex);
+          PyTuple_SET_ITEM(__pyx_t_18, 3+__pyx_t_16, __pyx_v_end_vertex);
+          __Pyx_GIVEREF(__pyx_t_11);
+          PyTuple_SET_ITEM(__pyx_t_18, 4+__pyx_t_16, __pyx_t_11);
           __pyx_t_12 = 0;
-          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_13, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 244, __pyx_L1_error)
+          __pyx_t_11 = 0;
+          __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_18, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 254, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_5);
-          __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+          __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
         }
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
         __Pyx_XDECREF_SET(__pyx_v_S, __pyx_t_5);
         __pyx_t_5 = 0;
 
-        /* "slicer/slice_mesh.pyx":245
+        /* "slicer/slice_mesh.pyx":255
  *                 next_face_idx = face.connected_face_index[end_edge_idx]
- *                 S = Segment(segment, face.idx, next_face_idx, end_vertex)
+ *                 S = Segment(segment, face.idx, next_face_idx, end_vertex, len(sliced_layer.segments))
  *                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)             # <<<<<<<<<<<<<<
  *                 sliced_layer.segments.append(S)
  *     return slices
  */
-        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_segments); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 245, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_segments); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 255, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_17 = PyObject_Length(__pyx_t_5); if (unlikely(__pyx_t_17 == ((Py_ssize_t)-1))) __PYX_ERR(0, 245, __pyx_L1_error)
+        __pyx_t_17 = PyObject_Length(__pyx_t_5); if (unlikely(__pyx_t_17 == ((Py_ssize_t)-1))) __PYX_ERR(0, 255, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-        __pyx_t_5 = PyInt_FromSsize_t(__pyx_t_17); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 245, __pyx_L1_error)
+        __pyx_t_5 = PyInt_FromSsize_t(__pyx_t_17); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 255, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_face_idx_to_seg_idx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 245, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_face_idx_to_seg_idx); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 255, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
-        __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_idx); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 245, __pyx_L1_error)
-        __Pyx_GOTREF(__pyx_t_13);
-        if (unlikely(PyObject_SetItem(__pyx_t_2, __pyx_t_13, __pyx_t_5) < 0)) __PYX_ERR(0, 245, __pyx_L1_error)
+        __pyx_t_18 = __Pyx_PyObject_GetAttrStr(__pyx_v_face, __pyx_n_s_idx); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 255, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_18);
+        if (unlikely(PyObject_SetItem(__pyx_t_2, __pyx_t_18, __pyx_t_5) < 0)) __PYX_ERR(0, 255, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+        __Pyx_DECREF(__pyx_t_18); __pyx_t_18 = 0;
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "slicer/slice_mesh.pyx":246
- *                 S = Segment(segment, face.idx, next_face_idx, end_vertex)
+        /* "slicer/slice_mesh.pyx":256
+ *                 S = Segment(segment, face.idx, next_face_idx, end_vertex, len(sliced_layer.segments))
  *                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
  *                 sliced_layer.segments.append(S)             # <<<<<<<<<<<<<<
  *     return slices
  * 
  */
-        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_segments); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 246, __pyx_L1_error)
+        __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_sliced_layer, __pyx_n_s_segments); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 256, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
-        __pyx_t_8 = __Pyx_PyObject_Append(__pyx_t_5, __pyx_v_S); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 246, __pyx_L1_error)
+        __pyx_t_8 = __Pyx_PyObject_Append(__pyx_t_5, __pyx_v_S); if (unlikely(__pyx_t_8 == ((int)-1))) __PYX_ERR(0, 256, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-        /* "slicer/slice_mesh.pyx":241
+        /* "slicer/slice_mesh.pyx":251
  *                 continue
  * 
  *             if segment:             # <<<<<<<<<<<<<<
@@ -6689,7 +7136,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
  */
       }
 
-      /* "slicer/slice_mesh.pyx":194
+      /* "slicer/slice_mesh.pyx":204
  *         (z0, z1, z2) = p0[2], p1[2], p2[2]
  * 
  *         for layer_num, z in enumerate(layers):             # <<<<<<<<<<<<<<
@@ -6701,7 +7148,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "slicer/slice_mesh.pyx":187
+    /* "slicer/slice_mesh.pyx":197
  *         slices.append(sl)
  * 
  *     for face in optimized_mesh.faces:             # <<<<<<<<<<<<<<
@@ -6711,7 +7158,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":247
+  /* "slicer/slice_mesh.pyx":257
  *                 sliced_layer.face_idx_to_seg_idx[face.idx] = len(sliced_layer.segments)
  *                 sliced_layer.segments.append(S)
  *     return slices             # <<<<<<<<<<<<<<
@@ -6723,8 +7170,8 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
   __pyx_r = __pyx_v_slices;
   goto __pyx_L0;
 
-  /* "slicer/slice_mesh.pyx":167
- * 
+  /* "slicer/slice_mesh.pyx":177
+ *         self.idx = idx
  * 
  * def slice_mesh(optimized_mesh, resolution):             # <<<<<<<<<<<<<<
  *     """
@@ -6741,6 +7188,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_XDECREF(__pyx_t_18);
   __Pyx_AddTraceback("slicer.slice_mesh.slice_mesh", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -6769,7 +7217,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_slice_mesh(CYTHON_UNUSED PyObject
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":250
+/* "slicer/slice_mesh.pyx":260
  * 
  * 
  * def slice_triangle(float [:] triangle, slice_layers):             # <<<<<<<<<<<<<<
@@ -6810,11 +7258,11 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_3slice_triangle(PyObject *__pyx_s
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_slice_layers)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("slice_triangle", 1, 2, 2, 1); __PYX_ERR(0, 250, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("slice_triangle", 1, 2, 2, 1); __PYX_ERR(0, 260, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "slice_triangle") < 0)) __PYX_ERR(0, 250, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "slice_triangle") < 0)) __PYX_ERR(0, 260, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6822,12 +7270,12 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_3slice_triangle(PyObject *__pyx_s
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
       values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
-    __pyx_v_triangle = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_triangle.memview)) __PYX_ERR(0, 250, __pyx_L3_error)
+    __pyx_v_triangle = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_triangle.memview)) __PYX_ERR(0, 260, __pyx_L3_error)
     __pyx_v_slice_layers = values[1];
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("slice_triangle", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 250, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("slice_triangle", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 260, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("slicer.slice_mesh.slice_triangle", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -6853,7 +7301,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_2slice_triangle(CYTHON_UNUSED PyO
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":256
+/* "slicer/slice_mesh.pyx":266
  * 
  * 
  * cdef double interpolate(float y, float y0, float y1, float x0, float x1):             # <<<<<<<<<<<<<<
@@ -6874,7 +7322,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
   float __pyx_t_4;
   __Pyx_RefNannySetupContext("interpolate", 0);
 
-  /* "slicer/slice_mesh.pyx":261
+  /* "slicer/slice_mesh.pyx":271
  *     """
  *     # TODO: should these be ints instead for speed reasons?
  *     cdef float dx = x1 - x0             # <<<<<<<<<<<<<<
@@ -6883,7 +7331,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
  */
   __pyx_v_dx = (__pyx_v_x1 - __pyx_v_x0);
 
-  /* "slicer/slice_mesh.pyx":262
+  /* "slicer/slice_mesh.pyx":272
  *     # TODO: should these be ints instead for speed reasons?
  *     cdef float dx = x1 - x0
  *     cdef float dy = y1 - y0             # <<<<<<<<<<<<<<
@@ -6892,7 +7340,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
  */
   __pyx_v_dy = (__pyx_v_y1 - __pyx_v_y0);
 
-  /* "slicer/slice_mesh.pyx":266
+  /* "slicer/slice_mesh.pyx":276
  *     cdef float x
  *     # If the slope is negative
  *     if dy < 0:             # <<<<<<<<<<<<<<
@@ -6902,7 +7350,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
   __pyx_t_1 = ((__pyx_v_dy < 0.0) != 0);
   if (__pyx_t_1) {
 
-    /* "slicer/slice_mesh.pyx":268
+    /* "slicer/slice_mesh.pyx":278
  *     if dy < 0:
  *         # the proportion of the curve we are interpolating when the slope is negative is flipped
  *         p = (y - max(y0, y1)) / dy             # <<<<<<<<<<<<<<
@@ -6919,11 +7367,11 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
     __pyx_t_2 = (__pyx_v_y - __pyx_t_4);
     if (unlikely(__pyx_v_dy == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 268, __pyx_L1_error)
+      __PYX_ERR(0, 278, __pyx_L1_error)
     }
     __pyx_v_p = (__pyx_t_2 / __pyx_v_dy);
 
-    /* "slicer/slice_mesh.pyx":269
+    /* "slicer/slice_mesh.pyx":279
  *         # the proportion of the curve we are interpolating when the slope is negative is flipped
  *         p = (y - max(y0, y1)) / dy
  *         x = dx * p + x0             # <<<<<<<<<<<<<<
@@ -6932,7 +7380,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
  */
     __pyx_v_x = ((__pyx_v_dx * __pyx_v_p) + __pyx_v_x0);
 
-    /* "slicer/slice_mesh.pyx":266
+    /* "slicer/slice_mesh.pyx":276
  *     cdef float x
  *     # If the slope is negative
  *     if dy < 0:             # <<<<<<<<<<<<<<
@@ -6942,7 +7390,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
     goto __pyx_L3;
   }
 
-  /* "slicer/slice_mesh.pyx":271
+  /* "slicer/slice_mesh.pyx":281
  *         x = dx * p + x0
  *     else:
  *         p = (y - min(y0, y1)) / dy             # <<<<<<<<<<<<<<
@@ -6960,11 +7408,11 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
     __pyx_t_2 = (__pyx_v_y - __pyx_t_3);
     if (unlikely(__pyx_v_dy == 0)) {
       PyErr_SetString(PyExc_ZeroDivisionError, "float division");
-      __PYX_ERR(0, 271, __pyx_L1_error)
+      __PYX_ERR(0, 281, __pyx_L1_error)
     }
     __pyx_v_p = (__pyx_t_2 / __pyx_v_dy);
 
-    /* "slicer/slice_mesh.pyx":272
+    /* "slicer/slice_mesh.pyx":282
  *     else:
  *         p = (y - min(y0, y1)) / dy
  *         x = dx * p + x0             # <<<<<<<<<<<<<<
@@ -6975,7 +7423,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
   }
   __pyx_L3:;
 
-  /* "slicer/slice_mesh.pyx":273
+  /* "slicer/slice_mesh.pyx":283
  *         p = (y - min(y0, y1)) / dy
  *         x = dx * p + x0
  *     return x             # <<<<<<<<<<<<<<
@@ -6985,7 +7433,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
   __pyx_r = __pyx_v_x;
   goto __pyx_L0;
 
-  /* "slicer/slice_mesh.pyx":256
+  /* "slicer/slice_mesh.pyx":266
  * 
  * 
  * cdef double interpolate(float y, float y0, float y1, float x0, float x1):             # <<<<<<<<<<<<<<
@@ -7002,7 +7450,7 @@ static double __pyx_f_6slicer_10slice_mesh_interpolate(float __pyx_v_y, float __
   return __pyx_r;
 }
 
-/* "slicer/slice_mesh.pyx":276
+/* "slicer/slice_mesh.pyx":286
  * 
  * 
  * def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):             # <<<<<<<<<<<<<<
@@ -7049,23 +7497,23 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_5calculate_segment(PyObject *__py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p1)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, 1); __PYX_ERR(0, 276, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, 1); __PYX_ERR(0, 286, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, 2); __PYX_ERR(0, 276, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, 2); __PYX_ERR(0, 286, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
         if (likely((values[3] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_z)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, 3); __PYX_ERR(0, 276, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, 3); __PYX_ERR(0, 286, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_segment") < 0)) __PYX_ERR(0, 276, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "calculate_segment") < 0)) __PYX_ERR(0, 286, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 4) {
       goto __pyx_L5_argtuple_error;
@@ -7075,14 +7523,14 @@ static PyObject *__pyx_pw_6slicer_10slice_mesh_5calculate_segment(PyObject *__py
       values[2] = PyTuple_GET_ITEM(__pyx_args, 2);
       values[3] = PyTuple_GET_ITEM(__pyx_args, 3);
     }
-    __pyx_v_p0 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p0.memview)) __PYX_ERR(0, 276, __pyx_L3_error)
-    __pyx_v_p1 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p1.memview)) __PYX_ERR(0, 276, __pyx_L3_error)
-    __pyx_v_p2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p2.memview)) __PYX_ERR(0, 276, __pyx_L3_error)
-    __pyx_v_z = __pyx_PyFloat_AsFloat(values[3]); if (unlikely((__pyx_v_z == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 276, __pyx_L3_error)
+    __pyx_v_p0 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p0.memview)) __PYX_ERR(0, 286, __pyx_L3_error)
+    __pyx_v_p1 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p1.memview)) __PYX_ERR(0, 286, __pyx_L3_error)
+    __pyx_v_p2 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p2.memview)) __PYX_ERR(0, 286, __pyx_L3_error)
+    __pyx_v_z = __pyx_PyFloat_AsFloat(values[3]); if (unlikely((__pyx_v_z == (float)-1) && PyErr_Occurred())) __PYX_ERR(0, 286, __pyx_L3_error)
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 276, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("calculate_segment", 1, 4, 4, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 286, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("slicer.slice_mesh.calculate_segment", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -7125,7 +7573,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   PyObject *__pyx_t_21 = NULL;
   __Pyx_RefNannySetupContext("calculate_segment", 0);
 
-  /* "slicer/slice_mesh.pyx":281
+  /* "slicer/slice_mesh.pyx":291
  *     cdef float x_start, x_end, y_start, y_end
  * 
  *     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])             # <<<<<<<<<<<<<<
@@ -7140,7 +7588,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_1 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 281, __pyx_L1_error)
+    __PYX_ERR(0, 291, __pyx_L1_error)
   }
   __pyx_t_3 = 2;
   __pyx_t_2 = -1;
@@ -7150,7 +7598,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_3 >= __pyx_v_p1.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 281, __pyx_L1_error)
+    __PYX_ERR(0, 291, __pyx_L1_error)
   }
   __pyx_t_4 = 0;
   __pyx_t_2 = -1;
@@ -7160,7 +7608,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_4 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 281, __pyx_L1_error)
+    __PYX_ERR(0, 291, __pyx_L1_error)
   }
   __pyx_t_5 = 0;
   __pyx_t_2 = -1;
@@ -7170,11 +7618,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_5 >= __pyx_v_p1.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 281, __pyx_L1_error)
+    __PYX_ERR(0, 291, __pyx_L1_error)
   }
   __pyx_v_x_start = __pyx_f_6slicer_10slice_mesh_interpolate(__pyx_v_z, (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_1 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p1.data + __pyx_t_3 * __pyx_v_p1.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_4 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p1.data + __pyx_t_5 * __pyx_v_p1.strides[0]) ))));
 
-  /* "slicer/slice_mesh.pyx":282
+  /* "slicer/slice_mesh.pyx":292
  * 
  *     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
  *     x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])             # <<<<<<<<<<<<<<
@@ -7189,7 +7637,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_6 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 292, __pyx_L1_error)
   }
   __pyx_t_7 = 2;
   __pyx_t_2 = -1;
@@ -7199,7 +7647,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_7 >= __pyx_v_p2.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 292, __pyx_L1_error)
   }
   __pyx_t_8 = 0;
   __pyx_t_2 = -1;
@@ -7209,7 +7657,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_8 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 292, __pyx_L1_error)
   }
   __pyx_t_9 = 0;
   __pyx_t_2 = -1;
@@ -7219,11 +7667,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_9 >= __pyx_v_p2.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 282, __pyx_L1_error)
+    __PYX_ERR(0, 292, __pyx_L1_error)
   }
   __pyx_v_x_end = __pyx_f_6slicer_10slice_mesh_interpolate(__pyx_v_z, (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_6 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p2.data + __pyx_t_7 * __pyx_v_p2.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_8 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p2.data + __pyx_t_9 * __pyx_v_p2.strides[0]) ))));
 
-  /* "slicer/slice_mesh.pyx":284
+  /* "slicer/slice_mesh.pyx":294
  *     x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])
  * 
  *     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])             # <<<<<<<<<<<<<<
@@ -7238,7 +7686,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_10 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 284, __pyx_L1_error)
+    __PYX_ERR(0, 294, __pyx_L1_error)
   }
   __pyx_t_11 = 2;
   __pyx_t_2 = -1;
@@ -7248,7 +7696,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_11 >= __pyx_v_p1.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 284, __pyx_L1_error)
+    __PYX_ERR(0, 294, __pyx_L1_error)
   }
   __pyx_t_12 = 1;
   __pyx_t_2 = -1;
@@ -7258,7 +7706,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_12 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 284, __pyx_L1_error)
+    __PYX_ERR(0, 294, __pyx_L1_error)
   }
   __pyx_t_13 = 1;
   __pyx_t_2 = -1;
@@ -7268,11 +7716,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_13 >= __pyx_v_p1.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 284, __pyx_L1_error)
+    __PYX_ERR(0, 294, __pyx_L1_error)
   }
   __pyx_v_y_start = __pyx_f_6slicer_10slice_mesh_interpolate(__pyx_v_z, (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_10 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p1.data + __pyx_t_11 * __pyx_v_p1.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_12 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p1.data + __pyx_t_13 * __pyx_v_p1.strides[0]) ))));
 
-  /* "slicer/slice_mesh.pyx":285
+  /* "slicer/slice_mesh.pyx":295
  * 
  *     y_start = interpolate(z, p0[2], p1[2], p0[1], p1[1])
  *     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])             # <<<<<<<<<<<<<<
@@ -7287,7 +7735,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_14 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 285, __pyx_L1_error)
+    __PYX_ERR(0, 295, __pyx_L1_error)
   }
   __pyx_t_15 = 2;
   __pyx_t_2 = -1;
@@ -7297,7 +7745,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_15 >= __pyx_v_p2.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 285, __pyx_L1_error)
+    __PYX_ERR(0, 295, __pyx_L1_error)
   }
   __pyx_t_16 = 1;
   __pyx_t_2 = -1;
@@ -7307,7 +7755,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_16 >= __pyx_v_p0.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 285, __pyx_L1_error)
+    __PYX_ERR(0, 295, __pyx_L1_error)
   }
   __pyx_t_17 = 1;
   __pyx_t_2 = -1;
@@ -7317,21 +7765,21 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   } else if (unlikely(__pyx_t_17 >= __pyx_v_p2.shape[0])) __pyx_t_2 = 0;
   if (unlikely(__pyx_t_2 != -1)) {
     __Pyx_RaiseBufferIndexError(__pyx_t_2);
-    __PYX_ERR(0, 285, __pyx_L1_error)
+    __PYX_ERR(0, 295, __pyx_L1_error)
   }
   __pyx_v_y_end = __pyx_f_6slicer_10slice_mesh_interpolate(__pyx_v_z, (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_14 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p2.data + __pyx_t_15 * __pyx_v_p2.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p0.data + __pyx_t_16 * __pyx_v_p0.strides[0]) ))), (*((float *) ( /* dim=0 */ (__pyx_v_p2.data + __pyx_t_17 * __pyx_v_p2.strides[0]) ))));
 
-  /* "slicer/slice_mesh.pyx":287
+  /* "slicer/slice_mesh.pyx":297
  *     y_end = interpolate(z, p0[2], p2[2], p0[1], p2[1])
  * 
  *     return [(x_start, y_start), (x_end, y_end)]             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_18 = PyFloat_FromDouble(__pyx_v_x_start); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_18 = PyFloat_FromDouble(__pyx_v_x_start); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_18);
-  __pyx_t_19 = PyFloat_FromDouble(__pyx_v_y_start); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_19 = PyFloat_FromDouble(__pyx_v_y_start); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_19);
-  __pyx_t_20 = PyTuple_New(2); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_20 = PyTuple_New(2); if (unlikely(!__pyx_t_20)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_20);
   __Pyx_GIVEREF(__pyx_t_18);
   PyTuple_SET_ITEM(__pyx_t_20, 0, __pyx_t_18);
@@ -7339,11 +7787,11 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   PyTuple_SET_ITEM(__pyx_t_20, 1, __pyx_t_19);
   __pyx_t_18 = 0;
   __pyx_t_19 = 0;
-  __pyx_t_19 = PyFloat_FromDouble(__pyx_v_x_end); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_19 = PyFloat_FromDouble(__pyx_v_x_end); if (unlikely(!__pyx_t_19)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_19);
-  __pyx_t_18 = PyFloat_FromDouble(__pyx_v_y_end); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_18 = PyFloat_FromDouble(__pyx_v_y_end); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_18);
-  __pyx_t_21 = PyTuple_New(2); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_21 = PyTuple_New(2); if (unlikely(!__pyx_t_21)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_21);
   __Pyx_GIVEREF(__pyx_t_19);
   PyTuple_SET_ITEM(__pyx_t_21, 0, __pyx_t_19);
@@ -7351,7 +7799,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   PyTuple_SET_ITEM(__pyx_t_21, 1, __pyx_t_18);
   __pyx_t_19 = 0;
   __pyx_t_18 = 0;
-  __pyx_t_18 = PyList_New(2); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 287, __pyx_L1_error)
+  __pyx_t_18 = PyList_New(2); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 297, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_18);
   __Pyx_GIVEREF(__pyx_t_20);
   PyList_SET_ITEM(__pyx_t_18, 0, __pyx_t_20);
@@ -7363,7 +7811,7 @@ static PyObject *__pyx_pf_6slicer_10slice_mesh_4calculate_segment(CYTHON_UNUSED 
   __pyx_t_18 = 0;
   goto __pyx_L0;
 
-  /* "slicer/slice_mesh.pyx":276
+  /* "slicer/slice_mesh.pyx":286
  * 
  * 
  * def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):             # <<<<<<<<<<<<<<
@@ -21020,9 +21468,11 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Cannot_assign_to_read_only_memor, __pyx_k_Cannot_assign_to_read_only_memor, sizeof(__pyx_k_Cannot_assign_to_read_only_memor), 0, 0, 1, 0},
   {&__pyx_kp_s_Cannot_create_writable_memory_vi, __pyx_k_Cannot_create_writable_memory_vi, sizeof(__pyx_k_Cannot_create_writable_memory_vi), 0, 0, 1, 0},
   {&__pyx_kp_s_Cannot_index_with_type_s, __pyx_k_Cannot_index_with_type_s, sizeof(__pyx_k_Cannot_index_with_type_s), 0, 0, 1, 0},
+  {&__pyx_kp_s_Connected_Faces, __pyx_k_Connected_Faces, sizeof(__pyx_k_Connected_Faces), 0, 0, 1, 0},
   {&__pyx_n_s_DiGraph, __pyx_k_DiGraph, sizeof(__pyx_k_DiGraph), 0, 0, 1, 1},
   {&__pyx_n_s_Ellipsis, __pyx_k_Ellipsis, sizeof(__pyx_k_Ellipsis), 0, 0, 1, 1},
   {&__pyx_kp_s_Empty_shape_tuple_for_cython_arr, __pyx_k_Empty_shape_tuple_for_cython_arr, sizeof(__pyx_k_Empty_shape_tuple_for_cython_arr), 0, 0, 1, 0},
+  {&__pyx_kp_s_Face_Segment_Dict, __pyx_k_Face_Segment_Dict, sizeof(__pyx_k_Face_Segment_Dict), 0, 0, 1, 0},
   {&__pyx_n_s_Graph, __pyx_k_Graph, sizeof(__pyx_k_Graph), 0, 0, 1, 1},
   {&__pyx_kp_s_Graph_layer, __pyx_k_Graph_layer, sizeof(__pyx_k_Graph_layer), 0, 0, 1, 0},
   {&__pyx_kp_s_Incompatible_checksums_s_vs_0xb0, __pyx_k_Incompatible_checksums_s_vs_0xb0, sizeof(__pyx_k_Incompatible_checksums_s_vs_0xb0), 0, 0, 1, 0},
@@ -21030,6 +21480,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Indirect_dimensions_not_supporte, __pyx_k_Indirect_dimensions_not_supporte, sizeof(__pyx_k_Indirect_dimensions_not_supporte), 0, 0, 1, 0},
   {&__pyx_kp_s_Invalid_mode_expected_c_or_fortr, __pyx_k_Invalid_mode_expected_c_or_fortr, sizeof(__pyx_k_Invalid_mode_expected_c_or_fortr), 0, 0, 1, 0},
   {&__pyx_kp_s_Invalid_shape_in_axis_d_d, __pyx_k_Invalid_shape_in_axis_d_d, sizeof(__pyx_k_Invalid_shape_in_axis_d_d), 0, 0, 1, 0},
+  {&__pyx_n_s_KeyError, __pyx_k_KeyError, sizeof(__pyx_k_KeyError), 0, 0, 1, 1},
   {&__pyx_n_s_MemoryError, __pyx_k_MemoryError, sizeof(__pyx_k_MemoryError), 0, 0, 1, 1},
   {&__pyx_kp_s_MemoryView_of_r_at_0x_x, __pyx_k_MemoryView_of_r_at_0x_x, sizeof(__pyx_k_MemoryView_of_r_at_0x_x), 0, 0, 1, 0},
   {&__pyx_kp_s_MemoryView_of_r_object, __pyx_k_MemoryView_of_r_object, sizeof(__pyx_k_MemoryView_of_r_object), 0, 0, 1, 0},
@@ -21037,7 +21488,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_Out_of_bounds_on_buffer_access_a, __pyx_k_Out_of_bounds_on_buffer_access_a, sizeof(__pyx_k_Out_of_bounds_on_buffer_access_a), 0, 0, 1, 0},
   {&__pyx_n_s_PickleError, __pyx_k_PickleError, sizeof(__pyx_k_PickleError), 0, 0, 1, 1},
   {&__pyx_n_s_S, __pyx_k_S, sizeof(__pyx_k_S), 0, 0, 1, 1},
-  {&__pyx_n_s_Segment, __pyx_k_Segment, sizeof(__pyx_k_Segment), 0, 0, 1, 1},
+  {&__pyx_kp_s_Segment, __pyx_k_Segment, sizeof(__pyx_k_Segment), 0, 0, 1, 0},
+  {&__pyx_n_s_Segment_2, __pyx_k_Segment_2, sizeof(__pyx_k_Segment_2), 0, 0, 1, 1},
+  {&__pyx_kp_s_Segment_Index, __pyx_k_Segment_Index, sizeof(__pyx_k_Segment_Index), 0, 0, 1, 0},
   {&__pyx_n_s_Segment___init, __pyx_k_Segment___init, sizeof(__pyx_k_Segment___init), 0, 0, 1, 1},
   {&__pyx_n_s_Slice, __pyx_k_Slice, sizeof(__pyx_k_Slice), 0, 0, 1, 1},
   {&__pyx_n_s_Slice___init, __pyx_k_Slice___init, sizeof(__pyx_k_Slice___init), 0, 0, 1, 1},
@@ -21047,6 +21500,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_Slice_make_basic_polygon_loop, __pyx_k_Slice_make_basic_polygon_loop, sizeof(__pyx_k_Slice_make_basic_polygon_loop), 0, 0, 1, 1},
   {&__pyx_n_s_Slice_make_polygons, __pyx_k_Slice_make_polygons, sizeof(__pyx_k_Slice_make_polygons), 0, 0, 1, 1},
   {&__pyx_n_s_Slice_try_next_face_seg_idx, __pyx_k_Slice_try_next_face_seg_idx, sizeof(__pyx_k_Slice_try_next_face_seg_idx), 0, 0, 1, 1},
+  {&__pyx_kp_s_Start_Segment_Index, __pyx_k_Start_Segment_Index, sizeof(__pyx_k_Start_Segment_Index), 0, 0, 1, 0},
   {&__pyx_n_s_TypeError, __pyx_k_TypeError, sizeof(__pyx_k_TypeError), 0, 0, 1, 1},
   {&__pyx_kp_s_Unable_to_convert_item_to_object, __pyx_k_Unable_to_convert_item_to_object, sizeof(__pyx_k_Unable_to_convert_item_to_object), 0, 0, 1, 0},
   {&__pyx_n_s_ValueError, __pyx_k_ValueError, sizeof(__pyx_k_ValueError), 0, 0, 1, 1},
@@ -21215,7 +21669,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 static int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_object = __Pyx_GetBuiltinName(__pyx_n_s_object); if (!__pyx_builtin_object) __PYX_ERR(0, 5, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 29, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 179, __pyx_L1_error)
+  __pyx_builtin_KeyError = __Pyx_GetBuiltinName(__pyx_n_s_KeyError); if (!__pyx_builtin_KeyError) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 189, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 132, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(1, 147, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(1, 2, __pyx_L1_error)
@@ -21526,100 +21981,100 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__30);
   __pyx_codeobj__31 = (PyObject*)__Pyx_PyCode_New(3, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__30, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_get_next_seg_idx, 64, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__31)) __PYX_ERR(0, 64, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":90
+  /* "slicer/slice_mesh.pyx":94
  *         return next_seg_idx
  * 
  *     def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):             # <<<<<<<<<<<<<<
  *         """
  *         This function finds another face that will continue the given segment
  */
-  __pyx_tuple__32 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_segment, __pyx_n_s_face_idx, __pyx_n_s_start_seg_idx, __pyx_n_s_seg_idx); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_tuple__32 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_segment, __pyx_n_s_face_idx, __pyx_n_s_start_seg_idx, __pyx_n_s_seg_idx); if (unlikely(!__pyx_tuple__32)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__32);
   __Pyx_GIVEREF(__pyx_tuple__32);
-  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(4, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_try_next_face_seg_idx, 90, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_codeobj__33 = (PyObject*)__Pyx_PyCode_New(4, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__32, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_try_next_face_seg_idx, 94, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__33)) __PYX_ERR(0, 94, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":109
+  /* "slicer/slice_mesh.pyx":119
  *             return seg_idx
  * 
  *     def connect_open_polylines(self):             # <<<<<<<<<<<<<<
  *         # Find all possible stitches
  *         # stitch_pq = self.find_possible_stitches()
  */
-  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_tuple__34 = PyTuple_Pack(1, __pyx_n_s_self); if (unlikely(!__pyx_tuple__34)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__34);
   __Pyx_GIVEREF(__pyx_tuple__34);
-  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_connect_open_polylines, 109, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_codeobj__35 = (PyObject*)__Pyx_PyCode_New(1, 0, 1, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__34, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_connect_open_polylines, 119, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__35)) __PYX_ERR(0, 119, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":114
+  /* "slicer/slice_mesh.pyx":124
  *         pass
  * 
  *     def layer_graph(self):             # <<<<<<<<<<<<<<
  *         """
  *         This method uses an inefficient digraph approach to generate polygons.
  */
-  __pyx_tuple__36 = PyTuple_Pack(11, __pyx_n_s_self, __pyx_n_s_digraph, __pyx_n_s_segs, __pyx_n_s_seg, __pyx_n_s_p1, __pyx_n_s_p2, __pyx_n_s_graph, __pyx_n_s_bridges, __pyx_n_s_bridge, __pyx_n_s_cycles, __pyx_n_s_s); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_tuple__36 = PyTuple_Pack(11, __pyx_n_s_self, __pyx_n_s_digraph, __pyx_n_s_segs, __pyx_n_s_seg, __pyx_n_s_p1, __pyx_n_s_p2, __pyx_n_s_graph, __pyx_n_s_bridges, __pyx_n_s_bridge, __pyx_n_s_cycles, __pyx_n_s_s); if (unlikely(!__pyx_tuple__36)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__36);
   __Pyx_GIVEREF(__pyx_tuple__36);
-  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_layer_graph, 114, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_codeobj__37 = (PyObject*)__Pyx_PyCode_New(1, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__36, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_layer_graph, 124, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__37)) __PYX_ERR(0, 124, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":155
+  /* "slicer/slice_mesh.pyx":165
  * 
  * 
  * class Segment(object):             # <<<<<<<<<<<<<<
  *     """
  *     A segment
  */
-  __pyx_tuple__38 = PyTuple_Pack(1, __pyx_builtin_object); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_tuple__38 = PyTuple_Pack(1, __pyx_builtin_object); if (unlikely(!__pyx_tuple__38)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__38);
   __Pyx_GIVEREF(__pyx_tuple__38);
 
-  /* "slicer/slice_mesh.pyx":159
+  /* "slicer/slice_mesh.pyx":169
  *     A segment
  *     """
- *     def __init__(self, segment, face_idx, next_face_idx, end_vertex):             # <<<<<<<<<<<<<<
+ *     def __init__(self, segment, face_idx, next_face_idx, end_vertex, idx):             # <<<<<<<<<<<<<<
  *         self.segment = segment
  *         self.face_idx = face_idx
  */
-  __pyx_tuple__39 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_segment, __pyx_n_s_face_idx, __pyx_n_s_next_face_idx, __pyx_n_s_end_vertex); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_tuple__39 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_segment, __pyx_n_s_face_idx, __pyx_n_s_next_face_idx, __pyx_n_s_end_vertex, __pyx_n_s_idx); if (unlikely(!__pyx_tuple__39)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__39);
   __Pyx_GIVEREF(__pyx_tuple__39);
-  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(5, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_init, 159, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_codeobj__40 = (PyObject*)__Pyx_PyCode_New(6, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__39, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_init, 169, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__40)) __PYX_ERR(0, 169, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":167
- * 
+  /* "slicer/slice_mesh.pyx":177
+ *         self.idx = idx
  * 
  * def slice_mesh(optimized_mesh, resolution):             # <<<<<<<<<<<<<<
  *     """
  *     For each triangle:
  */
-  __pyx_tuple__41 = PyTuple_Pack(23, __pyx_n_s_optimized_mesh, __pyx_n_s_resolution, __pyx_n_s_height, __pyx_n_s_layers, __pyx_n_s_slices, __pyx_n_s_i, __pyx_n_s_layer, __pyx_n_s_sl, __pyx_n_s_face, __pyx_n_s_p0, __pyx_n_s_p1, __pyx_n_s_p2, __pyx_n_s_z0, __pyx_n_s_z1, __pyx_n_s_z2, __pyx_n_s_layer_num, __pyx_n_s_z, __pyx_n_s_segment, __pyx_n_s_end_vertex, __pyx_n_s_end_edge_idx, __pyx_n_s_sliced_layer, __pyx_n_s_next_face_idx, __pyx_n_s_S); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 167, __pyx_L1_error)
+  __pyx_tuple__41 = PyTuple_Pack(23, __pyx_n_s_optimized_mesh, __pyx_n_s_resolution, __pyx_n_s_height, __pyx_n_s_layers, __pyx_n_s_slices, __pyx_n_s_i, __pyx_n_s_layer, __pyx_n_s_sl, __pyx_n_s_face, __pyx_n_s_p0, __pyx_n_s_p1, __pyx_n_s_p2, __pyx_n_s_z0, __pyx_n_s_z1, __pyx_n_s_z2, __pyx_n_s_layer_num, __pyx_n_s_z, __pyx_n_s_segment, __pyx_n_s_end_vertex, __pyx_n_s_end_edge_idx, __pyx_n_s_sliced_layer, __pyx_n_s_next_face_idx, __pyx_n_s_S); if (unlikely(!__pyx_tuple__41)) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__41);
   __Pyx_GIVEREF(__pyx_tuple__41);
-  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(2, 0, 23, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__41, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_slice_mesh, 167, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 167, __pyx_L1_error)
+  __pyx_codeobj__42 = (PyObject*)__Pyx_PyCode_New(2, 0, 23, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__41, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_slice_mesh, 177, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__42)) __PYX_ERR(0, 177, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":250
+  /* "slicer/slice_mesh.pyx":260
  * 
  * 
  * def slice_triangle(float [:] triangle, slice_layers):             # <<<<<<<<<<<<<<
  *     """Slice an individual triangle for all slice layers
  *     """
  */
-  __pyx_tuple__43 = PyTuple_Pack(2, __pyx_n_s_triangle, __pyx_n_s_slice_layers); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_tuple__43 = PyTuple_Pack(2, __pyx_n_s_triangle, __pyx_n_s_slice_layers); if (unlikely(!__pyx_tuple__43)) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__43);
   __Pyx_GIVEREF(__pyx_tuple__43);
-  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__43, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_slice_triangle, 250, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_codeobj__44 = (PyObject*)__Pyx_PyCode_New(2, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__43, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_slice_triangle, 260, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__44)) __PYX_ERR(0, 260, __pyx_L1_error)
 
-  /* "slicer/slice_mesh.pyx":276
+  /* "slicer/slice_mesh.pyx":286
  * 
  * 
  * def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):             # <<<<<<<<<<<<<<
  *     """Calculates a segment.
  *     """
  */
-  __pyx_tuple__45 = PyTuple_Pack(8, __pyx_n_s_p0, __pyx_n_s_p1, __pyx_n_s_p2, __pyx_n_s_z, __pyx_n_s_x_start, __pyx_n_s_x_end, __pyx_n_s_y_start, __pyx_n_s_y_end); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __pyx_tuple__45 = PyTuple_Pack(8, __pyx_n_s_p0, __pyx_n_s_p1, __pyx_n_s_p2, __pyx_n_s_z, __pyx_n_s_x_start, __pyx_n_s_x_end, __pyx_n_s_y_start, __pyx_n_s_y_end); if (unlikely(!__pyx_tuple__45)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__45);
   __Pyx_GIVEREF(__pyx_tuple__45);
-  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(4, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_calculate_segment, 276, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __pyx_codeobj__46 = (PyObject*)__Pyx_PyCode_New(4, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__45, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_slicer_slice_mesh_pyx, __pyx_n_s_calculate_segment, 286, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__46)) __PYX_ERR(0, 286, __pyx_L1_error)
 
   /* "View.MemoryView":285
  *         return self.name
@@ -22101,40 +22556,40 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_get_next_seg_idx, __pyx_t_3) < 0) __PYX_ERR(0, 64, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":90
+  /* "slicer/slice_mesh.pyx":94
  *         return next_seg_idx
  * 
  *     def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):             # <<<<<<<<<<<<<<
  *         """
  *         This function finds another face that will continue the given segment
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5Slice_9try_next_face_seg_idx, 0, __pyx_n_s_Slice_try_next_face_seg_idx, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5Slice_9try_next_face_seg_idx, 0, __pyx_n_s_Slice_try_next_face_seg_idx, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__33)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_try_next_face_seg_idx, __pyx_t_3) < 0) __PYX_ERR(0, 90, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_try_next_face_seg_idx, __pyx_t_3) < 0) __PYX_ERR(0, 94, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":109
+  /* "slicer/slice_mesh.pyx":119
  *             return seg_idx
  * 
  *     def connect_open_polylines(self):             # <<<<<<<<<<<<<<
  *         # Find all possible stitches
  *         # stitch_pq = self.find_possible_stitches()
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5Slice_11connect_open_polylines, 0, __pyx_n_s_Slice_connect_open_polylines, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5Slice_11connect_open_polylines, 0, __pyx_n_s_Slice_connect_open_polylines, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__35)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_connect_open_polylines, __pyx_t_3) < 0) __PYX_ERR(0, 109, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_connect_open_polylines, __pyx_t_3) < 0) __PYX_ERR(0, 119, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":114
+  /* "slicer/slice_mesh.pyx":124
  *         pass
  * 
  *     def layer_graph(self):             # <<<<<<<<<<<<<<
  *         """
  *         This method uses an inefficient digraph approach to generate polygons.
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5Slice_13layer_graph, 0, __pyx_n_s_Slice_layer_graph, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5Slice_13layer_graph, 0, __pyx_n_s_Slice_layer_graph, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__37)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_layer_graph, __pyx_t_3) < 0) __PYX_ERR(0, 114, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_layer_graph, __pyx_t_3) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
   /* "slicer/slice_mesh.pyx":5
@@ -22151,78 +22606,78 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":155
+  /* "slicer/slice_mesh.pyx":165
  * 
  * 
  * class Segment(object):             # <<<<<<<<<<<<<<
  *     """
  *     A segment
  */
-  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_tuple__38); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CalculateMetaclass(NULL, __pyx_tuple__38); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_tuple__38, __pyx_n_s_Segment, __pyx_n_s_Segment, (PyObject *) NULL, __pyx_n_s_slicer_slice_mesh, __pyx_kp_s_A_segment); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Py3MetaclassPrepare(__pyx_t_1, __pyx_tuple__38, __pyx_n_s_Segment_2, __pyx_n_s_Segment_2, (PyObject *) NULL, __pyx_n_s_slicer_slice_mesh, __pyx_kp_s_A_segment); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
 
-  /* "slicer/slice_mesh.pyx":159
+  /* "slicer/slice_mesh.pyx":169
  *     A segment
  *     """
- *     def __init__(self, segment, face_idx, next_face_idx, end_vertex):             # <<<<<<<<<<<<<<
+ *     def __init__(self, segment, face_idx, next_face_idx, end_vertex, idx):             # <<<<<<<<<<<<<<
  *         self.segment = segment
  *         self.face_idx = face_idx
  */
-  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_7Segment_1__init__, 0, __pyx_n_s_Segment___init, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_CyFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_7Segment_1__init__, 0, __pyx_n_s_Segment___init, NULL, __pyx_n_s_slicer_slice_mesh, __pyx_d, ((PyObject *)__pyx_codeobj__40)); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 159, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_2, __pyx_n_s_init, __pyx_t_3) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
 
-  /* "slicer/slice_mesh.pyx":155
+  /* "slicer/slice_mesh.pyx":165
  * 
  * 
  * class Segment(object):             # <<<<<<<<<<<<<<
  *     """
  *     A segment
  */
-  __pyx_t_3 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_Segment, __pyx_tuple__38, __pyx_t_2, NULL, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_Py3ClassCreate(__pyx_t_1, __pyx_n_s_Segment_2, __pyx_tuple__38, __pyx_t_2, NULL, 0, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Segment, __pyx_t_3) < 0) __PYX_ERR(0, 155, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_Segment_2, __pyx_t_3) < 0) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":167
- * 
+  /* "slicer/slice_mesh.pyx":177
+ *         self.idx = idx
  * 
  * def slice_mesh(optimized_mesh, resolution):             # <<<<<<<<<<<<<<
  *     """
  *     For each triangle:
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_1slice_mesh, NULL, __pyx_n_s_slicer_slice_mesh); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 167, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_1slice_mesh, NULL, __pyx_n_s_slicer_slice_mesh); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_slice_mesh, __pyx_t_1) < 0) __PYX_ERR(0, 167, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_slice_mesh, __pyx_t_1) < 0) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":250
+  /* "slicer/slice_mesh.pyx":260
  * 
  * 
  * def slice_triangle(float [:] triangle, slice_layers):             # <<<<<<<<<<<<<<
  *     """Slice an individual triangle for all slice layers
  *     """
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_3slice_triangle, NULL, __pyx_n_s_slicer_slice_mesh); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_3slice_triangle, NULL, __pyx_n_s_slicer_slice_mesh); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_slice_triangle, __pyx_t_1) < 0) __PYX_ERR(0, 250, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_slice_triangle, __pyx_t_1) < 0) __PYX_ERR(0, 260, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "slicer/slice_mesh.pyx":276
+  /* "slicer/slice_mesh.pyx":286
  * 
  * 
  * def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):             # <<<<<<<<<<<<<<
  *     """Calculates a segment.
  *     """
  */
-  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5calculate_segment, NULL, __pyx_n_s_slicer_slice_mesh); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 276, __pyx_L1_error)
+  __pyx_t_1 = PyCFunction_NewEx(&__pyx_mdef_6slicer_10slice_mesh_5calculate_segment, NULL, __pyx_n_s_slicer_slice_mesh); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_segment, __pyx_t_1) < 0) __PYX_ERR(0, 276, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_calculate_segment, __pyx_t_1) < 0) __PYX_ERR(0, 286, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "slicer/slice_mesh.pyx":1
@@ -23164,35 +23619,8 @@ static PyObject* __Pyx_PyObject_CallMethod1(PyObject* obj, PyObject* method_name
     return 0;
 }
 
-/* GetModuleGlobalName */
-  static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
-    PyObject *result;
-#if !CYTHON_AVOID_BORROWED_REFS
-#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
-    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
-    if (likely(result)) {
-        Py_INCREF(result);
-    } else if (unlikely(PyErr_Occurred())) {
-        result = NULL;
-    } else {
-#else
-    result = PyDict_GetItem(__pyx_d, name);
-    if (likely(result)) {
-        Py_INCREF(result);
-    } else {
-#endif
-#else
-    result = PyObject_GetItem(__pyx_d, name);
-    if (!result) {
-        PyErr_Clear();
-#endif
-        result = __Pyx_GetBuiltinName(name);
-    }
-    return result;
-}
-
 /* SaveResetException */
-      #if CYTHON_FAST_THREAD_STATE
+  #if CYTHON_FAST_THREAD_STATE
 static CYTHON_INLINE void __Pyx__ExceptionSave(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
     #if PY_VERSION_HEX >= 0x030700A3
     *type = tstate->exc_state.exc_type;
@@ -23231,7 +23659,7 @@ static CYTHON_INLINE void __Pyx__ExceptionReset(PyThreadState *tstate, PyObject 
 #endif
 
 /* PyErrExceptionMatches */
-      #if CYTHON_FAST_THREAD_STATE
+  #if CYTHON_FAST_THREAD_STATE
 static int __Pyx_PyErr_ExceptionMatchesTuple(PyObject *exc_type, PyObject *tuple) {
     Py_ssize_t i, n;
     n = PyTuple_GET_SIZE(tuple);
@@ -23256,7 +23684,7 @@ static CYTHON_INLINE int __Pyx_PyErr_ExceptionMatchesInState(PyThreadState* tsta
 #endif
 
 /* GetException */
-      #if CYTHON_FAST_THREAD_STATE
+  #if CYTHON_FAST_THREAD_STATE
 static int __Pyx__GetException(PyThreadState *tstate, PyObject **type, PyObject **value, PyObject **tb) {
 #else
 static int __Pyx_GetException(PyObject **type, PyObject **value, PyObject **tb) {
@@ -23323,6 +23751,33 @@ bad:
     Py_XDECREF(local_value);
     Py_XDECREF(local_tb);
     return -1;
+}
+
+/* GetModuleGlobalName */
+    static CYTHON_INLINE PyObject *__Pyx_GetModuleGlobalName(PyObject *name) {
+    PyObject *result;
+#if !CYTHON_AVOID_BORROWED_REFS
+#if CYTHON_COMPILING_IN_CPYTHON && PY_VERSION_HEX >= 0x030500A1
+    result = _PyDict_GetItem_KnownHash(__pyx_d, name, ((PyASCIIObject *) name)->hash);
+    if (likely(result)) {
+        Py_INCREF(result);
+    } else if (unlikely(PyErr_Occurred())) {
+        result = NULL;
+    } else {
+#else
+    result = PyDict_GetItem(__pyx_d, name);
+    if (likely(result)) {
+        Py_INCREF(result);
+    } else {
+#endif
+#else
+    result = PyObject_GetItem(__pyx_d, name);
+    if (!result) {
+        PyErr_Clear();
+#endif
+        result = __Pyx_GetBuiltinName(name);
+    }
+    return result;
 }
 
 /* MemviewSliceInit */

@@ -41,17 +41,22 @@ def polygon_orientation(polygon):
     https://en.wikipedia.org/wiki/Curve_orientation
 
     Returns a boolean
-    -1 indicates counter clockwise
-    1 indicates clockwise
+    -1 indicates counter clockwise, which will be polymer
+    1 indicates clockwise, which will be empty
     """
     if len(polygon) < 3:
         return -1
+    # Make sure that the polygon doesn't have a first and last duplicate
+    if polygon[0] == polygon[-1]:
+        polygon.pop()
 
     min_y = polygon[0][1]
     min_y_x = polygon[0][0]
 
     left_neighbor = polygon[-1]
     right_neighbor = polygon[1]
+
+
 
     for idx, pt in enumerate(polygon):
         x = pt[0]
@@ -78,10 +83,9 @@ def polygon_orientation(polygon):
     det = (xb - xa)*(yc - ya) - (xc - xa)*(yb - ya)
     direction = np.sign(det)
     if direction == 0:
-        # print("Polygon: {}".format(polygon))
-        # print("Minimum point: {}, {}".format(min_y_x, min_y))
-        # raise Exception("Unknown Polygon Direction")
-        print("Unknown Polygon Direction")
+        # TODO: make better error handling for this case
+        print("Unknown Polygon Direction: {}".format(polygon))
+        return -1
     return direction
 
 

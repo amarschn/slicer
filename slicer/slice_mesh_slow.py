@@ -79,12 +79,13 @@ class Slice(object):
             # if the segment ended at a vertex, look for other faces to try to get the
             # next segment
             for face in seg.end_vertex.connected_faces:
-                result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
+                if face != seg.face_idx:
+                    result_seg_idx = self.try_next_face_seg_idx(seg, face, start_seg_idx)
 
-                if result_seg_idx == start_seg_idx:
-                    return start_seg_idx
-                elif result_seg_idx != -1:
-                    next_seg_idx = result_seg_idx
+                    if result_seg_idx == start_seg_idx:
+                        return start_seg_idx
+                    elif result_seg_idx != -1:
+                        next_seg_idx = result_seg_idx
         return next_seg_idx
 
     def try_next_face_seg_idx(self, segment, face_idx, start_seg_idx):
@@ -98,9 +99,6 @@ class Slice(object):
         try:
             seg_idx = self.face_idx_to_seg_idx[face_idx]
         except KeyError:
-            # print("Face Index: {}".format(face_idx))
-            # print("Segment: {}".format(segment.segment))
-            print("Face -> Segment Dict: {}".format(self.face_idx_to_seg_idx))
             return -1
 
         if seg_idx == start_seg_idx:
@@ -160,7 +158,7 @@ class Slice(object):
 
 class Segment(object):
     """
-    A segment 
+    A segment
     """
     def __init__(self, segment, face_idx, next_face_idx, end_vertex):
         self.segment = segment
@@ -253,21 +251,14 @@ def slice_mesh(optimized_mesh, resolution):
     return slices
 
 
-def slice_triangle(float [:] triangle, slice_layers):
-    """Slice an individual triangle for all slice layers
-    """
-    pass
-
-
-cdef double interpolate(float y, float y0, float y1, float x0, float x1):
+def interpolate(y, y0, y1, x0, x1):
     """Interpolates an x value to match the y value, given a 
     line with start point at x0,y0 and end point at x1, y1
     """
     # TODO: should these be ints instead for speed reasons?
-    cdef float dx = x1 - x0
-    cdef float dy = y1 - y0
-    cdef float p
-    cdef float x
+    dx = x1 - x0
+    dy = y1 - y0
+
     # If the slope is negative
     if dy < 0:
         # the proportion of the curve we are interpolating when the slope is negative is flipped
@@ -279,10 +270,9 @@ cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     return x
 
 
-def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):
+def calculate_segment(p0, p1, p2, z):
     """Calculates a segment.
     """
-    cdef float x_start, x_end, y_start, y_end
 
     x_start = interpolate(z, p0[2], p1[2], p0[0], p1[0])
     x_end = interpolate(z, p0[2], p2[2], p0[0], p2[0])

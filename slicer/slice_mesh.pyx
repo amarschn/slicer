@@ -7,7 +7,6 @@ class Slice(object):
     A slice of a build, containing all segments within that layer
     """
     def __init__(self, layer_number=-1, settings=None):
-        self.filename = "./output/layer_{}.bmp".format(layer_number)
         self.segments = []
         self.layer_number = layer_number
         self.polygons = []
@@ -22,6 +21,7 @@ class Slice(object):
 
         if self.open_polylines:
             self.polygons = self.layer_graph()
+
         # Clear the segment list for this layer as it is no longer useful
         self.segments = []
 
@@ -42,11 +42,13 @@ class Slice(object):
             polygon.append(seg.segment[1])
             seg.added_to_polygon = True
             seg_idx = self.get_next_seg_idx(seg, start_seg_idx)
+
             # If the polygon closes, add it to the list of polygons and
             # return
             if seg_idx == start_seg_idx:
                 self.polygons.append(polygon)
                 return
+
 
         self.open_polylines.append(polygon)
         return
@@ -188,31 +190,26 @@ def slice_mesh(optimized_mesh, settings):
             elif z > max(z0, z1, z2):
                 continue
             elif z0 < z and z1 >= z and z2 >= z:
-                # What condition is this?
                 segment = calculate_segment(p0, p2, p1, z)
                 end_edge_idx = 0
                 if p1[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[1]]
 
             elif z0 > z and z1 < z and z2 < z:
-                # What condition is this?
                 segment = calculate_segment(p0, p1, p2, z)
                 end_edge_idx = 2
 
             elif z0 >= z and z1 < z and z2 >= z:
-                # What condition is this?
                 segment = calculate_segment(p1, p0, p2, z)
                 end_edge_idx = 1
                 if p2[2] == z:
                     end_vertex = optimized_mesh.vertices[face.vertex_indices[2]]
 
             elif z0 < z and z1 > z and z2 < z:
-                # What condition is this?
                 segment = calculate_segment(p1, p2, p0, z)
                 end_edge_idx = 0
 
             elif z0 >= z and z1 >= z and z2 < z:
-                # What condition is this?
                 segment = calculate_segment(p2, p1, p0, z)
                 end_edge_idx = 2
                 if p0[2] == z:

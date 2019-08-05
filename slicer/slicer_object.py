@@ -4,12 +4,18 @@ from slicer.optimized_mesh import OptimizedMesh
 import slice_mesh
 import os
 
-
 DEFAULT_SETTINGS = {
+    "stl_units": "MM",
     "layer_height": 0.05,
-    "page_height": 7200,
-    "page_width": 7200,
-    "output_directory": './output/'
+    "decimal_precision": 3,
+    "dpi": [625, 600],
+    "page_size_in": [11.3, 11.7],
+    "mesh_translation_in": [-0.35, -0.15, 0.],
+    "slice_file_base_name": 'layer',
+    "output_directory": './output/',
+    "workers": 5,
+    "edge_to_hole_distance": 0.3,
+    "page_number_locations": [[0.02, 0.02], [11., 6.]]
 }
 
 
@@ -20,6 +26,11 @@ class Slicer(object):
     def __init__(self, mesh_filename, settings=DEFAULT_SETTINGS):
         self.mesh_filename = mesh_filename
         self.settings = settings
+        # Determine the width and length of the image in pixels. This is a pre-computation step
+        # to avoid calculating the same values many times at the rasterization step
+        self.settings["x_px"] = int(settings["page_size_in"][0] * settings["dpi"][0])
+        self.settings["y_px"] = int(settings["page_size_in"][1] * settings["dpi"][1])
+
         self.optimized_mesh = None
         self.slices = []
         self.mesh_is_processed = False
@@ -28,16 +39,29 @@ class Slicer(object):
             os.mkdir(self.settings["output_directory"])
 
     def process_mesh(self):
-        self.optimized_mesh = OptimizedMesh(self.mesh_filename)
+        self.optimized_mesh = OptimizedMesh(self.mesh_filename, self.settings)
         self.optimized_mesh.complete()
         self.slices = slice_mesh.slice_mesh(self.optimized_mesh, self.settings)
         self.mesh_is_processed = True
 
-    def create_images(self, workers=5):
+    def create_images(self):
+        """
+
+        :return: None
+        """
         if not self.mesh_is_processed:
             self.process_mesh()
-        pool = Pool(workers)
+        pool = Pool(self.settings["workers"])
         pool.map(write_layer, self.slices)
+
+    def create_build_zip(self):
+        """
+        Creates a build zip file containing a zipped directory of all images, the settings used stored in a JSON
+        file, and the punches.json file
+        :return:
+        """
+        self.create_images()
+
 
 
 def write_layer(layer):
@@ -51,12 +75,13 @@ def write_layer(layer):
     """
     layer.make_polygons()
     rasterize(layer.polygons,
-              layer.filename,
               layer.layer_number,
-              layer.settings["page_height"],
-              layer.settings["page_width"])
+              layer.settings)
 
 def main():
+    # f = '../test_stl/calibration_shapes.stl'
+    # f = '../test_stl/1inx1inx200um_brick_origin.stl'
+    # f = '../test_stl/1inx1inx200um_brick.stl'
     # f = '../test_stl/logo.stl'
     # f = '../test_stl/q01.stl'
     # f = '../test_stl/cylinder.stl'

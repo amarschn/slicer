@@ -4,6 +4,12 @@ Overview
 --------
 slicer is a mesh-slicing program that outputs bitmap images for use in a 3D-printer.
 
+Currently the slicer does not perform any mesh repair, and any non-manifold, watertight meshes will result in anomalous output.
+
+Process:
+
+Scaling -> pixel off-by-one error
+
 Installation
 ------------
 To install, 

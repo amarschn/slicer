@@ -5,27 +5,10 @@ Author: Drew Marschner
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+import os
 
-
-# FONT_BOLD = ImageFont.truetype(os.path.join(os.path.dirname(tkioutils.__file__), tkioutils.FONT_BOLD), 100)
-
-
-def transform_polygon(polygon, transform):
-    """
-    Transform a set of polygons according to a 3x3 transform
-    :param image:
-    :param transform:
-    :return:
-    """
-    polygon = np.array(polygon)
-
-    # Set to homogeneous coordinates
-    polygon = np.append(polygon, np.ones([len(polygon),1]), axis=1)
-
-    polygon = np.dot(polygon, transform)
-
-    return polygon[:, 0:2]
-
+# TODO: file location is a magic value, change how this is done?
+FONT_BOLD = ImageFont.truetype('./data/DINBold.ttf', size=100)
 
 def polygon_orientation(polygon):
     """
@@ -104,8 +87,8 @@ def polygon_size(polygon):
     """
     np_polygon = np.array(polygon)
 
-    bbox_x = np.max(np_polygon[:,0]) - np.min(np_polygon[:, 0])
-    bbox_y = np.max(np_polygon[:,1]) - np.min(np_polygon[:, 1])
+    bbox_x = np.max(np_polygon[:, 0]) - np.min(np_polygon[:, 0])
+    bbox_y = np.max(np_polygon[:, 1]) - np.min(np_polygon[:, 1])
 
     return bbox_x * bbox_y
 
@@ -131,19 +114,18 @@ def arrange_polygons(polygons):
     return arranged_polygons, is_hole
 
 
-def rasterize(polygons, output_file, layer, height, width, transform=None):
+def rasterize(polygons, layer, settings):
     """
 
     :param polygons:
-    :param output_file:
     :param layer:
-    :param height:
-    :param width:
-    :param transform:
+    :param settings:
     :return:
     """
+    filename = settings["slice_file_base_name"] + "_{}.bmp".format(layer)
+    output_file = os.path.join(settings["output_directory"], filename)
     arranged_polygons, is_hole = arrange_polygons(polygons)
-    im = Image.new("1", (width, height), 1)
+    im = Image.new("1", (settings["x_px"], settings["y_px"]), 1)
     draw = ImageDraw.Draw(im)
     for idx, polygon in enumerate(arranged_polygons):
         if len(polygon) < 2:
@@ -153,12 +135,11 @@ def rasterize(polygons, output_file, layer, height, width, transform=None):
         else:
             color = 0
 
-        if transform:
-            polygon = transform_polygon(polygon, transform)
+        # Round the polygon points before drawing the polygon. The PIL draw function uses a floor() instead of a
+        # round(), which can result in slightly incorrect bitmaps
+        polygon = np.round(polygon)
 
-        # Scale the polygon to get to the correct DPI
-        polygon = np.array(polygon)
-        polygon = tuple(map(tuple, polygon * 24.606))
+        polygon = tuple(map(tuple, polygon))
         draw.polygon(polygon, fill=color)
 
     # Flip and rotate the image...there has to be a better way to do this...
@@ -168,18 +149,7 @@ def rasterize(polygons, output_file, layer, height, width, transform=None):
 
     # Add text of layer number
     draw = ImageDraw.Draw(im)
-    # draw.text((10, 10), str(layer), fill=0, font=FONT_BOLD)
+    # TODO: make the location of the text a part of the settings
+    for location in settings["page_number_locations"]:
+        draw.text((location[0]*settings["dpi"][0], location[1]*settings["dpi"][1]), str(layer), fill=0, font=FONT_BOLD)
     im.save(output_file)
-
-
-class Polygon(object):
-    def __init__(self, polygons, layer):
-        self.polygons = polygons
-        self.layer = str(layer)
-        self.height = 4800
-        self.width = 7200
-        self.output_file = "{}.png".format(self.layer)
-
-
-if __name__ == '__main__':
-    pass

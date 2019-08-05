@@ -1,7 +1,9 @@
 import stl
 import numpy as np
 
-DECIMALS = 3
+
+MM_TO_IN = 25.4
+
 
 class MeshFace(object):
     def __init__(self, idx, vertex_indices):
@@ -12,6 +14,7 @@ class MeshFace(object):
         # via vertex index 0 and 1, etc.
         self.connected_face_index = []
         self.has_disconnected_faces = False
+
 
 class Vertex(object):
     def __init__(self, idx, p):
@@ -30,15 +33,46 @@ class OptimizedMesh(object):
     key (hash) : [array of indices representing vertices]
 
     """
-    def __init__(self, file):
+    def __init__(self, file, settings):
+        # Load mesh and transform it according to the desired settings
+        self.settings = settings
         self.mesh = stl.Mesh.from_file(file)
-        self.mesh_faces = np.round(self.mesh.vectors, decimals=DECIMALS)
+        self.transform_mesh()
+
+        self.mesh_faces = np.round(self.mesh.vectors, decimals=settings["decimal_precision"])
         self.vertex_hash_map = {}
         self.vertices = []
         self.faces = []
         self.add_faces()
 
+    def transform_mesh(self):
+        """
+        Modifies the mesh representation to be stretched according to the
+        DPI settings, the border settings, and converts from inch to metric if need be
+        :return:
+        """
+        translate = np.array(self.settings["mesh_translation_in"])
+        if self.settings["stl_units"] is "MM":
+            dpi_conversion_factor = 1/MM_TO_IN
+            translate = translate*MM_TO_IN
+        else:
+            dpi_conversion_factor = 1
+
+        # Translate the mesh
+        self.mesh.translate(translate)
+
+        # Scale the mesh. Mesh is scaled according to the dpi and the off-by-one pixel error found in PIL
+        x_scale = self.settings["dpi"][0]*dpi_conversion_factor*((self.settings["dpi"][0]-1)/self.settings["dpi"][0])
+        y_scale = self.settings["dpi"][1]*dpi_conversion_factor*((self.settings["dpi"][1]-1)/self.settings["dpi"][1])
+        z_scale = 1
+        scale = np.array([x_scale, y_scale, z_scale])
+        self.mesh.vectors *= scale
+
     def add_faces(self):
+        """
+        TODO: create documentation
+        :return:
+        """
         for triangle in self.mesh_faces:
             v0 = triangle[0]
             v1 = triangle[1]
@@ -105,7 +139,6 @@ class OptimizedMesh(object):
                 candidate_faces.append(connected_face)
 
         if not candidate_faces:
-            # print("Unconnected faces, bad mesh!")
             self.has_disconnected_faces = True
             return -1
 
@@ -113,11 +146,10 @@ class OptimizedMesh(object):
             return candidate_faces[0]
 
         if len(candidate_faces) % 2 == 0:
-            # print("Edge with uneven number of faces connecting it")
             self.has_disconnected_faces = True
 
         ##############################
-        # MATH STUFF - HERE BE DRAGONS
+        # MATH - HERE BE DRAGONS
         # - https://stackoverflow.com/questions/14066933/direct-way-of-computing-clockwise-angle-between-2-vectors
         ##############################
 
@@ -161,17 +193,13 @@ class OptimizedMesh(object):
                 best_idx = candidate_face
 
         if best_idx == -1:
-            # print("Mesh has disconected faces")
             self.has_disconnected_faces = True
-
-
         return best_idx
 
     def complete(self):
         self.vertex_hash_map = {}
         for i, face in enumerate(self.faces):
-            # print(i)
-            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[0], face.vertex_indices[1], i, face.vertex_indices[2]))
+            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[0],face.vertex_indices[1], i, face.vertex_indices[2]))
             face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[1], face.vertex_indices[2], i, face.vertex_indices[0]))
             face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[2], face.vertex_indices[0], i, face.vertex_indices[1]))
 

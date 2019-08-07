@@ -52,7 +52,7 @@ def polygon_orientation(polygon):
     direction = np.sign(det)
     if direction == 0:
         # TODO: make better error handling for this case
-        print("Unknown Polygon Direction: {}".format(polygon))
+        # print("Unknown Polygon Direction: {}".format(polygon))
         return -1
     return direction
 

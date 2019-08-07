@@ -233,7 +233,7 @@ def slice_mesh(optimized_mesh, settings):
     return slices
 
 
-def slice_triangle(float [:] triangle, slice_layers):
+def slice_triangle(float [:] triangle):
     """Slice an individual triangle for all slice layers
     """
     pass
@@ -259,7 +259,7 @@ cdef double interpolate(float y, float y0, float y1, float x0, float x1):
     return x
 
 
-def calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):
+cdef calculate_segment(float[:] p0, float[:] p1, float[:] p2, float z):
     """Calculates a segment.
     """
     cdef float x_start, x_end, y_start, y_end

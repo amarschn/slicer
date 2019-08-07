@@ -8,3 +8,4 @@ build/
 slicer.egg-info/
 *.pyd
 *.so
+*.zip

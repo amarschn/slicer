@@ -8,6 +8,12 @@ Currently the slicer does not perform any mesh repair, and any non-manifold, wat
 
 Process:
 
+Mesh processing:
+
+
+Mesh slicing:
+
+Image Creation:
 Scaling -> pixel off-by-one error
 
 Installation

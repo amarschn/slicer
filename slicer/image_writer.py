@@ -10,6 +10,7 @@ import os
 # TODO: file location is a magic value, change how this is done?
 FONT_BOLD = ImageFont.truetype('./data/DINBold.ttf', size=100)
 
+
 def polygon_orientation(polygon):
     """
     TODO: this should be implemented in the initial polygon construction,
@@ -122,8 +123,7 @@ def rasterize(polygons, layer, settings):
     :param settings:
     :return:
     """
-    filename = settings["slice_file_base_name"] + "_{}.bmp".format(layer)
-    output_file = os.path.join(settings["output_directory"], filename)
+
     arranged_polygons, is_hole = arrange_polygons(polygons)
     im = Image.new("1", (settings["x_px"], settings["y_px"]), 1)
     draw = ImageDraw.Draw(im)
@@ -152,4 +152,7 @@ def rasterize(polygons, layer, settings):
     # TODO: make the location of the text a part of the settings
     for location in settings["page_number_locations"]:
         draw.text((location[0]*settings["dpi"][0], location[1]*settings["dpi"][1]), str(layer), fill=0, font=FONT_BOLD)
+
+    filename = settings["slice_file_base_name"] + "_{}.bmp".format(layer)
+    output_file = os.path.join(settings["output_directory"], settings["image_output_subdirectory"], filename)
     im.save(output_file)

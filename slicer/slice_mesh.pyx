@@ -118,7 +118,7 @@ class Slice(object):
         - https://visualgo.net/en/dfsbfs
         :return:
         """
-        print("Layer Graph: {}".format(self.layer_number))
+        # print("Layer Graph: {}".format(self.layer_number))
         digraph = nx.DiGraph()
         segs = [s.segment for s in self.segments]
         for seg in np.round(segs, decimals=3):

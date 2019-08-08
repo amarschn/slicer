@@ -1,4 +1,4 @@
-Build File Generator (BFG)
+![BFG](bfg.png) BFG (Build File Generator) 
 ==========================
 Overview
 --------
@@ -78,8 +78,6 @@ Slicing Process
 Once a mesh has been loaded into memory, it must be "optimized" before moving to the slicing step. "Optimizing" here
 primarily refers to looking at each mesh face and determining neighbor mesh information, which is useful for speeding
 up the actual mesh slicing step.
-
-##### Notes
 - Currently the slicer does not perform any mesh repair, and any non-manifold, watertight meshes will result in anomalous output.
 
 #### Mesh slicing:

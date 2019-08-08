@@ -8,12 +8,14 @@ Copyright: (c) Impossible Objects, 2019
 from bfg.image_writer import rasterize
 from multiprocessing import Pool
 from bfg.optimized_mesh import OptimizedMesh
-import slice_mesh
+from bfg import slice_mesh
 import os
 import shutil
 import datetime
 import json
 
+
+# TODO: make a documentation generator for documenting all settings
 """
 Settings documentation (to be included in general purpose json
 stl_units :: [MM, IN] :: the units of the mesh vertices given. "MM" represents millimeters, "IN" represents inches
@@ -23,9 +25,11 @@ dpi:: [X dpi, Y dpi]::dots per inch, which is axis dependent based on the printh
 page_size_in::[X size, Y size]:: The size of the page in inches.
 mesh_translation_in::[X translation, Y translation]:: the amount to move the mesh before slicing in X and Y. To be used for mesh placement and centering of the build.
 save_zip::[True,False]::whether to write images and other files to a zip or not. 1 indicates yes, 0 indicates no.
+zip_output_directory:: The directory in which the zip output will be placed
 zip_filename:: the name of the zip file to be output (dependent on the "zip_files" flag).
 slice_file_base_name::the base name of a sliced layer image file.
-output_directory::the name of the output directory to be made
+output_directory:: the name of the output directory to be made
+image_output_subdirectory:: the name of the image subdirectory
 workers:: the number of workers to use in turning slices into images.
 edge_to_hole_distance: the distance between the sides of the build and the center points of the nearest alignment holes
 page_number_locations::[[]]:: list of lists containing X,Y locations to place page numbers

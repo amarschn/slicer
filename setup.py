@@ -26,7 +26,9 @@ with open("README.md", "r") as fh:
 
 setup(
     name="bfg",
-    version="0.0.1",
+    author="Drew Marschner",
+    author_email="dmarschner@impossible-objects.com",
+    version="1.0.0",
     description='CBAM Build File Generator (BFG)',
     long_description=long_description,
     url="https://github.com/amarschn/bfg",

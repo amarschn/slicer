@@ -8,15 +8,18 @@ Copyright: (c) Impossible Objects, 2019
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import os
+import bfg
 
-# TODO: file location is a magic value, change how this is done?
-FONT_BOLD = ImageFont.truetype('./data/DINBold.ttf', size=100)
+# TODO: This method for loading the font feels very hacky...there has to be a better way
+try:
+    font = ImageFont.truetype(os.path.join(bfg.__path__[0], bfg.FONT_BOLD), size=100)
+except OSError:
+    font = ImageFont.load_default()
 
 
 def polygon_orientation(polygon):
     """
-    TODO: this should be implemented in the initial polygon construction,
-          thus avoiding going over the list of points twice
+    TODO: this could be implemented in the initial polygon construction, thus avoiding going over the list of points twice
     Calculated by determining the minimum y of the polygon, and then choose
     whichever minimum (if there is a tie) has the maximum x, this will
     guarantee that the point lies on the convex hull of the polygon. Once
@@ -153,7 +156,7 @@ def rasterize(polygons, layer, settings):
     draw = ImageDraw.Draw(im)
     # TODO: make the location of the text a part of the settings
     for location in settings["page_number_locations"]:
-        draw.text((location[0]*settings["dpi"][0], location[1]*settings["dpi"][1]), str(layer), fill=0, font=FONT_BOLD)
+        draw.text((location[0]*settings["dpi"][0], location[1]*settings["dpi"][1]), str(layer), fill=0, font=font)
 
     filename = settings["slice_file_base_name"] + "_{}.bmp".format(layer)
     output_file = os.path.join(settings["output_directory"], settings["image_output_subdirectory"], filename)

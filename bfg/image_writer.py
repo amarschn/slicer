@@ -1,6 +1,8 @@
-"""Module for exporting image files from the polygons created by slicer_object.py.
-
+#!/usr/bin/python
+"""
 Author: Drew Marschner
+Created: 8/8/2019
+Copyright: (c) Impossible Objects, 2019
 """
 
 import numpy as np

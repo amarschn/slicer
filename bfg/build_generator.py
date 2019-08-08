@@ -1,6 +1,13 @@
-from slicer.image_writer import rasterize
+#!/usr/bin/python
+"""
+Author: Drew Marschner
+Created: 8/8/2019
+Copyright: (c) Impossible Objects, 2019
+"""
+
+from bfg.image_writer import rasterize
 from multiprocessing import Pool
-from slicer.optimized_mesh import OptimizedMesh
+from bfg.optimized_mesh import OptimizedMesh
 import slice_mesh
 import os
 import shutil
@@ -22,6 +29,7 @@ output_directory::the name of the output directory to be made
 workers:: the number of workers to use in turning slices into images.
 edge_to_hole_distance: the distance between the sides of the build and the center points of the nearest alignment holes
 page_number_locations::[[]]:: list of lists containing X,Y locations to place page numbers
+punch_holes:: legacy hole locations needed for manual printers (Seth).
 """
 
 DEFAULT_SETTINGS = {
@@ -45,9 +53,10 @@ DEFAULT_SETTINGS = {
 
 MM_TO_IN = 25.4
 
-class Slicer(object):
+
+class BFG(object):
     """
-    A Slicer object will slice a build
+    The Build File Generator (BFG) object is the main class through which a user will interface with this library.
     """
     def __init__(self, mesh_filename, settings=DEFAULT_SETTINGS):
         self.mesh_filename = mesh_filename
@@ -66,7 +75,11 @@ class Slicer(object):
         if not os.path.exists(os.path.join(self.settings["output_directory"], self.settings["image_output_subdirectory"])):
             os.mkdir(os.path.join(self.settings["output_directory"], self.settings["image_output_subdirectory"]))
 
-    def process_mesh(self):
+    def _process_mesh(self):
+        """
+        Internal function used for creating an optimized mesh, which is needed for slicing and rasterizing.
+        :return: None
+        """
         self.optimized_mesh = OptimizedMesh(self.mesh_filename, self.settings)
         self.optimized_mesh.complete()
         self.slices = slice_mesh.slice_mesh(self.optimized_mesh, self.settings)
@@ -74,11 +87,11 @@ class Slicer(object):
 
     def _create_images(self):
         """
-
+        Internal function used for slicing and rasterizing.
         :return: None
         """
         if not self.mesh_is_processed:
-            self.process_mesh()
+            self._process_mesh()
         pool = Pool(self.settings["workers"])
         pool.map(write_layer, self.slices)
 
@@ -148,8 +161,8 @@ def main():
     # f = '../test_stl/prism_hole.stl'
     # f = '../test_stl/holey_prism.stl'
     # f = '../test_stl/q05.stl'
-    s = Slicer(f)
-    s.create_build()
+    build_generator = BFG(f)
+    build_generator.create_build()
 
 if __name__ == '__main__':
     import cProfile

@@ -24,7 +24,7 @@ Example
 -------
 
 
-Compilation
+Cython Compilation
 -----------
 To compile Cython code:
 

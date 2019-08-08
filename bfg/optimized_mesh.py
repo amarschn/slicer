@@ -1,3 +1,10 @@
+#!/usr/bin/python
+"""
+Author: Drew Marschner
+Created: 8/8/2019
+Copyright: (c) Impossible Objects, 2019
+"""
+
 import stl
 import numpy as np
 
@@ -6,7 +13,15 @@ MM_TO_IN = 25.4
 
 
 class MeshFace(object):
+    """
+    A face (or triangle) of a mesh, that also contains information related to the indices of the mesh.
+    """
     def __init__(self, idx, vertex_indices):
+        """
+
+        :param idx: the index to be used for this face.
+        :param vertex_indices: the indices of the vertices of this face.
+        """
         self.idx = idx
         self.vertex_indices = vertex_indices
         # The connected face index will have the same ordering as the
@@ -17,7 +32,15 @@ class MeshFace(object):
 
 
 class Vertex(object):
+    """
+    A vertex of the mesh. A vertex will be part of multiple faces within the mesh.
+    """
     def __init__(self, idx, p):
+        """
+
+        :param idx: index of the vertex
+        :param p: array [x,y,z] of the vertex
+        """
         self.idx = idx
         self.connected_faces = []
         self.p = p
@@ -34,6 +57,11 @@ class OptimizedMesh(object):
 
     """
     def __init__(self, file, settings):
+        """
+
+        :param file: mesh file to be optimized
+        :param settings: build settings
+        """
         # Load mesh and transform it according to the desired settings
         self.settings = settings
         self.mesh = stl.Mesh.from_file(file)
@@ -70,8 +98,7 @@ class OptimizedMesh(object):
 
     def add_faces(self):
         """
-        TODO: create documentation
-        :return:
+        :return: Adds the faces of the mesh to the optimized mesh class, determining neighbor information.
         """
         for triangle in self.mesh_faces:
             v0 = triangle[0]
@@ -95,6 +122,7 @@ class OptimizedMesh(object):
 
     def find_idx_of_vertex(self, v):
         """
+        :param v: vertex [x,y,z]
         Returns the index of a vertex.
         If the vertex is not in the vertex hash map, it is added.
         """
@@ -113,7 +141,6 @@ class OptimizedMesh(object):
             self.vertices.append(vertex)
             return index
 
-
     def get_face_idx_with_points(self, idx0, idx1, not_face_idx, not_vertex_idx):
         """
         Returns the index of the other face connected to the edge between
@@ -123,10 +150,10 @@ class OptimizedMesh(object):
         is considered the next counter-clockwise face, ordered from idx1 to
         idx0
 
-        idx0 : the first vertex index
-        idx1 : the second vertex index
-        not_face_idx : the index of a face which should not be returned
-        not_vertex_idx : third vertex of the face not_face_idx
+        :param idx0: the first vertex index
+        :param idx1: the second vertex index
+        :param not_face_idx: the index of a face which should not be returned
+        :param not_vertex_idx: third vertex of the face not_face_idx
         """
         candidate_faces = []
 
@@ -199,9 +226,15 @@ class OptimizedMesh(object):
     def complete(self):
         self.vertex_hash_map = {}
         for i, face in enumerate(self.faces):
-            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[0],face.vertex_indices[1], i, face.vertex_indices[2]))
-            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[1], face.vertex_indices[2], i, face.vertex_indices[0]))
-            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[2], face.vertex_indices[0], i, face.vertex_indices[1]))
+            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[0],
+                                                                           face.vertex_indices[1], i,
+                                                                           face.vertex_indices[2]))
+            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[1],
+                                                                           face.vertex_indices[2], i,
+                                                                           face.vertex_indices[0]))
+            face.connected_face_index.append(self.get_face_idx_with_points(face.vertex_indices[2],
+                                                                           face.vertex_indices[0], i,
+                                                                           face.vertex_indices[1]))
 
 if __name__ == '__main__':
     # f = './test_stl/4_parts.stl'

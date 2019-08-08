@@ -74,19 +74,19 @@ B.create_build()
 
 Slicing Process
 ---------------
-####Mesh processing:
+#### Mesh processing:
 Once a mesh has been loaded into memory, it must be "optimized" before moving to the slicing step. "Optimizing" here
 primarily refers to looking at each mesh face and determining neighbor mesh information, which is useful for speeding
 up the actual mesh slicing step.
 
-#####Notes
+##### Notes
 - Currently the slicer does not perform any mesh repair, and any non-manifold, watertight meshes will result in anomalous output.
 
-####Mesh slicing:
+#### Mesh slicing:
 Once a mesh has been optimized, it is time to slice the mesh. See [here](https://github.com/Ultimaker/CuraEngine/blob/master/docs/slicing.md) for a good description.
 The output of the slicing process is a list of layers, where each layer is a list of polygons that must be rasterized.
 
-####Rasterization:
+#### Rasterization:
 Once polygons have been determined by the slicing step, they must be rasterized into bitmap images. Rasterization is primarily handled by the `Pillow` Python library
 
 Benchmarks
